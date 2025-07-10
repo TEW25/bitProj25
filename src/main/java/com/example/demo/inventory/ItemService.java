@@ -1,0 +1,50 @@
+package com.example.demo.inventory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class ItemService {
+
+    @Autowired
+    private ItemRepository itemRepository;
+
+    public List<Item> getAllItems(Integer brandId, Integer statusId, String searchTerm) {
+        return itemRepository.findFilteredItems(brandId, statusId, searchTerm);
+    }
+
+    public Optional<Item> getItemById(Integer id) {
+        return itemRepository.findById(id);
+    }
+
+    public Item createItem(Item item) {
+        return itemRepository.save(item);
+    }
+
+    public Item updateItem(Integer id, Item itemDetails) {
+        Optional<Item> item = itemRepository.findById(id);
+        if (item.isPresent()) {
+            Item existingItem = item.get();
+            existingItem.setItemcode(itemDetails.getItemcode());
+            existingItem.setItemname(itemDetails.getItemname());
+            existingItem.setItemsize(itemDetails.getItemsize());
+            existingItem.setRop(itemDetails.getRop());
+            existingItem.setRoq(itemDetails.getRoq());
+            existingItem.setSalesprice(itemDetails.getSalesprice());
+            existingItem.setPurchaseprice(itemDetails.getPurchaseprice());
+            existingItem.setItemstatus(itemDetails.getItemstatus());
+            existingItem.setBrand(itemDetails.getBrand());
+            existingItem.setSubcategory(itemDetails.getSubcategory());
+            return itemRepository.save(existingItem);
+        } else {
+            return null;
+        }
+    }
+
+    public void deleteItem(Integer id) {
+        itemRepository.deleteById(id);
+    }
+}

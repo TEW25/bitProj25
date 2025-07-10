@@ -1,0 +1,262 @@
+### Employee Management
+
+**employee**
+
+* id INT
+* employee\_number CHAR(8) UNIQUE
+* fullname TEXT
+* nic CHAR(12)
+* gender VARCHAR(150)
+* dob DATE
+* mobilenumber CHAR(10)
+* email VARCHAR(150)
+* designation\_id INT -- FK to designation(id)
+* employeestatus\_id INT -- FK to employeestatus(id)
+
+**employeestatus**
+
+* id INT
+* name VARCHAR(150)
+
+**designation**
+
+* id INT
+* name VARCHAR(150)
+
+---
+
+### User Management
+
+**user**
+
+* id INT
+* username VARCHAR(150)
+* password VARCHAR(255)
+* email VARCHAR(150)
+* status TINYINT
+* addeddatetime DATETIME
+* employee\_id INT -- FK to employee(id)
+
+**user\_has\_role**
+
+* user\_id INT -- FK to user(id)
+* role\_id INT -- FK to role(id)
+
+---
+
+### Role & Privilege Management
+
+**role**
+
+* id INT
+* name VARCHAR(150)
+
+**module**
+
+* id INT
+* name VARCHAR(150)
+
+**privilege**
+
+* id INT
+* slct TINYINT
+* inst TINYINT
+* updt TINYINT
+* dlt TINYINT
+* role\_id INT -- FK to role(id)
+* module\_id INT -- FK to module(id)
+
+---
+
+### Item Management
+
+**item**
+
+* id INT
+* itemcode CHAR(10)
+* itemname VARCHAR(150)
+* itemsize DECIMAL(10,3)
+* rop INT
+* roq INT
+* salesprice DECIMAL(10,2)
+* purchaseprice DECIMAL(10,2)
+* itemstatus\_id INT -- FK to itemstatus(id)
+* brand\_id INT -- FK to brand(id)
+* subcategory\_id INT -- FK to subcategory(id)
+
+**brand**
+
+* id INT
+* name VARCHAR(150)
+
+**subcategory**
+
+* id INT
+* name VARCHAR(150)
+* category\_id INT -- FK to category(id)
+
+**category**
+
+* id INT
+* name VARCHAR(150)
+
+**itemstatus**
+
+* id INT
+* name VARCHAR(150)
+
+**brand\_has\_category**
+
+* brand\_id INT -- FK to brand(id)
+* category\_id INT -- FK to category(id)
+
+**supplier\_has\_item**
+
+* supplier\_id INT -- FK to supplier(id)
+* item\_id INT -- FK to item(id)
+
+**item\_bundle**
+
+* item\_id INT -- FK to item(id)
+* component\_item\_id INT -- FK to item(id)
+
+---
+
+### Supplier Management
+
+**supplier**
+
+* id INT
+* suppliername VARCHAR(150)
+* suppliercontactno CHAR(10)
+* email VARCHAR(150)
+* supplierstatus\_id INT -- FK to supplierstatus(id)
+
+**supplierstatus**
+
+* id INT
+* name VARCHAR(150)
+
+---
+
+### Purchase Order Management
+
+**purchaseorder**
+
+* id INT
+* purchaseordercode CHAR(10)
+* requireddate DATE
+* totalamount DECIMAL(10,2)
+* supplier\_id INT -- FK to supplier(id)
+* porderstatus\_id INT -- FK to porderstatus(id)
+
+**purchaseorder\_has\_item**
+
+* id INT
+* purchaseorder\_id INT -- FK to purchaseorder(id)
+* item\_id INT -- FK to item(id)
+* purchaseprice DECIMAL(10,2)
+* orderedqty INT
+* lineprice DECIMAL(10,2)
+
+**porderstatus**
+
+* id INT
+* name VARCHAR(45)
+
+---
+
+### GRN Management
+
+**itemreceivenote**
+
+* id INT
+* irnno CHAR(10)
+* receiveddate DATE
+* totalamount DECIMAL(10,2)
+* discountrate DECIMAL(5,2)
+* grossamount DECIMAL(10,2)
+* purchaseorder\_id INT -- FK to purchaseorder(id)
+* irnstatus\_id INT -- FK to irnstatus(id)
+
+**itemreceivenote\_has\_item**
+
+* id INT
+* itemreceivenote\_id INT -- FK to itemreceivenote(id)
+* item\_id INT -- FK to item(id)
+* purchaseprice DECIMAL(10,2)
+* orderqty INT
+* lineprice DECIMAL(10,2)
+
+**irnstatus**
+
+* id INT
+* name VARCHAR(45)
+
+---
+
+### Sales Management
+
+**sales**
+
+* id INT
+* salesnumber CHAR(10) UNIQUE
+* customer\_name VARCHAR(45)
+* contact\_number CHAR(10)
+* total\_amount DECIMAL(10,2)
+* paid\_amount DECIMAL(10,2)
+* added\_user INT -- FK to user(id)
+
+**item\_has\_sales**
+
+* id INT
+* item\_id INT -- FK to item(id)
+* sales\_id INT -- FK to sales(id)
+* sales\_price DECIMAL(10,2)
+* quantity DECIMAL(10,3)
+* line\_price DECIMAL(10,2)
+
+---
+
+### Inventory Management
+
+**inventory**
+
+* id INT
+* inventorycode CHAR(10)
+* availableqty DECIMAL(10,2)
+* totalqty DECIMAL(10,2)
+* item\_id INT -- FK to item(id)
+* supplier\_id INT -- FK to supplier(id)
+
+**inventorystatus**
+
+* id INT
+* name VARCHAR(150)
+
+---
+
+### Payment Management
+
+**payment**
+
+* id INT
+* billno CHAR(10)
+* totalamount DECIMAL(10,2)
+* paidamount DECIMAL(10,2)
+* paiddatetime DATETIME
+* added\_user INT -- FK to user(id)
+* paymentstatus\_id INT -- FK to paymentstatus(id)
+* paymentmethod\_id INT -- FK to paymentmethod(id)
+* supplier\_id INT -- FK to supplier(id)
+* itemreceivenote\_id INT -- FK to itemreceivenote(id)
+
+**paymentstatus**
+
+* id INT
+* name VARCHAR(150)
+
+**paymentmethod**
+
+* id INT
+* name VARCHAR(150)
