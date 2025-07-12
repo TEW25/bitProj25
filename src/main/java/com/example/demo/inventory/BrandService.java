@@ -46,4 +46,8 @@ public class BrandService {
         }
         brandRepository.deleteById(id);
     }
+
+    public List<Brand> findAllBrands() {
+        return brandRepository.findAll();
+    }
 }

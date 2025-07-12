@@ -12,6 +12,9 @@ public class ItemService {
     @Autowired
     private ItemRepository itemRepository;
 
+    @Autowired
+    private SupplierHasItemRepository supplierHasItemRepository;
+
     public List<Item> getAllItems(Integer brandId, Integer statusId, String searchTerm) {
         return itemRepository.findFilteredItems(brandId, statusId, searchTerm);
     }
@@ -46,5 +49,22 @@ public class ItemService {
 
     public void deleteItem(Integer id) {
         itemRepository.deleteById(id);
+    }
+
+    public List<Item> getItemsBySupplierId(Integer supplierId) {
+        // Find all SupplierHasItem entries for the given supplierId
+        List<SupplierHasItem> supplierItems = supplierHasItemRepository.findBySupplierId(supplierId);
+
+        // Extract Item objects from the SupplierHasItem entries
+        List<Item> items = new java.util.ArrayList<>();
+        for (SupplierHasItem supplierItem : supplierItems) {
+            // Fetch the full Item object using the itemRepository
+            itemRepository.findById(supplierItem.getItem().getId()).ifPresent(items::add);
+        }
+        return items;
+    }
+
+    public List<Item> findAllItems() {
+        return itemRepository.findAll();
     }
 }

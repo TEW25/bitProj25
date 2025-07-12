@@ -22,6 +22,11 @@ public class SupplierController {
         return supplierService.getAllSuppliers(statusId, supplierName);
     }
 
+    @GetMapping("/all")
+    public List<Supplier> getAllSuppliers() {
+        return supplierService.getAllSuppliers();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Supplier> getSupplierById(@PathVariable Integer id) {
         Optional<Supplier> supplier = supplierService.getSupplierById(id);

@@ -91,7 +91,7 @@ $(document).ready(function() {
 
         // Load Brands
         $.ajax({
-            url: '/api/brands',
+            url: '/api/brands/all',
             method: 'GET',
             success: function(data) {
                 console.log('Brands data received:', data);
@@ -121,7 +121,7 @@ $(document).ready(function() {
 
         // Load Categories
         $.ajax({
-            url: '/api/categories',
+            url: '/api/categories/all',
             method: 'GET',
             success: function(data) {
                 const categorySelect = $('#itemCategory');

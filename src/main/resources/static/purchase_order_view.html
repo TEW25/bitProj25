@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Purchase Orders</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css"> <!-- Assuming you have a common CSS file -->
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Purchase Orders</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Order Code</th>
+                    <th>Required Date</th>
+                    <th>Total Amount</th>
+                    <th>Supplier</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="purchaseOrderTableBody">
+                <!-- Purchase order rows will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Purchase Order Detail Modal -->
+    <div class="modal fade" id="purchaseOrderDetailModal" tabindex="-1" role="dialog" aria-labelledby="purchaseOrderDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="purchaseOrderDetailModalLabel">Purchase Order Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ID:</strong> <span id="detailId"></span></p>
+                    <p><strong>Order Code:</strong> <span id="detailOrderCode"></span></p>
+                    <p><strong>Required Date:</strong> <span id="detailRequiredDate"></span></p>
+                    <p><strong>Total Amount:</strong> <span id="detailTotalAmount"></span></p>
+                    <p><strong>Supplier:</strong> <span id="detailSupplier"></span></p>
+                    <p><strong>Status:</strong> <span id="detailStatus"></span></p>
+
+                    <h4>Items</h4>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Purchase Price</th>
+                                <th>Ordered Quantity</th>
+                                <th>Line Price</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailItemsTableBody">
+                            <!-- Item details will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="purchase_order_view.js"></script> <!-- Link to the new JavaScript file -->
+</body>
+</html>

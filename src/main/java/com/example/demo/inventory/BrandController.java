@@ -14,9 +14,9 @@ public class BrandController {
     @Autowired
     private BrandService brandService;
 
-    @GetMapping
+    @GetMapping("/all")
     public List<Brand> getAllBrands() {
-        return brandService.getAllBrands();
+        return brandService.findAllBrands();
     }
 
     @GetMapping("/{id}")

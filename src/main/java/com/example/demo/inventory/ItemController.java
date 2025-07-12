@@ -19,7 +19,11 @@ public class ItemController {
             @RequestParam(required = false) Integer brandId,
             @RequestParam(required = false) Integer statusId,
             @RequestParam(required = false) String searchTerm) {
-        return itemService.getAllItems(brandId, statusId, searchTerm);
+        if (brandId == null && statusId == null && (searchTerm == null || searchTerm.isEmpty())) {
+            return itemService.findAllItems();
+        } else {
+            return itemService.getAllItems(brandId, statusId, searchTerm);
+        }
     }
 
     @GetMapping("/{id}")
@@ -47,5 +51,10 @@ public class ItemController {
     public ResponseEntity<Void> deleteItem(@PathVariable Integer id) {
         itemService.deleteItem(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/bySupplier/{supplierId}")
+    public List<Item> getItemsBySupplierId(@PathVariable Integer supplierId) {
+        return itemService.getItemsBySupplierId(supplierId);
     }
 }
