@@ -109,7 +109,14 @@ $(document).ready(function() {
         $('#categoryModalLabel').text('Add Category');
         $('#categoryForm')[0].reset(); // Clear the form
         $('#categoryId').val(''); // Clear the hidden ID field
+        // Clear custom validity for category name input
+        $('#categoryName')[0].setCustomValidity('');
         $('#categoryModal').modal('show');
+    });
+
+    // Add input event listener to clear custom validity on typing for category name
+    $('#categoryName').on('input', function() {
+        this.setCustomValidity('');
     });
 
     // Handle Add Subcategory button click
@@ -117,7 +124,14 @@ $(document).ready(function() {
         $('#subcategoryModalLabel').text('Add Subcategory');
         $('#subcategoryForm')[0].reset(); // Clear the form
         $('#subcategoryId').val(''); // Clear the hidden ID field
+        // Clear custom validity for subcategory name input
+        $('#subcategoryName')[0].setCustomValidity('');
         $('#subcategoryModal').modal('show');
+    });
+
+    // Add input event listener to clear custom validity on typing for subcategory name
+    $('#subcategoryName').on('input', function() {
+        this.setCustomValidity('');
     });
 
     // Handle Add Brand button click
@@ -137,15 +151,39 @@ $(document).ready(function() {
 
     // Handle Category form submission (Add/Edit Category)
     $('#categoryForm').submit(function(event) {
-        event.preventDefault();
+        // Do not prevent default here initially to allow browser's native validation tooltips
 
         const categoryId = $('#categoryId').val();
-        const categoryName = $('#categoryName').val();
+        const categoryNameInput = $('#categoryName')[0]; // Get the DOM element
+        const categoryName = categoryNameInput.value.trim(); // Trim whitespace
 
+        // Clear previous custom validity message
+        categoryNameInput.setCustomValidity('');
+
+        let isValid = true;
+
+        // Frontend validation for Category Name
         if (!categoryName) {
-            alert('Category Name is required.');
+            categoryNameInput.setCustomValidity('Category Name is required.');
+            isValid = false;
+        } else {
+            // Category Name validation: 3 to 20 characters, alphanumeric and spaces
+            const namePattern = /^[a-zA-Z0-9 ]{3,20}$/;
+            if (!namePattern.test(categoryName)) {
+                categoryNameInput.setCustomValidity('Category Name must be between 3 and 20 characters and contain only alphanumeric characters or spaces.');
+                isValid = false;
+            }
+        }
+
+        if (!isValid) {
+            // If frontend validation fails, the browser will show tooltips.
+            // Prevent AJAX submission.
+            event.preventDefault(); // Prevent default submission if validation fails
             return;
         }
+
+        // If frontend validation passes, proceed with AJAX submission
+        event.preventDefault(); // Prevent default submission for AJAX
 
         const categoryData = {
             name: categoryName
@@ -179,19 +217,50 @@ $(document).ready(function() {
 
      // Handle Subcategory form submission (Add/Edit Subcategory)
     $('#subcategoryForm').submit(function(event) {
-        event.preventDefault();
+        // Do not prevent default here initially to allow browser's native validation tooltips
 
         const subcategoryId = $('#subcategoryId').val();
-        const subcategoryName = $('#subcategoryName').val();
+        const subcategoryNameInput = $('#subcategoryName')[0]; // Get the DOM element
         const categoryId = $('#subcategoryCategorySelect').val();
 
-        if (!subcategoryName || !categoryId) {
-            alert('Subcategory Name and Category are required.');
+        // Clear previous custom validity message
+        subcategoryNameInput.setCustomValidity('');
+
+        let isValid = true;
+
+        // Frontend validation for Subcategory Name
+        if (!subcategoryNameInput.value.trim()) { // Use value from input element directly
+            subcategoryNameInput.setCustomValidity('Subcategory Name is required.');
+            isValid = false;
+        } else {
+             // Subcategory Name validation: 3 to 20 characters, alphanumeric and spaces
+            const namePattern = /^[a-zA-Z0-9 ]{3,20}$/;
+            if (!namePattern.test(subcategoryNameInput.value.trim())) { // Use value from input element directly
+                subcategoryNameInput.setCustomValidity('Subcategory Name must be between 3 and 20 characters and contain only alphanumeric characters or spaces.');
+                isValid = false;
+            }
+        }
+
+        if (!categoryId) {
+            // Note: setCustomValidity on select elements might not be universally supported or styled well.
+            // A text error below the select might be a more reliable approach for the category dropdown.
+            // For now, we'll keep the alert for the category selection.
+            alert('Category is required.');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            // If frontend validation fails, the browser will show tooltips.
+            // Prevent AJAX submission.
+            event.preventDefault(); // Prevent default submission if validation fails
             return;
         }
 
+        // If frontend validation passes, proceed with AJAX submission
+        event.preventDefault(); // Prevent default submission for AJAX
+
         const subcategoryData = {
-            name: subcategoryName,
+            name: subcategoryNameInput.value.trim(), // Use value from input element directly
             category: { id: parseInt(categoryId) }
         };
 
@@ -211,7 +280,7 @@ $(document).ready(function() {
             data: JSON.stringify(subcategoryData),
             success: function(response) {
                 $('#subcategoryModal').modal('hide');
-                loadSubcategories($('#filterCategory').val()); // Reload the subcategory table with current filter
+                loadSubcategories($('#filterCategory').val()); // Reload subcategories with current filter
             },
             error: function(error) {
                 console.error('Error saving subcategory:', error);
@@ -291,6 +360,9 @@ $(document).ready(function() {
         const categoryId = $(this).data('id');
         $('#categoryModalLabel').text('Edit Category');
 
+        // Clear custom validity for category name input
+        $('#categoryName')[0].setCustomValidity('');
+
         $.ajax({
             url: '/api/categories/' + categoryId,
             method: 'GET',
@@ -310,6 +382,9 @@ $(document).ready(function() {
     $('#subcategoryTableBody').on('click', '.edit-subcategory-btn', function() {
         const subcategoryId = $(this).data('id');
         $('#subcategoryModalLabel').text('Edit Subcategory');
+
+        // Clear custom validity for subcategory name input
+        $('#subcategoryName')[0].setCustomValidity('');
 
         $.ajax({
             url: '/api/subcategories/' + subcategoryId,
