@@ -72,11 +72,11 @@ public class PurchaseOrderService {
     }
 
     public List<PurchaseOrder> getAllPurchaseOrders() {
-        return purchaseOrderRepository.findAll();
+        return purchaseOrderRepository.findAll(); // Implemented fetching all purchase orders
     }
 
     public PurchaseOrder getPurchaseOrderById(Integer id) {
-        Optional<PurchaseOrder> purchaseOrder = purchaseOrderRepository.findById(id);
+        Optional<PurchaseOrder> purchaseOrder = purchaseOrderRepository.findById(id); // Changed back to findById
         return purchaseOrder.orElse(null);
     }
 

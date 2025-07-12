@@ -2,6 +2,7 @@ package com.example.demo.inventory;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonBackReference; // Import JsonBackReference
 
 @Entity
 @Table(name = "purchaseorder_has_item")
@@ -13,6 +14,7 @@ public class PurchaseOrderHasItem {
 
     @ManyToOne
     @JoinColumn(name = "purchaseorder_id")
+    @JsonBackReference // Add JsonBackReference here
     private PurchaseOrder purchaseorder;
 
     @ManyToOne

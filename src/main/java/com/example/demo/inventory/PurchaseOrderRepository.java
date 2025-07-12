@@ -5,5 +5,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Integer> {
-    // You can add custom query methods here if needed
+    // Standard JpaRepository methods like findById are implicitly available
+    // Custom query methods can be added here if needed
 }

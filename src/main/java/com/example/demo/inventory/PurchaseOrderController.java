@@ -5,7 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List; // Import List
+import java.util.List;
+import java.util.Optional; // Import Optional
 
 @RestController
 @RequestMapping("/api/purchaseorders")
@@ -31,7 +32,12 @@ public class PurchaseOrderController {
     }
 
     @GetMapping("/{id}")
-    public PurchaseOrder getPurchaseOrderById(@PathVariable Long id) {
-        return purchaseOrderService.getPurchaseOrderById(id);
+    public ResponseEntity<PurchaseOrder> getPurchaseOrderById(@PathVariable Integer id) { // Changed return type to ResponseEntity
+        PurchaseOrder purchaseOrder = purchaseOrderService.getPurchaseOrderById(id);
+        if (purchaseOrder != null) {
+            return ResponseEntity.ok(purchaseOrder);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

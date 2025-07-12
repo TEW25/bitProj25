@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference; // Import JsonManagedReference
 
 @Entity
 @Table(name = "purchaseorder")
@@ -26,6 +27,7 @@ public class PurchaseOrder {
     private PurchaseOrderStatus porderstatus;
 
     @OneToMany(mappedBy = "purchaseorder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // Add JsonManagedReference here
     private List<PurchaseOrderHasItem> purchaseOrderItems;
 
     // Getters and setters
