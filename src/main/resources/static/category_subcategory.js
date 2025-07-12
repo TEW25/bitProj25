@@ -125,7 +125,14 @@ $(document).ready(function() {
         $('#brandModalLabel').text('Add Brand');
         $('#brandForm')[0].reset(); // Clear the form
         $('#brandId').val(''); // Clear the hidden ID field
+        // Clear custom validity for brand name input
+        $('#brandName')[0].setCustomValidity('');
         $('#brandModal').modal('show');
+    });
+
+    // Add input event listener to clear custom validity on typing for brand name
+    $('#brandName').on('input', function() {
+        this.setCustomValidity('');
     });
 
     // Handle Category form submission (Add/Edit Category)
@@ -215,15 +222,40 @@ $(document).ready(function() {
 
     // Handle Brand form submission (Add/Edit Brand)
     $('#brandForm').submit(function(event) {
-        event.preventDefault();
+        // Remove the initial event.preventDefault() to allow native validation on first click
+        // event.preventDefault();
 
         const brandId = $('#brandId').val();
-        const brandName = $('#brandName').val();
+        const brandNameInput = $('#brandName')[0]; // Get the DOM element
+        const brandName = brandNameInput.value.trim(); // Trim whitespace
 
+        // Clear previous custom validity message
+        brandNameInput.setCustomValidity('');
+
+        let isValid = true;
+
+        // Frontend validation for Brand Name
         if (!brandName) {
-            alert('Brand Name is required.');
+            brandNameInput.setCustomValidity('Brand Name is required.');
+            isValid = false;
+        } else {
+            // Brand Name validation: 3 to 20 characters, alphanumeric and spaces
+            const namePattern = /^[a-zA-Z0-9 ]{3,20}$/;
+            if (!namePattern.test(brandName)) {
+                brandNameInput.setCustomValidity('Brand Name must be between 3 and 20 characters and contain only alphanumeric characters or spaces.');
+                isValid = false;
+            }
+        }
+
+        if (!isValid) {
+            // If frontend validation fails, the browser will show tooltips.
+            // Prevent AJAX submission.
+            event.preventDefault(); // Prevent default submission if validation fails
             return;
         }
+
+        // If frontend validation passes, proceed with AJAX submission
+        event.preventDefault(); // Prevent default submission for AJAX
 
         const brandData = {
             name: brandName
@@ -299,6 +331,9 @@ $(document).ready(function() {
     $('#brandTableBody').on('click', '.edit-brand-btn', function() {
         const brandId = $(this).data('id');
         $('#brandModalLabel').text('Edit Brand');
+
+        // Clear previous custom validity for brand name input
+        $('#brandName')[0].setCustomValidity('');
 
         $.ajax({
             url: '/api/brands/' + brandId,
