@@ -1,6 +1,7 @@
 package com.example.demo.inventory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus; // Import HttpStatus
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +29,13 @@ public class SupplierController {
     }
 
     @PostMapping
-    public Supplier createSupplier(@RequestBody Supplier supplier) {
-        return supplierService.createSupplier(supplier);
+    public ResponseEntity<Supplier> createSupplier(@RequestBody Supplier supplier) {
+        Supplier createdSupplier = supplierService.createSupplier(supplier);
+        if (createdSupplier != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdSupplier); // Return 201 Created on success
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // Return 409 Conflict on duplicate email
+        }
     }
 
     @PutMapping("/{id}")
@@ -38,7 +44,7 @@ public class SupplierController {
         if (updatedSupplier != null) {
             return ResponseEntity.ok(updatedSupplier);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // Return 409 Conflict on duplicate email
         }
     }
 

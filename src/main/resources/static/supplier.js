@@ -75,24 +75,100 @@ $(document).ready(function() {
     loadSuppliers();
     loadDropdownOptions();
 
+    // Function to clear all validation error messages (only clears email error now)
+    function clearErrors() {
+        $('#supplierEmailError').text('');
+    }
+
     // Handle Add Supplier button click
     $('#addSupplierBtn').click(function() {
         $('#supplierModalLabel').text('Add Supplier');
         $('#supplierForm')[0].reset(); // Clear the form
         $('#supplierId').val(''); // Clear the hidden ID field
+        clearErrors(); // Clear previous errors
+        // Clear custom validity for name and contact number inputs
+        $('#supplierName')[0].setCustomValidity('');
+        $('#supplierContactNo')[0].setCustomValidity('');
         $('#supplierModal').modal('show');
+    });
+
+    // Add input event listeners to clear custom validity on typing
+    $('#supplierName').on('input', function() {
+        this.setCustomValidity('');
+    });
+
+    $('#supplierContactNo').on('input', function() {
+        this.setCustomValidity('');
     });
 
     // Handle form submission (Add/Edit Supplier)
     $('#supplierForm').submit(function(event) {
-        event.preventDefault();
+        // Do not prevent default here initially to allow browser's native validation tooltips
+
+        clearErrors(); // Clear previous email error
 
         const supplierId = $('#supplierId').val();
+        const supplierNameInput = $('#supplierName')[0]; // Get the DOM element
+        const supplierContactNoInput = $('#supplierContactNo')[0]; // Get the DOM element
+        const supplierEmail = $('#supplierEmail').val().trim(); // Trim whitespace
+        const supplierStatus = $('#supplierStatus').val();
+
+        // Clear previous custom validity messages
+        supplierNameInput.setCustomValidity('');
+        supplierContactNoInput.setCustomValidity('');
+
+        const supplierName = supplierNameInput.value.trim();
+        const supplierContactNo = supplierContactNoInput.value.trim();
+
+        let isValid = true;
+
+        // Frontend validation for Supplier Name
+        if (!supplierName) {
+            supplierNameInput.setCustomValidity('Supplier Name is required.');
+            isValid = false;
+        } else {
+            // Supplier Name validation: 4 to 30 characters, alphanumeric and spaces
+            const namePattern = /^[a-zA-Z0-9 ]{4,30}$/; // Updated regex to include space
+            if (!namePattern.test(supplierName)) {
+                supplierNameInput.setCustomValidity('Supplier Name must be between 4 and 30 characters and contain only alphanumeric characters or spaces.'); // Updated error message
+                isValid = false;
+            }
+        }
+
+        // Frontend validation for Supplier Contact Number
+        if (!supplierContactNo) {
+            supplierContactNoInput.setCustomValidity('Supplier Contact Number is required.');
+            isValid = false;
+        } else {
+            const phonePattern = /^[0-9]+$/;
+            if (!phonePattern.test(supplierContactNo)) {
+                supplierContactNoInput.setCustomValidity('Supplier Contact Number must contain only numeric characters.');
+                isValid = false;
+            }
+        }
+
+        // Frontend validation for Email (optional but recommended)
+        // if (supplierEmail && !/^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$/.test(supplierEmail)) {
+        //     // For email, we'll still use the text error below the field as it's a backend check too
+        //     $('#supplierEmailError').text('Please enter a valid email address.');
+        //     isValid = false;
+        // }
+
+        if (!isValid) {
+            // If frontend validation fails, the browser will show tooltips.
+            // Prevent AJAX submission.
+            event.preventDefault();
+            return;
+        }
+
+        // If frontend validation passes, proceed with AJAX submission
+        event.preventDefault(); // Prevent default submission again for AJAX
+
         const supplierData = {
-            suppliername: $('#supplierName').val(),
-            suppliercontactno: $('#supplierContactNo').val(),
-            email: $('#supplierEmail').val(),
-            supplierstatus: { id: parseInt($('#supplierStatus').val()) }
+            suppliername: supplierName,
+            suppliercontactno: supplierContactNo,
+            email: supplierEmail,
+            supplierstatus: { id: parseInt(supplierStatus) }
         };
 
         let url = '/api/suppliers';
@@ -113,9 +189,13 @@ $(document).ready(function() {
                 $('#supplierModal').modal('hide');
                 loadSuppliers(); // Reload the table
             },
-            error: function(error) {
+            error: function(xhr, status, error) {
                 console.error('Error saving supplier:', error);
-                alert('Error saving supplier.'); // Basic error handling
+                if (xhr.status === 409) {
+                    $('#supplierEmailError').text('Email already exists. Please use a different email.'); // Display error below email field
+                } else {
+                    alert('Error saving supplier.'); // Keep alert for other errors
+                }
             }
         });
     });
@@ -124,6 +204,12 @@ $(document).ready(function() {
     $('#supplierTableBody').on('click', '.edit-btn', function() {
         const supplierId = $(this).data('id');
         $('#supplierModalLabel').text('Edit Supplier');
+
+        // Clear previous errors when opening edit modal
+        clearErrors();
+        // Clear custom validity for name and contact number inputs
+        $('#supplierName')[0].setCustomValidity('');
+        $('#supplierContactNo')[0].setCustomValidity('');
 
         $.ajax({
             url: '/api/suppliers/' + supplierId,

@@ -1,6 +1,7 @@
 package com.example.demo.inventory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException; // Import DataIntegrityViolationException
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +30,17 @@ public class SupplierService {
     }
 
     public Supplier createSupplier(Supplier supplier) {
-        return supplierRepository.save(supplier);
+        try {
+            return supplierRepository.save(supplier);
+        } catch (DataIntegrityViolationException e) {
+            // Check if the exception is due to duplicate email (this might need refinement
+            // depending on the exact database error message or code)
+            if (e.getMessage() != null && e.getMessage().contains("supplier.email")) {
+                return null; // Indicate duplicate email error
+            } else {
+                throw e; // Re-throw other data integrity violations
+            }
+        }
     }
 
     public Supplier updateSupplier(Integer id, Supplier supplierDetails) {
@@ -40,7 +51,16 @@ public class SupplierService {
             existingSupplier.setSuppliercontactno(supplierDetails.getSuppliercontactno());
             existingSupplier.setEmail(supplierDetails.getEmail());
             existingSupplier.setSupplierstatus(supplierDetails.getSupplierstatus());
-            return supplierRepository.save(existingSupplier);
+            try {
+                return supplierRepository.save(existingSupplier);
+            } catch (DataIntegrityViolationException e) {
+                 // Check if the exception is due to duplicate email
+                if (e.getMessage() != null && e.getMessage().contains("supplier.email")) {
+                    return null; // Indicate duplicate email error
+                } else {
+                    throw e; // Re-throw other data integrity violations
+                }
+            }
         } else {
             return null;
         }
