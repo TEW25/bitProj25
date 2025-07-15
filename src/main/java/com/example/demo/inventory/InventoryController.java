@@ -37,5 +37,10 @@ public class InventoryController {
         }
     }
 
+    @GetMapping("/available-items")
+    public List<Inventory> getAvailableItems(@RequestParam(required = false) String search) {
+        return inventoryService.findAvailableItems(search);
+    }
+
     // You can add more endpoints for add/edit/delete as needed
 }

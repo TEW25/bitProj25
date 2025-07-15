@@ -85,5 +85,26 @@ public class InventoryService {
         }
     }
 
+    public List<Inventory> findAvailableItems(String searchTerm) {
+        Specification<Inventory> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Only include items with available quantity > 0
+            predicates.add(cb.greaterThan(root.get("availableqty"), 0));
+
+            if (searchTerm != null && !searchTerm.isEmpty()) {
+                String lowerSearchTerm = searchTerm.toLowerCase();
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("item").get("itemcode")), "%" + lowerSearchTerm + "%"),
+                        cb.like(cb.lower(root.get("item").get("itemname")), "%" + lowerSearchTerm + "%")
+                ));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return inventoryRepository.findAll(spec);
+    }
+
     // Add other service methods as needed (e.g., for deleting)
 }
