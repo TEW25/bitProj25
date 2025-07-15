@@ -14,6 +14,12 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+    // Add GET endpoint for /api/categories to support frontend AJAX
+    @GetMapping
+    public List<Category> getCategories() {
+        return categoryService.findAllCategories();
+    }
+
     @GetMapping("/all")
     public List<Category> getAllCategories() {
         return categoryService.findAllCategories();

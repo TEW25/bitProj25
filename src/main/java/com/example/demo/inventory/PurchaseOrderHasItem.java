@@ -14,7 +14,7 @@ public class PurchaseOrderHasItem {
 
     @ManyToOne
     @JoinColumn(name = "purchaseorder_id")
-    @JsonBackReference // Add JsonBackReference here
+    @JsonBackReference("po-items") // Match the value in PurchaseOrder
     private PurchaseOrder purchaseorder;
 
     @ManyToOne

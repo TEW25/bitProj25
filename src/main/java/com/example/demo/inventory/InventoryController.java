@@ -1,0 +1,41 @@
+package com.example.demo.inventory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/inventory")
+public class InventoryController {
+
+    @Autowired
+    private InventoryService inventoryService;
+
+    @GetMapping
+    public List<Inventory> getAllInventory(
+            @RequestParam(required = false) String searchTerm,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sortBy) {
+        return inventoryService.findAllInventory(searchTerm, status, sortBy);
+    }
+
+    @PostMapping
+    public ResponseEntity<Inventory> createInventory(@RequestBody Inventory inventory) {
+        Inventory createdInventory = inventoryService.createInventory(inventory);
+        return ResponseEntity.ok(createdInventory);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Inventory> updateInventory(@PathVariable Integer id, @RequestBody Inventory inventoryDetails) {
+        Inventory updatedInventory = inventoryService.updateInventory(id, inventoryDetails);
+        if (updatedInventory != null) {
+            return ResponseEntity.ok(updatedInventory);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // You can add more endpoints for add/edit/delete as needed
+}

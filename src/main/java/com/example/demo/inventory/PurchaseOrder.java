@@ -4,10 +4,14 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonManagedReference; // Import JsonManagedReference
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo; // Import JsonIdentityInfo
+import com.fasterxml.jackson.annotation.ObjectIdGenerators; // Import ObjectIdGenerators
 
 @Entity
 @Table(name = "purchaseorder")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id") // Add JsonIdentityInfo
 public class PurchaseOrder {
 
     @Id
@@ -20,14 +24,19 @@ public class PurchaseOrder {
 
     @ManyToOne
     @JoinColumn(name = "supplier_id")
+    @JsonBackReference("supplier-pos") // Assuming Supplier has a list of PurchaseOrders
     private Supplier supplier;
 
     @ManyToOne
     @JoinColumn(name = "porderstatus_id")
     private PurchaseOrderStatus porderstatus;
 
+    @ManyToOne
+    @JoinColumn(name = "irnstatus_id") // Assuming a column named irnstatus_id in the purchaseorder table
+    private Irnstatus irnstatus;
+
     @OneToMany(mappedBy = "purchaseorder", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // Add JsonManagedReference here
+    @JsonManagedReference("po-items") // Use a value to differentiate references if needed
     private List<PurchaseOrderHasItem> purchaseOrderItems;
 
     // Getters and setters
@@ -78,6 +87,14 @@ public class PurchaseOrder {
 
     public void setPorderstatus(PurchaseOrderStatus porderstatus) {
         this.porderstatus = porderstatus;
+    }
+
+    public Irnstatus getIrnstatus() {
+        return irnstatus;
+    }
+
+    public void setIrnstatus(Irnstatus irnstatus) {
+        this.irnstatus = irnstatus;
     }
 
     public List<PurchaseOrderHasItem> getPurchaseOrderItems() {

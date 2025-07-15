@@ -14,6 +14,12 @@ public class BrandController {
     @Autowired
     private BrandService brandService;
 
+    // Add GET endpoint for /api/brands to support frontend AJAX
+    @GetMapping
+    public List<Brand> getBrands() {
+        return brandService.findAllBrands();
+    }
+
     @GetMapping("/all")
     public List<Brand> getAllBrands() {
         return brandService.findAllBrands();

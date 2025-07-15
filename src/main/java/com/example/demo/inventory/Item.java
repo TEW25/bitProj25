@@ -1,15 +1,15 @@
 package com.example.demo.inventory;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-
+import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo; // Import JsonIdentityInfo
+import com.fasterxml.jackson.annotation.ObjectIdGenerators; // Import ObjectIdGenerators
 
 @Entity
+@Table(name = "item")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id") // Add JsonIdentityInfo
 public class Item {
 
     @Id
@@ -34,6 +34,10 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "subcategory_id")
     private Subcategory subcategory;
+
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("item-irnitems")
+    private List<ItemreceivenoteHasItem> itemreceivenoteItems;
 
     // Getters and setters
     public Integer getId() {
@@ -122,5 +126,13 @@ public class Item {
 
     public void setSubcategory(Subcategory subcategory) {
         this.subcategory = subcategory;
+    }
+
+    public List<ItemreceivenoteHasItem> getItemreceivenoteItems() {
+        return itemreceivenoteItems;
+    }
+
+    public void setItemreceivenoteItems(List<ItemreceivenoteHasItem> itemreceivenoteItems) {
+        this.itemreceivenoteItems = itemreceivenoteItems;
     }
 }

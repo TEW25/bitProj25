@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,9 +20,6 @@ public class PurchaseOrderService {
 
     @Autowired
     private PurchaseOrderStatusRepository purchaseOrderStatusRepository;
-
-    @Autowired
-    private SupplierRepository supplierRepository;
 
     @Autowired
     private ItemRepository itemRepository;
@@ -72,11 +70,11 @@ public class PurchaseOrderService {
     }
 
     public List<PurchaseOrder> getAllPurchaseOrders() {
-        return purchaseOrderRepository.findAll(); // Implemented fetching all purchase orders
+        return purchaseOrderRepository.findAllWithSupplier(); // Changed to use findAllWithSupplier
     }
 
     public PurchaseOrder getPurchaseOrderById(Integer id) {
-        Optional<PurchaseOrder> purchaseOrder = purchaseOrderRepository.findById(id); // Changed back to findById
+        Optional<PurchaseOrder> purchaseOrder = purchaseOrderRepository.findByIdWithSupplier(id); // Changed to use findByIdWithSupplier
         return purchaseOrder.orElse(null);
     }
 
