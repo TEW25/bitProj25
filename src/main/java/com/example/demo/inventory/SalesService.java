@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 @Service
 public class SalesService {
@@ -17,6 +18,8 @@ public class SalesService {
     private InventoryRepository inventoryRepository;
     @Autowired
     private ItemRepository itemRepository;
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
     @Transactional
     public Sale createSale(SaleRequest saleRequest) {
@@ -24,7 +27,10 @@ public class SalesService {
         sale.setSalesnumber(generateSalesNumber());
         sale.setTotal_amount(saleRequest.getTotalAmount());
         sale.setPaid_amount(saleRequest.getPaidAmount());
-        sale.setAdded_user(3); // Hardcoded for now
+        // Set employee (hardcoded to id=3 for now)
+        Employee emp = employeeRepository.findById(3).orElse(null);
+        sale.setEmployee(emp);
+        sale.setAdded_datetime(new Date());
         sale = saleRepository.save(sale);
 
         List<ItemHasSale> itemHasSalesList = new ArrayList<>();
@@ -47,6 +53,16 @@ public class SalesService {
         }
         sale.setItems(itemHasSalesList);
         return sale;
+    }
+
+    // List all sales
+    public List<Sale> getAllSales() {
+        return saleRepository.findAll();
+    }
+
+    // Get sale by id with items
+    public Sale getSaleById(Integer id) {
+        return saleRepository.findById(id).orElse(null);
     }
 
     private String generateSalesNumber() {

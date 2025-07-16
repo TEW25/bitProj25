@@ -1,0 +1,81 @@
+document.addEventListener('DOMContentLoaded', function() {
+    fetchSales();
+});
+
+function fetchSales() {
+    fetch('/api/sales')
+        .then(res => res.json())
+        .then(data => populateSalesTable(data))
+        .catch(() => alert('Failed to load sales records.'));
+}
+
+function populateSalesTable(sales) {
+    const tbody = document.querySelector('#salesTable tbody');
+    tbody.innerHTML = '';
+    sales.forEach(sale => {
+        const tr = document.createElement('tr');
+        tr.classList.add('sale-row');
+        // Use sale.employee.employee_number if available
+        let empNum = sale.employee && sale.employee.employee_number ? sale.employee.employee_number : '';
+        let dateStr = sale.added_datetime ? new Date(sale.added_datetime).toLocaleString() : '';
+        tr.innerHTML = `
+            <td>${sale.salesnumber}</td>
+            <td>${dateStr}</td>
+            <td>${sale.total_amount}</td>
+            <td>${sale.paid_amount}</td>
+            <td>${empNum}</td>
+        `;
+        tr.addEventListener('click', () => showSaleDetails(sale.id));
+        tbody.appendChild(tr);
+    });
+}
+
+function showSaleDetails(saleId) {
+    fetch(`/api/sales/${saleId}`)
+        .then(res => res.json())
+        .then(sale => {
+            const content = document.getElementById('saleDetailsContent');
+            content.innerHTML = renderSaleDetails(sale);
+            const modal = new bootstrap.Modal(document.getElementById('saleDetailsModal'));
+            modal.show();
+        })
+        .catch(() => alert('Failed to load sale details.'));
+}
+
+function renderSaleDetails(sale) {
+    // Use sale.employee.employee_number if available
+    let empNum = sale.employee && sale.employee.employee_number ? sale.employee.employee_number : '';
+    let dateStr = sale.added_datetime ? new Date(sale.added_datetime).toLocaleString() : '';
+    return `
+    <div class="mb-3">
+        <h5>Sale #: <span class="text-primary">${sale.salesnumber}</span></h5>
+        <div>Date: ${dateStr}</div>
+        <div>Total Amount: <b>${sale.total_amount}</b></div>
+        <div>Paid Amount: <b>${sale.paid_amount}</b></div>
+        <div>Added By: ${empNum}</div>
+    </div>
+    <h6>Items</h6>
+    <div class="table-responsive">
+    <table class="table table-sm table-details">
+        <thead class="table-light">
+            <tr>
+                <th>Item Name</th>
+                <th>Sales Price</th>
+                <th>Quantity</th>
+                <th>Line Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${sale.items && sale.items.length ? sale.items.map(item => `
+                <tr>
+                    <td>${item.item ? (item.item.itemname || item.item.name || '') : ''}</td>
+                    <td>${item.sales_price}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.line_price}</td>
+                </tr>
+            `).join('') : '<tr><td colspan="4">No items</td></tr>'}
+        </tbody>
+    </table>
+    </div>
+    `;
+}
