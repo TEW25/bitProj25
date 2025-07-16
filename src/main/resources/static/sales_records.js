@@ -1,9 +1,50 @@
 document.addEventListener('DOMContentLoaded', function() {
+    addDateFilterUI();
     fetchSales();
 });
 
-function fetchSales() {
-    fetch('/api/sales')
+function addDateFilterUI() {
+    const container = document.querySelector('.filter-container') || document.body;
+    let filterDiv = document.getElementById('dateFilterDiv');
+    if (!filterDiv) {
+        filterDiv = document.createElement('div');
+        filterDiv.id = 'dateFilterDiv';
+        filterDiv.className = 'mb-3';
+        filterDiv.innerHTML = `
+            <label class="mr-2">From: <input type="date" id="fromDate" class="mr-2"></label>
+            <label class="mr-2">To: <input type="date" id="toDate" class="mr-2"></label>
+            <button class="btn btn-primary btn-sm" id="filterBtn">Filter</button>
+            <button class="btn btn-secondary btn-sm ml-2" id="clearFilterBtn">Clear</button>
+        `;
+        // Insert above the table if possible
+        const table = document.getElementById('salesTable');
+        if (table && table.parentNode) {
+            table.parentNode.insertBefore(filterDiv, table);
+        } else {
+            container.insertBefore(filterDiv, container.firstChild);
+        }
+    }
+    document.getElementById('filterBtn').onclick = function() {
+        const from = document.getElementById('fromDate').value;
+        const to = document.getElementById('toDate').value;
+        fetchSales(from, to);
+    };
+    document.getElementById('clearFilterBtn').onclick = function() {
+        document.getElementById('fromDate').value = '';
+        document.getElementById('toDate').value = '';
+        fetchSales();
+    };
+}
+
+function fetchSales(fromDate, toDate) {
+    let url = '/api/sales';
+    if (fromDate || toDate) {
+        const params = [];
+        if (fromDate) params.push(`from=${encodeURIComponent(fromDate)}`);
+        if (toDate) params.push(`to=${encodeURIComponent(toDate)}`);
+        url += '?' + params.join('&');
+    }
+    fetch(url)
         .then(res => res.json())
         .then(data => populateSalesTable(data))
         .catch(() => alert('Failed to load sales records.'));

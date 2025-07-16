@@ -238,7 +238,7 @@ $(document).ready(function() {
         const itemData = {
             itemcode: itemCode,
             itemname: itemName,
-            itemsize: itemSize ? parseFloat(itemSize) : null, // Convert to float, handle empty
+            itemsize: itemSize ? itemSize : null, // Send as string, handle empty
             rop: itemRop ? parseInt(itemRop) : null, // Convert to int, handle empty
             roq: itemRoq ? parseInt(itemRoq) : null, // Convert to int, handle empty
             salesprice: salesPrice, // Use validated value

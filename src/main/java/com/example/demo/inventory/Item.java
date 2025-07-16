@@ -17,7 +17,7 @@ public class Item {
     private Integer id;
     private String itemcode;
     private String itemname;
-    private BigDecimal itemsize;
+    private String itemsize; // Changed from BigDecimal to String
     private Integer rop;
     private Integer roq;
     private BigDecimal salesprice;
@@ -64,11 +64,11 @@ public class Item {
         this.itemname = itemname;
     }
 
-    public BigDecimal getItemsize() {
+    public String getItemsize() {
         return itemsize;
     }
 
-    public void setItemsize(BigDecimal itemsize) {
+    public void setItemsize(String itemsize) {
         this.itemsize = itemsize;
     }
 
