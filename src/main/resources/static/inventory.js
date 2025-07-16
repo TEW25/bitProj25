@@ -1,11 +1,83 @@
 // Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('DOM fully loaded. Initializing inventory script.'); // Added log
+    // Declare DOM variables FIRST
     const inventoryForm = document.getElementById('inventoryForm');
     const inventoryModal = document.getElementById('inventoryModal');
     const addInventoryBtn = document.getElementById('addInventoryBtn');
     const inventoryTableBody = document.getElementById('inventoryTableBody');
     const inventoryTable = document.querySelector('.table'); // Get the table element
+
+
+    // Event delegation for Delete button in inventory table
+    inventoryTableBody.addEventListener('click', function (event) {
+        const deleteBtn = event.target.closest('.delete-inventory-btn');
+        if (deleteBtn) {
+            const inventoryId = deleteBtn.getAttribute('data-id');
+            if (confirm('Are you sure you want to delete this inventory item?')) {
+                fetch(`/api/inventory/${inventoryId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    // Refresh table after delete
+                    fetchInventoryItems();
+                })
+                .catch(error => {
+                    console.error('Error deleting inventory item:', error);
+                    alert('Error deleting inventory item.');
+                });
+            }
+        }
+    });
+
+    // Event delegation for Edit button in inventory table
+    inventoryTableBody.addEventListener('click', function (event) {
+        const editBtn = event.target.closest('.edit-inventory-btn');
+        if (editBtn) {
+            const inventoryId = editBtn.getAttribute('data-id');
+            // Fetch inventory item details
+            fetch(`/api/inventory/${inventoryId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch inventory item');
+                    return response.json();
+                })
+                .then(item => {
+                    // Set modal title
+                    document.getElementById('inventoryModalLabel').textContent = 'Edit Inventory Item';
+                    document.getElementById('inventoryId').value = item.id ?? '';
+                    // Only set values for the three fields in the modal
+                    document.getElementById('quantityInput').value = item.availableqty ?? '';
+                    document.getElementById('quantityInput').disabled = false;
+                    document.getElementById('quantityInput').min = 0;
+                    document.getElementById('quantityInput').placeholder = 'Available Qty';
+                    document.getElementById('totalQtyInput').value = item.totalqty ?? '';
+                    document.getElementById('totalQtyInput').disabled = false;
+                    const statusSelect = document.getElementById('transactionStatusSelect');
+                    statusSelect.disabled = false;
+                    // Populate status dropdown with all statuses
+                    fetch('/api/inventorystatus')
+                        .then(resp => resp.json())
+                        .then(statuses => {
+                            statusSelect.innerHTML = '';
+                            statuses.forEach(status => {
+                                const option = document.createElement('option');
+                                option.value = status.name;
+                                option.textContent = status.name;
+                                statusSelect.appendChild(option);
+                            });
+                            statusSelect.value = item.inventorystatus ? item.inventorystatus.name : '';
+                        });
+                    $(inventoryModal).modal('show');
+                })
+                .catch(error => {
+                    console.error('Error loading inventory item for edit:', error);
+                    alert('Error loading inventory item for edit.');
+                });
+        }
+    });
+    console.log('DOM fully loaded. Initializing inventory script.'); // Added log
 
     let currentSortField = '';
     let currentSortDirection = 'asc'; // 'asc' or 'desc'
@@ -125,82 +197,66 @@ document.addEventListener('DOMContentLoaded', function () {
     inventoryForm.addEventListener('submit', function (event) {
         event.preventDefault(); // Prevent default form submission
 
-        // Get form values
+        // Get form values for edit
         const id = document.getElementById('inventoryId').value;
-        // Need to get item, supplier, quantity, status, remarks, date
-        // The current form only has name, quantity, price, status
-        // This form needs to be updated in inventory.html to match the required fields.
+        const availableqty = document.getElementById('quantityInput').value;
+        const totalqty = document.getElementById('totalQtyInput').value;
+        const statusName = document.getElementById('transactionStatusSelect').value;
 
-        // For now, let's use the existing fields and send a basic request
-        const name = document.getElementById('inventoryName').value.trim(); // This should be item selection
-        const quantity = document.getElementById('inventoryQuantity').value; // This should be quantity added/removed
-        const price = document.getElementById('inventoryPrice').value; // This field is not in the plan for add/adjust
-        const status = document.getElementById('inventoryStatus').value; // This is the inventory status
-
-        // Basic Validation (needs update based on new fields)
-        if (name === '') {
-            alert('Item selection is required.'); // Update validation message
+        // Basic validation
+        if (!id) {
+            alert('No inventory item selected for editing.');
+            return;
+        }
+        if (availableqty === '' || isNaN(availableqty)) {
+            alert('Available Qty is required and must be a number.');
+            return;
+        }
+        if (totalqty === '' || isNaN(totalqty)) {
+            alert('Total Qty is required and must be a number.');
+            return;
+        }
+        if (!statusName) {
+            alert('Status is required.');
             return;
         }
 
-        if (quantity === '' || isNaN(quantity) || parseInt(quantity) === 0) { // Quantity should not be zero
-            alert('Valid Quantity is required and must be a non-zero number.'); // Update validation message
-            return;
-        }
-
-        if (status === '') {
-             alert('Status is required.');
-             return;
-        }
-
-        // Construct data object based on the plan
-        // This needs to be updated once the form fields are correct
-        const inventoryData = {
-            // id: id, // Include ID for PUT requests
-            // item: { id: selectedItemId }, // Need to get selected item ID
-            // supplier: { id: selectedSupplierId }, // Need to get selected supplier ID (optional)
-            // availableqty: calculate based on type (Add/Remove) and existing qty
-            // totalqty: calculate based on type (Add/Remove) and existing qty
-            // inventorystatus: { id: selectedStatusId }, // Need to get selected status ID
-            // remarks: remarksValue, // Need remarks field
-            // date: dateValue // Need date field
-        };
-
-        // Determine URL and method
-        let url = '/api/inventory';
-        let method = 'POST';
-
-        if (id) {
-            // If ID exists, it's an edit operation (adjust stock)
-            url = '/api/inventory/' + id;
-            method = 'PUT';
-            // For PUT, we might need to fetch the existing inventory item first
-            // to calculate new availableqty and totalqty based on the adjustment quantity.
-            // This is more complex and might require a dedicated backend endpoint for stock adjustment.
-            alert('Stock adjustment functionality is not fully implemented yet.');
-            return;
-        }
-
-        // For POST (Add to Inventory), we need item, supplier, quantity, status, remarks, date
-        // The current form doesn't provide all these fields.
-        alert('Add to Inventory functionality is not fully implemented yet due to missing form fields.');
-        return;
-
-        // // Example AJAX call (will be uncommented and updated once form is ready)
-        // $.ajax({
-        //     url: url,
-        //     method: method,
-        //     contentType: 'application/json',
-        //     data: JSON.stringify(inventoryData),
-        //     success: function(response) {
-        //         $('#inventoryModal').modal('hide');
-        //         fetchInventoryItems(); // Reload the table
-        //     },
-        //     error: function(error) {
-        //         console.error('Error saving inventory item:', error);
-        //         alert('Error saving inventory item.');
-        //     }
-        // });
+        // Get status id from name
+        fetch('/api/inventorystatus')
+            .then(resp => resp.json())
+            .then(statuses => {
+                const selectedStatus = statuses.find(s => s.name === statusName);
+                if (!selectedStatus) {
+                    alert('Selected status not found.');
+                    return;
+                }
+                // Prepare data for PUT
+                const inventoryData = {
+                    id: id,
+                    availableqty: parseFloat(availableqty),
+                    totalqty: parseFloat(totalqty),
+                    inventorystatus: { id: selectedStatus.id, name: selectedStatus.name }
+                };
+                // Send PUT request
+                fetch('/api/inventory/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(inventoryData)
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to update inventory item');
+                    return response.json();
+                })
+                .then(data => {
+                    $('#inventoryModal').modal('hide');
+                    fetchInventoryItems(); // Reload the table
+                    alert('Inventory item updated successfully.');
+                })
+                .catch(error => {
+                    console.error('Error updating inventory item:', error);
+                    alert('Error updating inventory item.');
+                });
+            });
     });
 
     // Event listener for the Apply Filter/Search button

@@ -127,10 +127,10 @@ $(document).ready(function() {
             supplierNameInput.setCustomValidity('Supplier Name is required.');
             isValid = false;
         } else {
-            // Supplier Name validation: 4 to 30 characters, alphanumeric and spaces
-            const namePattern = /^[a-zA-Z0-9 ]{4,30}$/; // Updated regex to include space
+            // Supplier Name validation: 4 to 30 characters, allow alphanumeric, spaces, and symbols
+            const namePattern = /^[\w\s!@#$%^&*()\-_=+\[\]{};:'",.<>/?|`~]{4,30}$/;
             if (!namePattern.test(supplierName)) {
-                supplierNameInput.setCustomValidity('Supplier Name must be between 4 and 30 characters and contain only alphanumeric characters or spaces.'); // Updated error message
+                supplierNameInput.setCustomValidity('Supplier Name must be between 4 and 30 characters and can contain letters, numbers, spaces, and symbols.');
                 isValid = false;
             }
         }
@@ -140,9 +140,9 @@ $(document).ready(function() {
             supplierContactNoInput.setCustomValidity('Supplier Contact Number is required.');
             isValid = false;
         } else {
-            const phonePattern = /^[0-9]+$/;
+            const phonePattern = /^[0-9+]+$/;
             if (!phonePattern.test(supplierContactNo)) {
-                supplierContactNoInput.setCustomValidity('Supplier Contact Number must contain only numeric characters.');
+                supplierContactNoInput.setCustomValidity('Supplier Contact Number must contain only numeric characters or plus (+) sign.');
                 isValid = false;
             }
         }

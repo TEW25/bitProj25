@@ -79,69 +79,20 @@
                 <div class="modal-body">
                     <form id="inventoryForm">
                         <input type="hidden" id="inventoryId">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="itemSelect">Select Item</label>
-                                    <select class="form-control" id="itemSelect" required>
-                                        <option value="">-- Select Item --</option>
-                                        <!-- Item options will be loaded by JavaScript -->
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="supplierSelect">Supplier (Optional)</label>
-                                    <select class="form-control" id="supplierSelect">
-                                        <option value="">-- Select Supplier --</option>
-                                        <!-- Supplier options will be loaded by JavaScript -->
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Transaction Type</label>
-                                    <div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="transactionType" id="typeAdd" value="ADD" checked>
-                                            <label class="form-check-label" for="typeAdd">Add</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="transactionType" id="typeRemove" value="REMOVE">
-                                            <label class="form-check-label" for="typeRemove">Remove</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="quantityInput">Quantity</label>
-                                    <input type="number" class="form-control" id="quantityInput" required min="1">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="transactionStatusSelect">Status</label>
-                                    <select class="form-control" id="transactionStatusSelect" required>
-                                         <option value="">-- Select Status --</option>
-                                        <!-- Status options (e.g., Received, Returned, Damaged) will be loaded by JavaScript -->
-                                    </select>
-                                </div>
-                            </div>
-                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="dateInput">Date</label>
-                                    <input type="date" class="form-control" id="dateInput" required>
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label for="quantityInput">Available Qty</label>
+                            <input type="number" class="form-control" id="quantityInput" required min="0">
                         </div>
                         <div class="form-group">
-                            <label for="remarksTextarea">Remarks (Optional)</label>
-                            <textarea class="form-control" id="remarksTextarea" rows="3"></textarea>
+                            <label for="totalQtyInput">Total Qty</label>
+                            <input type="number" class="form-control" id="totalQtyInput" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="transactionStatusSelect">Status</label>
+                            <select class="form-control" id="transactionStatusSelect" required>
+                                <option value="">-- Select Status --</option>
+                                <!-- Status options will be loaded by JavaScript -->
+                            </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </form>

@@ -9,6 +9,16 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/inventory")
 public class InventoryController {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteInventory(@PathVariable Integer id) {
+        inventoryService.deleteInventory(id);
+        return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Inventory> getInventoryById(@PathVariable Integer id) {
+        Optional<Inventory> inventory = inventoryService.findById(id);
+        return inventory.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
     @Autowired
     private InventoryService inventoryService;

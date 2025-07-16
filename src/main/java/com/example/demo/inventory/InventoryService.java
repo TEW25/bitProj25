@@ -12,6 +12,12 @@ import java.util.Optional;
 
 @Service
 public class InventoryService {
+    public void deleteInventory(Integer id) {
+        inventoryRepository.deleteById(id);
+    }
+    public Optional<Inventory> findById(Integer id) {
+        return inventoryRepository.findById(id);
+    }
 
     @Autowired
     private InventoryRepository inventoryRepository;
@@ -23,9 +29,8 @@ public class InventoryService {
             if (searchTerm != null && !searchTerm.isEmpty()) {
                 String lowerSearchTerm = searchTerm.toLowerCase();
                 predicates.add(cb.or(
-                        cb.like(cb.lower(root.get("item").get("name")), "%" + lowerSearchTerm + "%"),
-                        cb.like(cb.lower(root.get("item").get("inventorycode")), "%" + lowerSearchTerm + "%"),
-                        cb.like(cb.lower(root.get("supplier").get("name")), "%" + lowerSearchTerm + "%")
+                        cb.like(cb.lower(root.get("item").get("itemname")), "%" + lowerSearchTerm + "%"),
+                        cb.like(cb.lower(root.get("item").get("itemcode")), "%" + lowerSearchTerm + "%")
                 ));
             }
 
