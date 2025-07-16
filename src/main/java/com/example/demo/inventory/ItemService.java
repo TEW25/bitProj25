@@ -15,8 +15,8 @@ public class ItemService {
     @Autowired
     private SupplierHasItemRepository supplierHasItemRepository;
 
-    public List<Item> getAllItems(Integer brandId, Integer statusId, String searchTerm) {
-        return itemRepository.findFilteredItems(brandId, statusId, searchTerm);
+    public List<Item> getAllItems(Integer brandId, Integer statusId, Integer categoryId, String searchTerm) {
+        return itemRepository.findFilteredItems(brandId, statusId, categoryId, searchTerm);
     }
 
     public Optional<Item> getItemById(Integer id) {

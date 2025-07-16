@@ -95,7 +95,7 @@ $(document).ready(function() {
             filters.brandId = brandId;
         }
         if (categoryId) {
-            filters.statusId = categoryId; // Assuming category filter maps to statusId in backend for now, need to confirm or adjust backend
+            filters.categoryId = categoryId;
         }
 
         $.ajax({

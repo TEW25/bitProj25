@@ -13,10 +13,12 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
     @Query("SELECT i FROM Item i WHERE " +
            "(:brandId IS NULL OR i.brand.id = :brandId) AND " +
            "(:statusId IS NULL OR i.itemstatus.id = :statusId) AND " +
+           "(:categoryId IS NULL OR i.subcategory.category.id = :categoryId) AND " +
            "(:searchTerm IS NULL OR lower(i.itemcode) LIKE lower(concat('%', :searchTerm, '%')) OR lower(i.itemname) LIKE lower(concat('%', :searchTerm, '%')))" )
     List<Item> findFilteredItems(
             @Param("brandId") Integer brandId,
             @Param("statusId") Integer statusId,
+            @Param("categoryId") Integer categoryId,
             @Param("searchTerm") String searchTerm);
 
     List<Item> findByBrand_Id(Integer brandId);

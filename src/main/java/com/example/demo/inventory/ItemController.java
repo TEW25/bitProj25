@@ -18,11 +18,12 @@ public class ItemController {
     public List<Item> getAllItems(
             @RequestParam(required = false) Integer brandId,
             @RequestParam(required = false) Integer statusId,
+            @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) String searchTerm) {
-        if (brandId == null && statusId == null && (searchTerm == null || searchTerm.isEmpty())) {
+        if (brandId == null && statusId == null && categoryId == null && (searchTerm == null || searchTerm.isEmpty())) {
             return itemService.findAllItems();
         } else {
-            return itemService.getAllItems(brandId, statusId, searchTerm);
+            return itemService.getAllItems(brandId, statusId, categoryId, searchTerm);
         }
     }
 
