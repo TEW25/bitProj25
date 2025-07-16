@@ -9,6 +9,15 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/inventory")
 public class InventoryController {
+    @PatchMapping("/{id}")
+    public ResponseEntity<Inventory> patchInventory(@PathVariable Integer id, @RequestBody Inventory inventoryDetails) {
+        Inventory updatedInventory = inventoryService.patchInventory(id, inventoryDetails);
+        if (updatedInventory != null) {
+            return ResponseEntity.ok(updatedInventory);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteInventory(@PathVariable Integer id) {
         inventoryService.deleteInventory(id);

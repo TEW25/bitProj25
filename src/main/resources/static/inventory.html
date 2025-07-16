@@ -66,30 +66,69 @@
         </table>
     </div>
 
-    <!-- Add/Edit Inventory Modal -->
-    <div class="modal fade" id="inventoryModal" tabindex="-1" role="dialog" aria-labelledby="inventoryModalLabel" aria-hidden="true">
+    <!-- Add Inventory Modal -->
+    <div class="modal fade" id="addInventoryModal" tabindex="-1" role="dialog" aria-labelledby="addInventoryModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="inventoryModalLabel">Add Inventory Item</h5>
+                    <h5 class="modal-title" id="addInventoryModalLabel">Add Inventory Item</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="inventoryForm">
-                        <input type="hidden" id="inventoryId">
+                    <form id="addInventoryForm">
                         <div class="form-group">
-                            <label for="quantityInput">Available Qty</label>
-                            <input type="number" class="form-control" id="quantityInput" required min="0">
+                            <label for="addItemSearch">Item (Search by Name or Code)</label>
+                            <input type="text" class="form-control" id="addItemSearch" placeholder="Type to search..." autocomplete="off" required>
+                            <select class="form-control mt-2" id="addItemSelect" required>
+                                <option value="">-- Search & Select Item --</option>
+                                <!-- Item options will be loaded by JavaScript -->
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label for="totalQtyInput">Total Qty</label>
-                            <input type="number" class="form-control" id="totalQtyInput" required min="0">
+                            <label for="addSupplierSearch">Supplier</label>
+                            <input type="text" class="form-control" id="addSupplierSearch" placeholder="Search & Select Supplier">
                         </div>
                         <div class="form-group">
-                            <label for="transactionStatusSelect">Status</label>
-                            <select class="form-control" id="transactionStatusSelect" required>
+                            <label for="addQuantityInput">Available Qty</label>
+                            <input type="number" class="form-control" id="addQuantityInput" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="addTotalQtyInput">Total Qty</label>
+                            <input type="number" class="form-control" id="addTotalQtyInput" required min="0">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Item</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Inventory Modal -->
+    <div class="modal fade" id="editInventoryModal" tabindex="-1" role="dialog" aria-labelledby="editInventoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editInventoryModalLabel">Edit Inventory Item</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editInventoryForm">
+                        <input type="hidden" id="editInventoryId">
+                        <div class="form-group">
+                            <label for="editQuantityInput">Available Qty</label>
+                            <input type="number" class="form-control" id="editQuantityInput" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="editTotalQtyInput">Total Qty</label>
+                            <input type="number" class="form-control" id="editTotalQtyInput" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="editTransactionStatusSelect">Status</label>
+                            <select class="form-control" id="editTransactionStatusSelect" required>
                                 <option value="">-- Select Status --</option>
                                 <!-- Status options will be loaded by JavaScript -->
                             </select>

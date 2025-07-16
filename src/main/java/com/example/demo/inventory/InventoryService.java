@@ -12,6 +12,35 @@ import java.util.Optional;
 
 @Service
 public class InventoryService {
+    public Inventory patchInventory(Integer id, Inventory inventoryDetails) {
+        Optional<Inventory> optionalInventory = inventoryRepository.findById(id);
+        if (optionalInventory.isPresent()) {
+            Inventory existingInventory = optionalInventory.get();
+            // Only update fields that are not null in inventoryDetails
+            if (inventoryDetails.getInventorycode() != null) {
+                existingInventory.setInventorycode(inventoryDetails.getInventorycode());
+            }
+            if (inventoryDetails.getAvailableqty() != null) {
+                existingInventory.setAvailableqty(inventoryDetails.getAvailableqty());
+            }
+            if (inventoryDetails.getTotalqty() != null) {
+                existingInventory.setTotalqty(inventoryDetails.getTotalqty());
+            }
+            if (inventoryDetails.getItem() != null) {
+                existingInventory.setItem(inventoryDetails.getItem());
+            }
+            if (inventoryDetails.getSupplier() != null) {
+                existingInventory.setSupplier(inventoryDetails.getSupplier());
+            }
+            if (inventoryDetails.getInventorystatus() != null) {
+                existingInventory.setInventorystatus(inventoryDetails.getInventorystatus());
+            }
+            // Save only updated fields
+            return inventoryRepository.save(existingInventory);
+        } else {
+            return null;
+        }
+    }
     public void deleteInventory(Integer id) {
         inventoryRepository.deleteById(id);
     }
