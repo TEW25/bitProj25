@@ -2,6 +2,18 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchPurchaseOrders();
 });
 
+
+function addSortingListeners() {
+    const requiredDateHeader = document.getElementById('sortRequiredDate');
+    const statusHeader = document.getElementById('sortStatus');
+    if (requiredDateHeader) {
+        requiredDateHeader.onclick = () => sortTable('requireddate');
+    }
+    if (statusHeader) {
+        statusHeader.onclick = () => sortTable('status');
+    }
+}
+
 function fetchPurchaseOrders() {
     fetch('/api/purchaseorders')
         .then(response => {
@@ -11,7 +23,9 @@ function fetchPurchaseOrders() {
             return response.json();
         })
         .then(data => {
-            populatePurchaseOrderTable(data);
+            purchaseOrdersData = data;
+            populatePurchaseOrderTable(purchaseOrdersData);
+            addSortingListeners(); // Ensure sorting listeners are added after data is populated
         })
         .catch(error => {
             console.error('Error fetching purchase orders:', error);
@@ -19,6 +33,44 @@ function fetchPurchaseOrders() {
         });
 }
 
+let purchaseOrdersData = [];
+let sortDirections = {
+    requireddate: true, // true: ascending, false: descending
+    status: true
+};
+
+function sortTable(column) {
+    let sortedOrders = [...purchaseOrdersData];
+    if (column === 'requireddate') {
+        sortedOrders.sort((a, b) => {
+            const dateA = new Date(a.requireddate);
+            const dateB = new Date(b.requireddate);
+            return sortDirections.requireddate ? dateA - dateB : dateB - dateA;
+        });
+        sortDirections.requireddate = !sortDirections.requireddate;
+    } else if (column === 'status') {
+        sortedOrders.sort((a, b) => {
+            const statusA = a.porderstatus && a.porderstatus.name ? a.porderstatus.name.toLowerCase() : '';
+            const statusB = b.porderstatus && b.porderstatus.name ? b.porderstatus.name.toLowerCase() : '';
+            if (statusA < statusB) return sortDirections.status ? -1 : 1;
+            if (statusA > statusB) return sortDirections.status ? 1 : -1;
+            return 0;
+        });
+        sortDirections.status = !sortDirections.status;
+    }
+    populatePurchaseOrderTable(sortedOrders);
+}
+
+function addSortingListeners() {
+    const requiredDateHeader = document.getElementById('sortRequiredDate');
+    const statusHeader = document.getElementById('sortStatus');
+    if (requiredDateHeader) {
+        requiredDateHeader.onclick = () => sortTable('requireddate');
+    }
+    if (statusHeader) {
+        statusHeader.onclick = () => sortTable('status');
+    }
+}
 function populatePurchaseOrderTable(orders) {
     const tableBody = document.getElementById('purchaseOrderTableBody');
     tableBody.innerHTML = ''; // Clear existing rows
@@ -57,6 +109,29 @@ function showPurchaseOrderDetail(orderId) {
         .then(order => {
             if (order) {
                 document.getElementById('detailId').textContent = order.id;
+
+// Sorting function should be top-level
+function sortTable(column) {
+    let sortedOrders = [...purchaseOrdersData];
+    if (column === 'requireddate') {
+        sortedOrders.sort((a, b) => {
+            const dateA = new Date(a.requireddate);
+            const dateB = new Date(b.requireddate);
+            return sortDirections.requireddate ? dateA - dateB : dateB - dateA;
+        });
+        sortDirections.requireddate = !sortDirections.requireddate;
+    } else if (column === 'status') {
+        sortedOrders.sort((a, b) => {
+            const statusA = a.porderstatus && a.porderstatus.name ? a.porderstatus.name.toLowerCase() : '';
+            const statusB = b.porderstatus && b.porderstatus.name ? b.porderstatus.name.toLowerCase() : '';
+            if (statusA < statusB) return sortDirections.status ? -1 : 1;
+            if (statusA > statusB) return sortDirections.status ? 1 : -1;
+            return 0;
+        });
+        sortDirections.status = !sortDirections.status;
+    }
+    populatePurchaseOrderTable(sortedOrders);
+}
                 document.getElementById('detailOrderCode').textContent = order.purchaseordercode;
                 document.getElementById('detailRequiredDate').textContent = order.requireddate;
                 document.getElementById('detailTotalAmount').textContent = order.totalamount.toFixed(2);

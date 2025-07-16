@@ -24,7 +24,7 @@ public class PurchaseOrder {
 
     @ManyToOne
     @JoinColumn(name = "supplier_id")
-    @JsonBackReference("supplier-pos") // Assuming Supplier has a list of PurchaseOrders
+    // Removed @JsonBackReference to allow supplier serialization
     private Supplier supplier;
 
     @ManyToOne
