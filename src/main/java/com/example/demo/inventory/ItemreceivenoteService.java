@@ -33,8 +33,12 @@ public class ItemreceivenoteService {
     @Autowired
     private InventoryRepository inventoryRepository; // Inject InventoryRepository
 
+
     @Autowired
     private InventorystatusRepository inventorystatusRepository; // Inject InventorystatusRepository
+
+    @Autowired
+    private PurchaseOrderStatusRepository purchaseOrderStatusRepository;
 
     @Transactional
     public Itemreceivenote createItemreceivenote(Itemreceivenote itemreceivenote) {
@@ -131,16 +135,22 @@ public class ItemreceivenoteService {
         // -----------------------------
 
         // 9. Update the linked Purchase Order status to 'Delivered' (ID 2)
-        Optional<Irnstatus> deliveredStatus = irnstatusRepository.findById(2); // Assuming ID 2 is 'Delivered'
-        if (deliveredStatus.isPresent()) {
-            PurchaseOrder linkedPurchaseOrder = savedItemreceivenote.getPurchaseorder();
-            if (linkedPurchaseOrder != null) {
-                linkedPurchaseOrder.setIrnstatus(deliveredStatus.get());
-                purchaseOrderRepository.save(linkedPurchaseOrder);
-                logger.info("Updated Purchase Order " + linkedPurchaseOrder.getId() + " status to Delivered.");
+        PurchaseOrder linkedPurchaseOrder = savedItemreceivenote.getPurchaseorder();
+        if (linkedPurchaseOrder != null) {
+            // Set porderstatus_id to 2 (Delivered)
+            PurchaseOrderStatus deliveredStatus = null;
+            try {
+                deliveredStatus = purchaseOrderStatusRepository.findById(2).orElse(null);
+            } catch (Exception e) {
+                logger.warning("Could not fetch PurchaseOrderStatus with ID 2: " + e.getMessage());
             }
-        } else {
-            logger.warning("IRN Status 'Delivered' (ID 2) not found. Could not update Purchase Order status.");
+            if (deliveredStatus != null) {
+                linkedPurchaseOrder.setPorderstatus(deliveredStatus);
+                purchaseOrderRepository.save(linkedPurchaseOrder);
+                logger.info("Updated Purchase Order " + linkedPurchaseOrder.getId() + " porderstatus to Delivered.");
+            } else {
+                logger.warning("PurchaseOrderStatus 'Delivered' (ID 2) not found. Could not update Purchase Order status.");
+            }
         }
 
         return savedItemreceivenote;
@@ -162,7 +172,8 @@ public class ItemreceivenoteService {
 
                 if (item != null && supplier != null) {
                     // Try to find existing inventory for this item and supplier
-                    Optional<Inventory> existingInventoryOptional = inventoryRepository.findByItemIdAndSupplierId(item.getId(), supplier.getId());
+                    // Inventory no longer has supplier, so use findByItemId only
+                    Optional<Inventory> existingInventoryOptional = inventoryRepository.findByItemId(item.getId());
 
                     Inventory inventory;
                     if (existingInventoryOptional.isPresent()) {
@@ -173,9 +184,9 @@ public class ItemreceivenoteService {
                     } else {
                         // Create new inventory entry
                         inventory = new Inventory();
-                        // TODO: Generate a unique inventory code if needed
+                        inventory.setInventorycode("INV" + System.currentTimeMillis());
                         inventory.setItem(item);
-                        inventory.setSupplier(supplier);
+                        // Inventory no longer has supplier field, so skip setting supplier
                         inventory.setTotalqty(BigDecimal.valueOf(itemDetail.getOrderqty()));
                         inventory.setAvailableqty(BigDecimal.valueOf(itemDetail.getOrderqty()));
                         inventory.setInventorystatus(inStockStatus.get()); // Set status to 'In Stock'

@@ -12,12 +12,12 @@
         <h2>Create Goods Received Note (GRN)</h2>
 
         <form id="grnForm">
-            <div class="form-group">
-                <label for="purchaseOrderSelect">Select Purchase Order:</label>
-                <select class="form-control" id="purchaseOrderSelect" required>
-                    <option value="">-- Select a Purchase Order --</option>
-                    <!-- Options will be populated by JavaScript -->
-                </select>
+
+            <div class="form-group position-relative">
+                <label for="purchaseOrderSearch">Search Purchase Order:</label>
+                <input type="text" class="form-control" id="purchaseOrderSearch" placeholder="Type to search..." autocomplete="off" required>
+                <div id="purchaseOrderResults" class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;"></div>
+                <input type="hidden" id="selectedPurchaseOrderId">
             </div>
 
             <h4>Received Items</h4>

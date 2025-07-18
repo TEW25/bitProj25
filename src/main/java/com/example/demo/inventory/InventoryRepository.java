@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface InventoryRepository extends JpaRepository<Inventory, Integer>, JpaSpecificationExecutor<Inventory> {
     Optional<Inventory> findByItemId(Integer itemId);
     // Add a method to find Inventory by Item and Supplier
-    Optional<Inventory> findByItemIdAndSupplierId(Integer itemId, Integer supplierId);
+    // Removed findByItemIdAndSupplierId as supplier_id is no longer present
 }

@@ -1,13 +1,80 @@
 document.addEventListener('DOMContentLoaded', () => {
-    fetchPurchaseOrdersForSelect();
 
-    const purchaseOrderSelect = document.getElementById('purchaseOrderSelect');
-    purchaseOrderSelect.addEventListener('change', (event) => {
-        const purchaseOrderId = event.target.value;
-        if (purchaseOrderId) {
-            fetchPurchaseOrderDetails(purchaseOrderId);
-        } else {
+    // --- Purchase Order Search Logic ---
+    let allPurchaseOrders = [];
+    const purchaseOrderSearch = document.getElementById('purchaseOrderSearch');
+    const purchaseOrderResults = document.getElementById('purchaseOrderResults');
+    const selectedPurchaseOrderId = document.getElementById('selectedPurchaseOrderId');
+
+    // Fetch all purchase orders for searching
+    fetch('/api/purchaseorders')
+        .then(response => response.json())
+        .then(data => {
+            allPurchaseOrders = data;
+        })
+        .catch(error => {
+            console.error('Error fetching purchase orders for search:', error);
+        });
+
+    purchaseOrderSearch.addEventListener('input', function() {
+        const query = this.value.trim().toLowerCase();
+        if (!query) {
+            purchaseOrderResults.style.display = 'none';
+            purchaseOrderResults.innerHTML = '';
+            selectedPurchaseOrderId.value = '';
             clearReceivedItemsTable();
+            return;
+        }
+        const filtered = allPurchaseOrders
+            .filter(po => po.porderstatus_id === 1 || (po.porderstatus && po.porderstatus.id === 1))
+            .filter(po =>
+                (po.purchaseordercode && po.purchaseordercode.toLowerCase().includes(query)) ||
+                (po.requireddate && po.requireddate.toLowerCase().includes(query))
+            );
+        if (filtered.length === 0) {
+            purchaseOrderResults.innerHTML = '<div class="list-group-item">No results found</div>';
+        } else {
+            purchaseOrderResults.innerHTML = filtered.map(po => {
+                let dateStr = '';
+                // Use requireddate field for purchase order date
+                if (po.requireddate) {
+                    dateStr = po.requireddate;
+                } else if (po.date) {
+                    dateStr = po.date;
+                } else if (po.purchaseorderdate) {
+                    dateStr = po.purchaseorderdate;
+                } else if (po.createdDate) {
+                    dateStr = po.createdDate;
+                }
+                // Optionally format date if it's in ISO format
+                if (dateStr && dateStr.length >= 10) {
+                    dateStr = dateStr.substring(0, 10);
+                }
+                return `<button type="button" class="list-group-item list-group-item-action" data-id="${po.id}" data-code="${po.purchaseordercode}">
+                    <strong>${po.purchaseordercode}${dateStr ? ' - ' + dateStr : ''}</strong>
+                </button>`;
+            }).join('');
+        }
+        purchaseOrderResults.style.display = 'block';
+    });
+
+    // Handle selection from popup
+    purchaseOrderResults.addEventListener('click', function(e) {
+        if (e.target.closest('button[data-id]')) {
+            const btn = e.target.closest('button[data-id]');
+            const poId = btn.getAttribute('data-id');
+            const poCode = btn.getAttribute('data-code');
+            purchaseOrderSearch.value = poCode;
+            selectedPurchaseOrderId.value = poId;
+            purchaseOrderResults.style.display = 'none';
+            fetchPurchaseOrderDetails(poId);
+        }
+    });
+
+    // Hide popup when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!purchaseOrderResults.contains(e.target) && e.target !== purchaseOrderSearch) {
+            purchaseOrderResults.style.display = 'none';
         }
     });
 
@@ -31,33 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function fetchPurchaseOrdersForSelect() {
-    fetch('/api/purchaseorders') // Call the backend API
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            populatePurchaseOrderSelect(data);
-        })
-        .catch(error => {
-            console.error('Error fetching purchase orders for select:', error);
-            // Optionally display an error message to the user
-        });
-}
 
-function populatePurchaseOrderSelect(orders) {
-    const selectElement = document.getElementById('purchaseOrderSelect');
-    selectElement.innerHTML = '<option value="">-- Select a Purchase Order --</option>'; // Clear existing options
-    orders.forEach(order => {
-        const option = document.createElement('option');
-        option.value = order.id;
-        option.textContent = order.purchaseordercode; // Display purchase order code
-        selectElement.appendChild(option);
-    });
-}
+// fetchPurchaseOrdersForSelect and populatePurchaseOrderSelect are no longer needed
 
 function fetchPurchaseOrderDetails(purchaseOrderId) {
     fetch(`/api/purchaseorders/${purchaseOrderId}`) // Call the backend API
@@ -163,8 +205,9 @@ function calculateTotalAndGrossAmount() {
     document.getElementById('grossAmount').value = grossAmount.toFixed(2);
 }
 
+
 function createGRN() {
-    const purchaseOrderId = document.getElementById('purchaseOrderSelect').value;
+    const purchaseOrderId = document.getElementById('selectedPurchaseOrderId').value;
     const receivedDate = document.getElementById('receivedDate').value;
     const discountRate = document.getElementById('discountRate').value;
 
@@ -223,7 +266,7 @@ function createGRN() {
         // TODO: Redirect or clear form after successful creation
         document.getElementById('grnForm').reset();
         clearReceivedItemsTable();
-        fetchPurchaseOrdersForSelect(); // Refresh the PO list
+        // No need to refresh PO list for search box
     })
     .catch(error => {
         console.error('Error creating GRN:', error);

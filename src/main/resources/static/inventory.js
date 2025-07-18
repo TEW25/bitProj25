@@ -1,81 +1,17 @@
 // Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function () {
-    // Show scrollable popup for supplier search results
-    function showSupplierSearchPopup(suppliers) {
-        let popup = document.getElementById('supplierSearchPopup');
-        if (!popup) {
-            popup = document.createElement('div');
-            popup.id = 'supplierSearchPopup';
-            popup.style.position = 'absolute';
-            popup.style.zIndex = '9999';
-            popup.style.background = '#fff';
-            popup.style.border = '1px solid #ccc';
-            popup.style.maxHeight = '200px';
-            popup.style.overflowY = 'auto';
-            popup.style.width = '100%';
-            popup.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-            document.body.appendChild(popup);
-        }
-        popup.innerHTML = '';
-        if (suppliers.length === 0) {
-            const noResult = document.createElement('div');
-            noResult.textContent = 'No suppliers found.';
-            noResult.className = 'dropdown-item';
-            popup.appendChild(noResult);
-        } else {
-            suppliers.forEach(supplier => {
-                const option = document.createElement('div');
-                option.className = 'dropdown-item';
-                option.style.cursor = 'pointer';
-                option.textContent = supplier.suppliername;
-                option.dataset.supplierId = supplier.id;
-                option.addEventListener('mousedown', function (e) {
-                    e.preventDefault();
-                    document.getElementById('addSupplierSearch').value = option.textContent;
-                    document.getElementById('addSupplierSearch').dataset.selectedSupplierId = supplier.id;
-                    hideSupplierSearchPopup();
-                });
-                popup.appendChild(option);
-            });
-        }
-        // Position popup below the supplier search field
-        const searchInput = document.getElementById('addSupplierSearch');
-        const rect = searchInput.getBoundingClientRect();
-        popup.style.left = rect.left + 'px';
-        popup.style.top = (rect.bottom + window.scrollY) + 'px';
-        popup.style.width = rect.width + 'px';
-        popup.style.display = 'block';
-    }
-
-    function hideSupplierSearchPopup() {
-        const popup = document.getElementById('supplierSearchPopup');
-        if (popup) {
-            popup.style.display = 'none';
-        }
-    }
-
-    function fetchSupplierSearchResults(searchTerm = '') {
-        let url = '/api/suppliers';
-        fetch(url)
-            .then(response => response.json())
-            .then(suppliers => {
-                if (searchTerm) {
-                    suppliers = suppliers.filter(s => s.suppliername.toLowerCase().includes(searchTerm.toLowerCase()));
-                }
-                showSupplierSearchPopup(suppliers);
-            });
-    }
 
     // Populate status dropdown for add inventory
     function populateAddStatusDropdown() {
         fetch('/api/inventorystatus')
             .then(response => response.json())
             .then(statuses => {
-                const statusSelect = document.getElementById('addTransactionStatusSelect');
+                const statusSelect = document.getElementById('addStatusSelect');
+                if (!statusSelect) return;
                 statusSelect.innerHTML = '<option value="">-- Select Status --</option>';
                 statuses.forEach(status => {
                     const option = document.createElement('option');
-                    option.value = status.name;
+                    option.value = status.id;
                     option.textContent = status.name;
                     statusSelect.appendChild(option);
                 });
@@ -160,115 +96,132 @@ document.addEventListener('DOMContentLoaded', function () {
     const addInventoryBtn = document.getElementById('addInventoryBtn');
     const inventoryTableBody = document.getElementById('inventoryTableBody');
     const inventoryTable = document.querySelector('.table'); // Get the table element
-    const oldItemDropdown = document.getElementById('addItemSelect');
-    if (oldItemDropdown) {
-        oldItemDropdown.remove();
-    }
-    const oldSupplierDropdown = document.getElementById('addSupplierSelect');
-    if (oldSupplierDropdown) {
-        oldSupplierDropdown.remove();
-    }
     const addItemSearch = document.getElementById('addItemSearch');
-    const addSupplierSearch = document.getElementById('addSupplierSearch');
 
     // Call this when add modal is opened
     $('#addInventoryModal').on('show.bs.modal', function () {
-        if (addItemSearch) {
-            addItemSearch.value = '';
-            addItemSearch.dataset.selectedItemId = '';
-            addItemSearch.addEventListener('input', function () {
-                const searchTerm = addItemSearch.value.trim();
-                if (searchTerm.length > 0) {
-                    fetchItemSearchResults(searchTerm);
-                } else {
-                    hideItemSearchPopup();
-                }
-            });
-            addItemSearch.addEventListener('blur', function () {
-                setTimeout(hideItemSearchPopup, 200); // Delay to allow click
-            });
-        }
-        if (addSupplierSearch) {
-            addSupplierSearch.value = '';
-            addSupplierSearch.dataset.selectedSupplierId = '';
-            addSupplierSearch.addEventListener('input', function () {
-                const searchTerm = addSupplierSearch.value.trim();
-                if (searchTerm.length > 0) {
-                    fetchSupplierSearchResults(searchTerm);
-                } else {
-                    hideSupplierSearchPopup();
-                }
-            });
-            addSupplierSearch.addEventListener('blur', function () {
-                setTimeout(hideSupplierSearchPopup, 200);
-            });
-        }
-        populateAddStatusDropdown();
-    });
-    // ...existing code...
-
-
-    // Event delegation for Delete button in inventory table
-    inventoryTableBody.addEventListener('click', function (event) {
-        const deleteBtn = event.target.closest('.delete-inventory-btn');
-        if (deleteBtn) {
-            const inventoryId = deleteBtn.getAttribute('data-id');
-            if (confirm('Are you sure you want to delete this inventory item?')) {
-                fetch(`/api/inventory/${inventoryId}`, {
-                    method: 'DELETE'
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+        // Populate item dropdown
+        fetch('/api/items')
+            .then(response => response.json())
+            .then(items => {
+                const itemSelect = document.getElementById('addItemSelect');
+                if (!itemSelect) return;
+                itemSelect.innerHTML = '<option value="">-- Select Item --</option>';
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = `${item.itemcode} - ${item.itemname}`;
+                    option.dataset.itemcode = item.itemcode || '';
+                    itemSelect.appendChild(option);
+                });
+                // Auto-fill inventory code with INV + random 6 digits when item is selected
+                itemSelect.addEventListener('change', function () {
+                    const inventoryCodeInput = document.getElementById('addInventoryCode');
+                    if (inventoryCodeInput) {
+                        // Generate random 6 digit number
+                        const randomDigits = Math.floor(100000 + Math.random() * 900000);
+                        inventoryCodeInput.value = 'INV' + randomDigits;
                     }
-                    // Refresh table after delete
-                    fetchInventoryItems();
-                })
-                .catch(error => {
-                    console.error('Error deleting inventory item:', error);
-                    alert('Error deleting inventory item.');
                 });
+            });
+    });
+    if (addItemSearch) {
+        addItemSearch.value = '';
+        addItemSearch.dataset.selectedItemId = '';
+        addItemSearch.addEventListener('input', function () {
+            const searchTerm = addItemSearch.value.trim();
+            if (searchTerm.length > 0) {
+                fetchItemSearchResults(searchTerm);
+            } else {
+                hideItemSearchPopup();
             }
-        }
-    });
+        });
+        addItemSearch.addEventListener('blur', function () {
+            setTimeout(hideItemSearchPopup, 200); // Delay to allow click
+        });
+        // When an item is selected from the popup, set the dropdown value
+        document.body.addEventListener('mousedown', function (e) {
+            if (e.target.classList.contains('dropdown-item') && e.target.dataset.itemId) {
+                const itemId = e.target.dataset.itemId;
+                const itemSelect = document.getElementById('addItemSelect');
+                if (itemSelect) {
+                    itemSelect.value = itemId;
+                    itemSelect.classList.add('selected');
+                    // Also trigger change event for validation
+                    itemSelect.dispatchEvent(new Event('change'));
+                }
+                // Set the search field value to the selected item's text
+                if (addItemSearch) {
+                    addItemSearch.value = e.target.textContent;
+                }
+            }
+        });
+    }
+        populateAddStatusDropdown();
+        // Populate status dropdown for main filter
+        populateStatusDropdown();
 
-    // Event delegation for Edit button in inventory table
-    inventoryTableBody.addEventListener('click', function (event) {
-        const editBtn = event.target.closest('.edit-inventory-btn');
-        if (editBtn) {
-            const inventoryId = editBtn.getAttribute('data-id');
-            // Fetch inventory item details
-            fetch(`/api/inventory/${inventoryId}`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Failed to fetch inventory item');
-                    return response.json();
-                })
-                .then(item => {
-                    document.getElementById('editInventoryModalLabel').textContent = 'Edit Inventory Item';
-                    document.getElementById('editInventoryId').value = item.id ?? '';
-                    document.getElementById('editQuantityInput').value = item.availableqty ?? '';
-                    document.getElementById('editTotalQtyInput').value = item.totalqty ?? '';
-                    const statusSelect = document.getElementById('editTransactionStatusSelect');
-                    fetch('/api/inventorystatus')
-                        .then(resp => resp.json())
-                        .then(statuses => {
-                            statusSelect.innerHTML = '';
-                            statuses.forEach(status => {
-                                const option = document.createElement('option');
-                                option.value = status.name;
-                                option.textContent = status.name;
-                                statusSelect.appendChild(option);
+        // Event delegation for Delete button in inventory table
+        inventoryTableBody.addEventListener('click', function (event) {
+            const deleteBtn = event.target.closest('.delete-inventory-btn');
+            if (deleteBtn) {
+                const inventoryId = deleteBtn.getAttribute('data-id');
+                if (confirm('Are you sure you want to delete this inventory item?')) {
+                    fetch(`/api/inventory/${inventoryId}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        // Refresh table after delete
+                        fetchInventoryItems();
+                    })
+                    .catch(error => {
+                        console.error('Error deleting inventory item:', error);
+                        alert('Error deleting inventory item.');
+                    });
+                }
+            }
+        });
+
+        // Event delegation for Edit button in inventory table
+        inventoryTableBody.addEventListener('click', function (event) {
+            const editBtn = event.target.closest('.edit-inventory-btn');
+            if (editBtn) {
+                const inventoryId = editBtn.getAttribute('data-id');
+                // Fetch inventory item details
+                fetch(`/api/inventory/${inventoryId}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Failed to fetch inventory item');
+                        return response.json();
+                    })
+                    .then(item => {
+                        document.getElementById('editInventoryModalLabel').textContent = 'Edit Inventory Item';
+                        document.getElementById('editInventoryId').value = item.id ?? '';
+                        document.getElementById('editQuantityInput').value = item.availableqty ?? '';
+                        document.getElementById('editTotalQtyInput').value = item.totalqty ?? '';
+                        const statusSelect = document.getElementById('editTransactionStatusSelect');
+                        fetch('/api/inventorystatus')
+                            .then(resp => resp.json())
+                            .then(statuses => {
+                                statusSelect.innerHTML = '';
+                                statuses.forEach(status => {
+                                    const option = document.createElement('option');
+                                    option.value = status.name;
+                                    option.textContent = status.name;
+                                    statusSelect.appendChild(option);
+                                });
+                                statusSelect.value = item.inventorystatus ? item.inventorystatus.name : '';
                             });
-                            statusSelect.value = item.inventorystatus ? item.inventorystatus.name : '';
-                        });
-                    $(editInventoryModal).modal('show');
-                })
-                .catch(error => {
-                    console.error('Error loading inventory item for edit:', error);
-                    alert('Error loading inventory item for edit.');
-                });
-        }
-    });
+                        $(editInventoryModal).modal('show');
+                    })
+                    .catch(error => {
+                        console.error('Error loading inventory item for edit:', error);
+                        alert('Error loading inventory item for edit.');
+                    });
+            }
+        });
     console.log('DOM fully loaded. Initializing inventory script.'); // Added log
 
     let currentSortField = '';
@@ -324,7 +277,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td>${item.id ?? ''}</td>
                         <td>${item.item ? (item.item.itemcode ?? '') : ''}</td>
                         <td>${item.item ? (item.item.itemname ?? '') : ''}</td>
-                        <td>${item.supplier ? (item.supplier.suppliername ?? '') : ''}</td>
                         <td>${item.availableqty ?? ''}</td>
                         <td>${item.totalqty ?? ''}</td>
                         <td>${item.inventorystatus ? (item.inventorystatus.name ?? '') : ''}</td>
@@ -390,20 +342,24 @@ document.addEventListener('DOMContentLoaded', function () {
         addInventoryForm.addEventListener('submit', function (event) {
             event.preventDefault();
             // Get form values for add
-            const itemSearchInput = document.getElementById('addItemSearch');
-            const supplierSearchInput = document.getElementById('addSupplierSearch');
-            const itemId = itemSearchInput ? itemSearchInput.dataset.selectedItemId : '';
-            const supplierId = supplierSearchInput ? supplierSearchInput.dataset.selectedSupplierId : '';
-            const availableqty = document.getElementById('addQuantityInput').value;
-            const totalqty = document.getElementById('addTotalQtyInput').value;
-
+            const itemSelect = document.getElementById('addItemSelect');
+            const itemId = itemSelect.value;
+            // Inventory code
+            const inventoryCodeInput = document.getElementById('addInventoryCode');
+            const inventorycode = inventoryCodeInput ? inventoryCodeInput.value : '';
+            // Use correct input IDs for available and total qty
+            const availableqty = document.getElementById('addAvailableQty') ? document.getElementById('addAvailableQty').value : '';
+            const totalqty = document.getElementById('addTotalQty') ? document.getElementById('addTotalQty').value : '';
+            const statusId = document.getElementById('addStatusSelect') ? document.getElementById('addStatusSelect').value : '';
             // Basic validation
-            if (!itemId) {
+            if (!itemId || itemId === '') {
                 alert('Please select an item.');
+                itemSelect.focus();
                 return;
             }
-            if (!supplierId) {
-                alert('Please select a supplier.');
+            if (inventorycode === '') {
+                alert('Inventory Code is required.');
+                if (inventoryCodeInput) inventoryCodeInput.focus();
                 return;
             }
             if (availableqty === '' || isNaN(availableqty)) {
@@ -414,14 +370,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Total Qty is required and must be a number.');
                 return;
             }
-
+            if (!statusId) {
+                alert('Status is required.');
+                return;
+            }
             // Prepare data for POST
             const inventoryData = {
-                item: { id: parseInt(itemId) },
-                supplier: { id: parseInt(supplierId) },
-                availableqty: parseFloat(availableqty),
-                totalqty: parseFloat(totalqty),
-                inventorystatus: { id: 1 }
+                item: { id: itemId },
+                inventorycode,
+                availableqty,
+                totalqty,
+                inventorystatus: { id: statusId }
             };
 
             fetch('/api/inventory', {
@@ -547,11 +506,9 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchInventoryItems(searchTerm, status, `${currentSortField},${currentSortDirection}`);
         });
     });
+// ...existing code...
+// Ensure table loads data on initial page load
+fetchInventoryItems();
+}); // <-- Close DOMContentLoaded handler
 
-    // Initial load of inventory items and statuses (when the page loads)
-    fetchInventoryItems(); // Call this function on page load
-    populateStatusDropdown(); // Call this function on page load
-
-    // TODO: Add function to handle edit button clicks (populate modal with item data)
-    // TODO: Add function to handle delete button clicks
-});
+  

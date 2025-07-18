@@ -53,7 +53,6 @@
                     <th>ID</th>
                     <th>Item Code</th>
                     <th>Item Name</th>
-                    <th>Supplier</th>
                     <th data-sort-field="availableqty">Available Qty</th>
                     <th data-sort-field="totalqty">Total Qty</th>
                     <th>Status</th>
@@ -79,24 +78,30 @@
                 <div class="modal-body">
                     <form id="addInventoryForm">
                         <div class="form-group">
-                            <label for="addItemSearch">Item (Search by Name or Code)</label>
-                            <input type="text" class="form-control" id="addItemSearch" placeholder="Type to search..." autocomplete="off" required>
-                            <select class="form-control mt-2" id="addItemSelect" required>
-                                <option value="">-- Search & Select Item --</option>
+                            <label for="addItemSelect">Item</label>
+                            <select class="form-control" id="addItemSelect" required>
+                                <option value="">-- Select Item --</option>
                                 <!-- Item options will be loaded by JavaScript -->
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="addSupplierSearch">Supplier</label>
-                            <input type="text" class="form-control" id="addSupplierSearch" placeholder="Search & Select Supplier">
+                            <label for="addInventoryCode">Inventory Code</label>
+                            <input type="text" class="form-control" id="addInventoryCode" required>
                         </div>
                         <div class="form-group">
-                            <label for="addQuantityInput">Available Qty</label>
-                            <input type="number" class="form-control" id="addQuantityInput" required min="0">
+                            <label for="addAvailableQty">Available Qty</label>
+                            <input type="number" class="form-control" id="addAvailableQty" required min="0">
                         </div>
                         <div class="form-group">
-                            <label for="addTotalQtyInput">Total Qty</label>
-                            <input type="number" class="form-control" id="addTotalQtyInput" required min="0">
+                            <label for="addTotalQty">Total Qty</label>
+                            <input type="number" class="form-control" id="addTotalQty" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="addStatusSelect">Status</label>
+                            <select class="form-control" id="addStatusSelect" required>
+                                <option value="">-- Select Status --</option>
+                                <!-- Status options will be loaded by JavaScript -->
+                            </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Add Item</button>
                     </form>

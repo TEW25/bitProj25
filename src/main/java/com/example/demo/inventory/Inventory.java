@@ -19,9 +19,8 @@ public class Inventory {
     @JoinColumn(name = "item_id")
     private Item item;
 
-    @ManyToOne
-    @JoinColumn(name = "supplier_id")
-    private Supplier supplier;
+    // Removed Supplier relationship as supplier_id is no longer in inventory table
+    // private Supplier supplier;
 
     @ManyToOne // Add ManyToOne relationship to Inventorystatus
     @JoinColumn(name = "inventorystatus_id") // Assuming a foreign key column inventorystatus_id in inventory table
@@ -69,13 +68,7 @@ public class Inventory {
         this.item = item;
     }
 
-    public Supplier getSupplier() {
-        return supplier;
-    }
-
-    public void setSupplier(Supplier supplier) {
-        this.supplier = supplier;
-    }
+    // Removed getSupplier and setSupplier methods
 
     public Inventorystatus getInventorystatus() {
         return inventorystatus;
