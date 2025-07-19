@@ -1,19 +1,21 @@
-// sales.js - Handles the New Sale page logic
+// sales.js - Handles cart management and item search for the New Sale page
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Add first item row by default
+// Reset all sale form fields and cart
+function resetSaleForm() {
+    document.getElementById('subtotal').value = '';
+    document.getElementById('globalDiscount').value = 0;
+    document.getElementById('totalAmount').value = '';
+    document.getElementById('paidAmount').value = 0;
+    document.getElementById('balanceAmount').value = '';
+    document.getElementById('paymentType').selectedIndex = 0;
+    // Remove all cart rows
+    const tbody = document.getElementById('cartTableBody');
+    while (tbody.firstChild) {
+        tbody.removeChild(tbody.firstChild);
+    }
+    // Add a fresh row
     addCartRow();
-
-    // Add item row on button click
-    document.getElementById('addItemBtn').addEventListener('click', addCartRow);
-
-    // Update totals on global discount or paid amount change
-    document.getElementById('globalDiscount').addEventListener('input', updateTotals);
-    document.getElementById('paidAmount').addEventListener('input', updateTotals);
-
-    // Submit sale
-    document.getElementById('submitSaleBtn').addEventListener('click', submitSale);
-});
+}
 
 function addCartRow() {
     const tbody = document.getElementById('cartTableBody');
@@ -95,7 +97,7 @@ function handleItemSearch(e) {
                     option.addEventListener('click', () => {
                         input.value = `${item.itemcode || ''} - ${item.itemname || ''}`;
                         row.dataset.itemId = item.id;
-                        row.querySelector('.available-qty').value = inv.availableqty;
+                        row.querySelector('.available- qty').value = inv.availableqty;
                         // Try multiple possible price fields
                         let unitPrice = item.price || item.unitprice || item.salesprice || inv.unitprice || inv.price || 0;
                         row.querySelector('.unit-price').value = unitPrice;
@@ -122,99 +124,3 @@ document.addEventListener('click', function(e) {
         });
     }
 });
-
-function updateLineTotal() {
-    const row = this.closest('tr');
-    const qty = parseFloat(row.querySelector('.quantity').value) || 0;
-    const price = parseFloat(row.querySelector('.unit-price').value) || 0;
-    const discount = parseFloat(row.querySelector('.discount').value) || 0;
-    const available = parseFloat(row.querySelector('.available-qty').value) || 0;
-    // Validate quantity
-    if (qty > available) {
-        row.querySelector('.quantity').value = available;
-        alert('Not enough quantity available!');
-    }
-    const lineTotal = qty * price * (1 - discount / 100);
-    row.querySelector('.line-total').value = lineTotal.toFixed(2);
-    updateTotals();
-}
-
-function updateTotals() {
-    let subtotal = 0;
-    document.querySelectorAll('#cartTableBody tr').forEach(row => {
-        subtotal += parseFloat(row.querySelector('.line-total').value) || 0;
-    });
-    document.getElementById('subtotal').value = subtotal.toFixed(2);
-    const globalDiscount = parseFloat(document.getElementById('globalDiscount').value) || 0;
-    const total = subtotal * (1 - globalDiscount / 100);
-    document.getElementById('totalAmount').value = total.toFixed(2);
-    const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
-    const balance = total - paid;
-    document.getElementById('balanceAmount').value = balance.toFixed(2);
-}
-
-function submitSale() {
-    // Validate
-    const rows = document.querySelectorAll('#cartTableBody tr');
-    if (rows.length === 0) {
-        alert('Add at least one item.');
-        return;
-    }
-    let valid = true;
-    const items = [];
-    rows.forEach(row => {
-        const itemId = row.dataset.itemId;
-        const qty = parseFloat(row.querySelector('.quantity').value) || 0;
-        const price = parseFloat(row.querySelector('.unit-price').value) || 0;
-        const discount = parseFloat(row.querySelector('.discount').value) || 0;
-        const lineTotal = parseFloat(row.querySelector('.line-total').value) || 0;
-        if (!itemId || qty <= 0 || price < 0) valid = false;
-        items.push({ itemId, quantity: qty, salesPrice: price, discount, linePrice: lineTotal });
-    });
-    if (!valid) {
-        alert('Please fill all item details correctly.');
-        return;
-    }
-    // Prepare sale data
-    const subtotal = parseFloat(document.getElementById('subtotal').value) || 0;
-    const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 0;
-    const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
-    const balanceAmount = parseFloat(document.getElementById('balanceAmount').value) || 0;
-    const discount = parseFloat(document.getElementById('globalDiscount').value) || 0;
-    const paymentType = document.getElementById('paymentType').value;
-    const sale = {
-        subtotal: subtotal,
-        totalAmount: totalAmount,
-        total_amount: totalAmount,
-        paidAmount: paidAmount,
-        paid_amount: paidAmount,
-        balanceAmount: balanceAmount,
-        balance_amount: balanceAmount,
-        discount: discount,
-        paymentType: paymentType,
-        items: items
-    };
-    // Send to backend
-    fetch('/api/sales', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(sale)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to submit sale');
-        }
-        return response.json();
-    })
-    .then(data => {
-        alert('Sale submitted successfully! Sales Number: ' + (data.salesnumber || '')); 
-        // Optionally, reset form or reload page
-        location.reload();
-    })
-    .catch(error => {
-        console.error('Error submitting sale:', error);
-        alert('Error submitting sale. Please try again.');
-    });
-}
