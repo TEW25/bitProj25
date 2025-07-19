@@ -176,10 +176,22 @@ function submitSale() {
         return;
     }
     // Prepare sale data
+    const subtotal = parseFloat(document.getElementById('subtotal').value) || 0;
+    const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 0;
+    const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
+    const balanceAmount = parseFloat(document.getElementById('balanceAmount').value) || 0;
+    const discount = parseFloat(document.getElementById('globalDiscount').value) || 0;
+    const paymentType = document.getElementById('paymentType').value;
     const sale = {
-        totalAmount: parseFloat(document.getElementById('totalAmount').value) || 0,
-        paidAmount: parseFloat(document.getElementById('paidAmount').value) || 0,
-        paymentType: document.getElementById('paymentType').value,
+        subtotal: subtotal,
+        totalAmount: totalAmount,
+        total_amount: totalAmount,
+        paidAmount: paidAmount,
+        paid_amount: paidAmount,
+        balanceAmount: balanceAmount,
+        balance_amount: balanceAmount,
+        discount: discount,
+        paymentType: paymentType,
         items: items
     };
     // Send to backend
