@@ -120,6 +120,24 @@
             <button type="button" class="btn btn-success" id="submitSaleBtn">Submit Sale</button>
         </div>
     </div>
+    <!-- Sales Records History Section -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>Sales Records History</h5>
+            <div class="form-row align-items-end mb-2">
+                <div class="form-group col-md-3">
+                    <label for="salesHistoryDate">Date</label>
+                    <input type="date" class="form-control" id="salesHistoryDate">
+                </div>
+                <div class="form-group col-md-2">
+                    <button type="button" class="btn btn-primary" id="filterSalesHistoryBtn">Filter</button>
+                </div>
+            </div>
+            <div id="salesRecordsContainer">
+                <!-- Sales records will be loaded here by JS -->
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>

@@ -124,3 +124,80 @@ document.addEventListener('click', function(e) {
         });
     }
 });
+
+// --- Sales Records History Logic ---
+document.addEventListener('DOMContentLoaded', function () {
+    // Set salesHistoryDate to today
+    const salesHistoryDateInput = document.getElementById('salesHistoryDate');
+    if (salesHistoryDateInput) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+        salesHistoryDateInput.value = todayStr;
+        loadSalesRecords(todayStr);
+        document.getElementById('filterSalesHistoryBtn').addEventListener('click', function () {
+            loadSalesRecords(salesHistoryDateInput.value);
+        });
+    }
+});
+
+function loadSalesRecords(dateStr) {
+    const container = document.getElementById('salesRecordsContainer');
+    container.innerHTML = '<div>Loading sales records...</div>';
+    fetch(`/api/sales?date=${dateStr}&employeeId=3`)
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch sales records');
+            return response.json();
+        })
+        .then(sales => {
+            if (!sales || sales.length === 0) {
+                container.innerHTML = '<div class="text-muted">No sales records found for this date.</div>';
+                return;
+            }
+            let html = `<table class="table table-bordered table-sm" style="table-layout:fixed;width:100%"><thead><tr>
+                <th style="width:10%">Sales #</th>
+                <th style="width:22%">Date</th>
+                <th style="width:16%">Total</th>
+                <th style="width:16%">Paid</th>
+                <th style="width:16%">Balance</th>
+                <th style="width:16%">Discount</th>
+                <th style="width:8%">Payment</th>
+            </tr></thead><tbody>`;
+            sales.forEach(sale => {
+                function showZero(val) {
+                    if (val === 0 || val === "0" || val === 0.00 || val === "0.00") return "0.00";
+                    if (val === null || val === undefined || val === "") return "";
+                    return val;
+                }
+                html += `<tr>
+                    <td>${sale.salesnumber || ''}</td>
+                    <td>${sale.added_datetime ? formatDateTime(sale.added_datetime) : ''}</td>
+                    <td>${showZero(sale.total_amount)}</td>
+                    <td>${showZero(sale.paid_amount)}</td>
+                    <td>${showZero(sale.balanceAmount !== undefined ? sale.balanceAmount : sale.balance_amount)}</td>
+                    <td>${showZero(sale.discount)}</td>
+                    <td>${sale.paymentType || ''}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        })
+        .catch(err => {
+            container.innerHTML = `<div class="text-danger">Error loading sales records.</div>`;
+        });
+}
+
+function formatDateTime(dtStr) {
+    // Try to format as YYYY-MM-DD HH:mm
+    if (!dtStr) return '';
+    const d = new Date(dtStr);
+    if (isNaN(d)) return dtStr;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+}

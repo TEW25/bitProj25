@@ -123,26 +123,39 @@ function submitSale() {
 function showSalesSuccessModal(sale) {
     // Compose sale details HTML
     let itemsHtml = '';
+    function showZero(val) {
+        if (val === undefined || val === null || val === "" || val === false) return "";
+        if (val === 0 || val === "0" || val === 0.00 || val === "0.00") return "0";
+        return val;
+    }
     if (sale.items && sale.items.length > 0) {
-        itemsHtml = `<table class="table table-bordered"><thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Discount</th><th>Line Total</th></tr></thead><tbody>`;
+        itemsHtml = `<table class="table table-bordered" style="table-layout:fixed;width:100%"><thead><tr>
+            <th style="width:40%">Item</th>
+            <th style="width:20%">Qty</th>
+            <th style="width:20%">Unit Price</th>
+            <th style="width:20%">Line Total</th>
+        </tr></thead><tbody>`;
         sale.items.forEach(item => {
             itemsHtml += `<tr>
-                <td>${item.item ? (item.item.itemcode + ' - ' + item.item.itemname) : ''}</td>
-                <td>${item.quantity}</td>
-                <td>${item.sales_price}</td>
-                <td>${item.discount || 0}</td>
-                <td>${item.line_price}</td>
+                <td style="word-break:break-word;">${item.item ? (item.item.itemcode + ' - ' + item.item.itemname) : ''}</td>
+                <td>${showZero(item.quantity)}</td>
+                <td>${showZero(item.sales_price)}</td>
+                <td>${showZero(item.line_price)}</td>
             </tr>`;
         });
         itemsHtml += '</tbody></table>';
     }
+    function showDiscount(val) {
+        if (val === undefined || val === null || val === "" || val === 0 || val === "0" || val === 0.00 || val === "0.00") return "None";
+        return val;
+    }
     let html = `
         <div class="mb-2"><strong>Sales Number:</strong> ${sale.salesnumber || ''}</div>
-        <div class="mb-2"><strong>Total Amount:</strong> ${sale.total_amount || sale.totalAmount || ''}</div>
-        <div class="mb-2"><strong>Paid Amount:</strong> ${sale.paid_amount || sale.paidAmount || ''}</div>
-        <div class="mb-2"><strong>Balance:</strong> ${sale.balance_amount || sale.balanceAmount || ''}</div>
-        <div class="mb-2"><strong>Discount:</strong> ${sale.discount || ''}</div>
-        <div class="mb-2"><strong>Subtotal:</strong> ${sale.subtotal || ''}</div>
+        <div class="mb-2"><strong>Total Amount:</strong> ${showZero(sale.total_amount || sale.totalAmount)}</div>
+        <div class="mb-2"><strong>Paid Amount:</strong> ${showZero(sale.paid_amount || sale.paidAmount)}</div>
+        <div class="mb-2"><strong>Balance:</strong> ${showZero(sale.balance_amount || sale.balanceAmount)}</div>
+        <div class="mb-2"><strong>Discount:</strong> ${showDiscount(sale.discount)}</div>
+        <div class="mb-2"><strong>Subtotal:</strong> ${showZero(sale.subtotal)}</div>
         <div class="mb-2"><strong>Payment Type:</strong> ${sale.paymentType || ''}</div>
         <div class="mb-2"><strong>Date:</strong> ${sale.added_datetime || ''}</div>
         <hr>
