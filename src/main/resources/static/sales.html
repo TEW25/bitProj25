@@ -60,6 +60,26 @@
 <div class="container mt-4">
     <!-- Sale Success Modal -->
     <div id="salesSuccessModalContainer"></div>
+    <!-- Refund Modal -->
+    <div class="modal fade" id="refundModal" tabindex="-1" role="dialog" aria-labelledby="refundModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="refundModalLabel">Refund Sale</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="refundModalBody">
+            <!-- Refund form will be injected by JS -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="saveRefundBtn">Save Refund</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <h2>New Sale</h2>
     <!-- Middle Panel: Cart / Line Items -->
     <div class="card mb-3">

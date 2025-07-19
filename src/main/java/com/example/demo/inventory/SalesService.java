@@ -135,6 +135,52 @@ public class SalesService {
         return saleRepository.findAll();
     }
 
+    @Transactional
+    public Sale refundSale(RefundRequest refundRequest) {
+        Sale sale = saleRepository.findById(refundRequest.getSaleId()).orElse(null);
+        if (sale == null) return null;
+
+        BigDecimal refundTotal = BigDecimal.ZERO;
+        for (RefundRequest.RefundItem item : refundRequest.getItems()) {
+            ItemHasSale itemHasSale = null;
+            for (ItemHasSale i : sale.getItems()) {
+                if (i.getItem().getId().equals(item.getItemId())) {
+                    itemHasSale = i;
+                    break;
+                }
+            }
+            if (itemHasSale != null) {
+                // Increase inventory
+                Inventory inventory = inventoryRepository.findByItemId(item.getItemId()).orElse(null);
+                if (inventory != null) {
+                    inventory.setAvailableqty(inventory.getAvailableqty().add(BigDecimal.valueOf(item.getRefundQty())));
+                    inventoryRepository.save(inventory);
+                }
+                // Reduce quantity in sale item
+                BigDecimal newQty = itemHasSale.getQuantity().subtract(BigDecimal.valueOf(item.getRefundQty()));
+                itemHasSale.setQuantity(newQty);
+                itemHasSaleRepository.save(itemHasSale);
+                // Calculate refund value for this item
+                refundTotal = refundTotal.add(BigDecimal.valueOf(item.getSalesPrice()).multiply(BigDecimal.valueOf(item.getRefundQty())));
+            }
+        }
+        // Reduce paid amount
+        sale.setPaid_amount(sale.getPaid_amount().subtract(BigDecimal.valueOf(refundRequest.getPaidBack())));
+        // Recalculate subtotal
+        BigDecimal newSubtotal = BigDecimal.ZERO;
+        for (ItemHasSale i : sale.getItems()) {
+            newSubtotal = newSubtotal.add(i.getSales_price().multiply(i.getQuantity()));
+        }
+        sale.setSubtotal(newSubtotal);
+        // Recalculate total (subtotal - discount)
+        BigDecimal discount = sale.getDiscount() != null ? sale.getDiscount() : BigDecimal.ZERO;
+        sale.setTotal_amount(newSubtotal.subtract(discount));
+        // Recalculate balance
+        sale.setBalanceAmount(sale.getTotal_amount().subtract(sale.getPaid_amount()));
+        saleRepository.save(sale);
+        return sale;
+    }
+
     // Get sale by id with items
     public Sale getSaleById(Integer id) {
         return saleRepository.findById(id).orElse(null);

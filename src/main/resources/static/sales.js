@@ -1,120 +1,5 @@
 // sales.js - Handles cart management and item search for the New Sale page
 
-// Reset all sale form fields and cart
-function resetSaleForm() {
-    document.getElementById('subtotal').value = '';
-    document.getElementById('globalDiscount').value = 0;
-    document.getElementById('totalAmount').value = '';
-    document.getElementById('paidAmount').value = 0;
-    document.getElementById('balanceAmount').value = '';
-    document.getElementById('paymentType').selectedIndex = 0;
-    // Remove all cart rows
-    const tbody = document.getElementById('cartTableBody');
-    while (tbody.firstChild) {
-        tbody.removeChild(tbody.firstChild);
-    }
-    // Add a fresh row
-    addCartRow();
-}
-
-function addCartRow() {
-    const tbody = document.getElementById('cartTableBody');
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td>
-            <div class="position-relative">
-                <input type="text" class="form-control item-search" placeholder="Search by code or name" autofocus>
-                <div class="dropdown-menu w-100 item-search-dropdown" style="display: none;"></div>
-            </div>
-        </td>
-        <td><input type="text" class="form-control available-qty" readonly></td>
-        <td><input type="number" class="form-control quantity" min="1" value="1"></td>
-        <td><input type="number" class="form-control unit-price" min="0" step="0.01" readonly></td>
-        <td><input type="number" class="form-control discount" min="0" max="100" value="0"></td>
-        <td><input type="text" class="form-control line-total" readonly></td>
-        <td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
-    `;
-    tbody.appendChild(row);
-
-    // Attach events
-    const searchInput = row.querySelector('.item-search');
-    searchInput.addEventListener('input', handleItemSearch);
-    searchInput.addEventListener('focus', function() {
-        if (this.value.length >= 2) {
-            handleItemSearch({target: this});
-        }
-    });
-    
-    row.querySelector('.quantity').addEventListener('input', updateLineTotal);
-    row.querySelector('.unit-price').addEventListener('input', updateLineTotal);
-    row.querySelector('.discount').addEventListener('input', updateLineTotal);
-    row.querySelector('.remove-row').addEventListener('click', function () {
-        row.remove();
-        updateTotals();
-    });
-}
-
-function handleItemSearch(e) {
-    const input = e.target;
-    const value = input.value.trim();
-    const row = input.closest('tr');
-    const dropdown = input.parentElement.querySelector('.item-search-dropdown');
-    
-    if (value.length < 2) {
-        dropdown.style.display = 'none';
-        return;
-    }
-    
-    // Show loading state
-    dropdown.innerHTML = '<div class="dropdown-item">Searching...</div>';
-    dropdown.style.display = 'block';
-    
-    // Fetch items from backend
-    fetch(`/api/inventory/available-items?search=${encodeURIComponent(value)}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(items => {
-            dropdown.innerHTML = '';
-            
-            if (!items || items.length === 0) {
-                const option = document.createElement('div');
-                option.className = 'dropdown-item';
-                option.textContent = 'No items found';
-                dropdown.appendChild(option);
-            } else {
-                items.forEach(inv => {
-                    const item = inv.item || {};
-                    const option = document.createElement('div');
-                    option.className = 'dropdown-item';
-                    option.innerHTML = `
-                        <div><strong>${item.itemcode || ''}</strong> - ${item.itemname || ''}</div>
-                        <small class="text-muted">Available: ${inv.availableqty || 0}</small>
-                    `;
-                    option.addEventListener('click', () => {
-                        input.value = `${item.itemcode || ''} - ${item.itemname || ''}`;
-                        row.dataset.itemId = item.id;
-                        row.querySelector('.available-qty').value = inv.availableqty;
-                        // Try multiple possible price fields
-                        let unitPrice = item.price || item.unitprice || item.salesprice || inv.unitprice || inv.price || 0;
-                        row.querySelector('.unit-price').value = unitPrice;
-                        row.querySelector('.quantity').max = inv.availableqty;
-                        row.querySelector('.quantity').disabled = inv.availableqty <= 0;
-                        updateLineTotal.call(row.querySelector('.quantity'));
-                        dropdown.style.display = 'none';
-                    });
-                    dropdown.appendChild(option);
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error searching items:', error);
-            dropdown.innerHTML = '<div class="dropdown-item text-danger">Error loading items</div>';
-        });
-}
 
 // Add event listener to close dropdown when clicking outside
 document.addEventListener('click', function(e) {
@@ -156,6 +41,12 @@ function loadSalesRecords(dateStr) {
                 container.innerHTML = '<div class="text-muted">No sales records found for this date.</div>';
                 return;
             }
+            // Sort sales by added_datetime descending (newest first)
+            sales.sort((a, b) => {
+                const dateA = new Date(a.added_datetime);
+                const dateB = new Date(b.added_datetime);
+                return dateB - dateA;
+            });
             let html = `<table class="table table-bordered table-sm" style="table-layout:fixed;width:100%"><thead><tr>
                 <th style="width:10%">Sales #</th>
                 <th style="width:22%">Date</th>
@@ -165,13 +56,13 @@ function loadSalesRecords(dateStr) {
                 <th style="width:16%">Discount</th>
                 <th style="width:8%">Payment</th>
             </tr></thead><tbody>`;
-            sales.forEach(sale => {
+            sales.forEach((sale, idx) => {
                 function showZero(val) {
                     if (val === 0 || val === "0" || val === 0.00 || val === "0.00") return "0.00";
                     if (val === null || val === undefined || val === "") return "";
                     return val;
                 }
-                html += `<tr>
+                html += `<tr class="sales-record-row" data-sale-idx="${idx}" style="cursor:pointer;">
                     <td>${sale.salesnumber || ''}</td>
                     <td>${sale.added_datetime ? formatDateTime(sale.added_datetime) : ''}</td>
                     <td>${showZero(sale.total_amount)}</td>
@@ -183,14 +74,125 @@ function loadSalesRecords(dateStr) {
             });
             html += '</tbody></table>';
             container.innerHTML = html;
+
+            // Add click event for refund popup
+            container.querySelectorAll('.sales-record-row').forEach(row => {
+                row.addEventListener('click', function() {
+                    const idx = this.dataset.saleIdx;
+                    const sale = sales[idx];
+                    // Fetch sale details from backend for accuracy
+                    fetch(`/api/sales/${sale.id}`)
+                        .then(res => res.json())
+                        .then(saleDetails => {
+                            openRefundModal(saleDetails);
+                        })
+                        .catch(() => {
+                            // fallback to local sale if fetch fails
+                            openRefundModal(sale);
+                        });
+                });
+            });
         })
         .catch(err => {
             container.innerHTML = `<div class="text-danger">Error loading sales records.</div>`;
         });
 }
 
+function openRefundModal(sale) {
+    let empNum = sale.employee && sale.employee.employee_number ? sale.employee.employee_number : '';
+    let dateStr = sale.added_datetime ? new Date(sale.added_datetime).toLocaleString() : '';
+    let itemsHtml = '';
+    if (sale.items && sale.items.length > 0) {
+        itemsHtml = `<table class="table table-bordered" style="table-layout:fixed;width:100%"><thead><tr>
+            <th style="width:40%">Item Name</th>
+            <th style="width:20%">Sales Price</th>
+            <th style="width:20%">Qty Sold</th>
+            <th style="width:20%">Refund Qty</th>
+        </tr></thead><tbody>`;
+        sale.items.forEach((item, idx) => {
+            itemsHtml += `<tr>
+                <td style="word-break:break-word;">${item.item ? (item.item.itemname || item.item.name || '') : ''}</td>
+                <td>${item.sales_price}</td>
+                <td>${item.quantity}</td>
+                <td><input type="number" class="form-control refund-qty" min="0" max="${item.quantity}" data-item-idx="${idx}" value=""></td>
+            </tr>`;
+        });
+        itemsHtml += '</tbody></table>';
+    } else {
+        itemsHtml = '<div>No items found for this sale.</div>';
+    }
+    let html = `
+        <div class="mb-2"><strong>Sales Number:</strong> ${sale.salesnumber || ''}</div>
+        <div class="mb-2"><strong>Date:</strong> ${dateStr}</div>
+        <div class="mb-2"><strong>Added By:</strong> ${empNum}</div>
+        <hr>
+        <h5>Refund Items</h5>
+        ${itemsHtml}
+        <div class="form-group mt-3">
+            <label for="refundPaidBack">Paid Back Amount</label>
+            <input type="number" class="form-control" id="refundPaidBack" min="0" value="">
+        </div>
+    `;
+    document.getElementById('refundModalBody').innerHTML = html;
+    // Show modal (Bootstrap 4)
+    $('#refundModal').modal('show');
+    // Save button handler (no backend, just close)
+    document.getElementById('saveRefundBtn').onclick = function() {
+        // Collect refund data
+        const refundData = {
+            saleId: sale.id,
+            items: [],
+            paidBack: 0
+        };
+        // Collect refund quantities for each item
+        const refundInputs = document.querySelectorAll('.refund-qty');
+        refundInputs.forEach((input, idx) => {
+            const qty = parseFloat(input.value) || 0;
+            if (qty > 0) {
+                refundData.items.push({
+                    itemId: sale.items[idx].item ? sale.items[idx].item.id : null,
+                    refundQty: qty,
+                    salesPrice: sale.items[idx].sales_price
+                });
+            }
+        });
+        // Collect paid back amount
+        const paidBackInput = document.getElementById('refundPaidBack');
+        refundData.paidBack = parseFloat(paidBackInput.value) || 0;
+
+        // Validation: at least one item and paidBack > 0
+        if (refundData.items.length === 0) {
+            alert('Please enter a refund quantity for at least one item.');
+            return;
+        }
+        if (refundData.paidBack <= 0) {
+            alert('Paid Back Amount must be greater than 0.');
+            return;
+        }
+
+        // Send refund data to backend
+        fetch('/api/sales/refunds', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(refundData)
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Failed to save refund');
+            return res.json();
+        })
+        .then(data => {
+            alert('Refund saved successfully!');
+            $('#refundModal').modal('hide');
+        })
+        .catch(err => {
+            alert('Error saving refund: ' + err.message);
+        });
+    };
+}
+
 function formatDateTime(dtStr) {
-    // Try to format as YYYY-MM-DD HH:mm
     if (!dtStr) return '';
     const d = new Date(dtStr);
     if (isNaN(d)) return dtStr;

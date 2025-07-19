@@ -45,4 +45,15 @@ public class SalesController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    // Refund endpoint
+    @PostMapping("/refunds")
+    public ResponseEntity<Sale> refundSale(@RequestBody RefundRequest refundRequest) {
+        Sale sale = salesService.refundSale(refundRequest);
+        if (sale != null) {
+            return ResponseEntity.ok(sale);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
