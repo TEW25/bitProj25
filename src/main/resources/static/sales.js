@@ -97,7 +97,7 @@ function handleItemSearch(e) {
                     option.addEventListener('click', () => {
                         input.value = `${item.itemcode || ''} - ${item.itemname || ''}`;
                         row.dataset.itemId = item.id;
-                        row.querySelector('.available- qty').value = inv.availableqty;
+                        row.querySelector('.available-qty').value = inv.availableqty;
                         // Try multiple possible price fields
                         let unitPrice = item.price || item.unitprice || item.salesprice || inv.unitprice || inv.price || 0;
                         row.querySelector('.unit-price').value = unitPrice;
