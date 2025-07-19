@@ -268,7 +268,11 @@ $(document).ready(function() {
             },
             error: function(error) {
                 console.error('Error saving item:', error);
-                alert('Error saving item.'); // Basic error handling
+                if (error.status === 409) {
+                    alert('Item code already exists. Please use a unique item code.');
+                } else {
+                    alert('Error saving item.'); // Basic error handling
+                }
             }
         });
     });

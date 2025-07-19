@@ -19,10 +19,19 @@ public class SalesController {
         return ResponseEntity.ok(sale);
     }
 
-    // List all sales
+    // List all sales, optionally filtered by date
     @GetMapping
-    public ResponseEntity<List<Sale>> getAllSales() {
-        List<Sale> sales = salesService.getAllSales();
+    public ResponseEntity<List<Sale>> getAllSales(
+            @RequestParam(value = "date", required = false) String date,
+            @RequestParam(value = "employeeId", required = false) Integer employeeId) {
+        List<Sale> sales;
+        if (date != null && !date.isEmpty()) {
+            sales = salesService.getSalesByDateAndEmployee(date, employeeId);
+        } else if (employeeId != null) {
+            sales = salesService.getSalesByEmployee(employeeId);
+        } else {
+            sales = salesService.getAllSales();
+        }
         return ResponseEntity.ok(sales);
     }
 

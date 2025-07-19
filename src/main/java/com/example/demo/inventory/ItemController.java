@@ -34,8 +34,20 @@ public class ItemController {
     }
 
     @PostMapping
-    public Item createItem(@RequestBody Item item) {
-        return itemService.createItem(item);
+    public ResponseEntity<?> createItem(@RequestBody Item item) {
+        try {
+            System.out.println("Received Item: " + item);
+            // Check for duplicate itemcode
+            Item existingItem = itemService.findByItemcode(item.getItemcode());
+            if (existingItem != null) {
+                return ResponseEntity.status(409).body("Item code already exists.");
+            }
+            Item savedItem = itemService.createItem(item);
+            return ResponseEntity.ok(savedItem);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error creating item: " + e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")

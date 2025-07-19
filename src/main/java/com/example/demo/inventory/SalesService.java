@@ -10,6 +10,77 @@ import java.util.Date;
 
 @Service
 public class SalesService {
+    // List sales by date and employee
+    public List<Sale> getSalesByDateAndEmployee(String date, Integer employeeId) {
+        List<Sale> sales = getSalesByDate(date);
+        if (employeeId != null) {
+            List<Sale> filtered = new ArrayList<>();
+            for (Sale sale : sales) {
+                if (sale.getEmployee() != null && sale.getEmployee().getId() != null && sale.getEmployee().getId().equals(employeeId)) {
+                    filtered.add(sale);
+                }
+            }
+            return filtered;
+        }
+        return sales;
+    }
+
+    // List sales by employee only
+    public List<Sale> getSalesByEmployee(Integer employeeId) {
+        List<Sale> sales = saleRepository.findAll();
+        List<Sale> filtered = new ArrayList<>();
+        for (Sale sale : sales) {
+            if (sale.getEmployee() != null && sale.getEmployee().getId() != null && sale.getEmployee().getId().equals(employeeId)) {
+                filtered.add(sale);
+            }
+        }
+        return filtered;
+    }
+    // List sales by a single date
+    public List<Sale> getSalesByDate(String date) {
+        try {
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            java.util.Date day = (date != null && !date.isEmpty()) ? sdf.parse(date) : null;
+            if (day == null) return saleRepository.findAll();
+            // Get start and end of the day
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.setTime(day);
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            cal.set(java.util.Calendar.MINUTE, 0);
+            cal.set(java.util.Calendar.SECOND, 0);
+            cal.set(java.util.Calendar.MILLISECOND, 0);
+            java.util.Date start = cal.getTime();
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 23);
+            cal.set(java.util.Calendar.MINUTE, 59);
+            cal.set(java.util.Calendar.SECOND, 59);
+            cal.set(java.util.Calendar.MILLISECOND, 999);
+            java.util.Date end = cal.getTime();
+            return saleRepository.findByAddedDatetimeBetween(start, end);
+        } catch (Exception e) {
+            return saleRepository.findAll();
+        }
+    }
+    // List sales by date range
+    public List<Sale> getSalesByDateRange(String from, String to) {
+        try {
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            java.util.Date fromDate = (from != null && !from.isEmpty()) ? sdf.parse(from) : null;
+            java.util.Date toDate = (to != null && !to.isEmpty()) ? sdf.parse(to) : null;
+            if (toDate != null) {
+                // Set to end of day
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                cal.setTime(toDate);
+                cal.set(java.util.Calendar.HOUR_OF_DAY, 23);
+                cal.set(java.util.Calendar.MINUTE, 59);
+                cal.set(java.util.Calendar.SECOND, 59);
+                cal.set(java.util.Calendar.MILLISECOND, 999);
+                toDate = cal.getTime();
+            }
+            return saleRepository.findByAddedDatetimeBetween(fromDate, toDate);
+        } catch (Exception e) {
+            return saleRepository.findAll();
+        }
+    }
     @Autowired
     private SaleRepository saleRepository;
     @Autowired
@@ -27,6 +98,10 @@ public class SalesService {
         sale.setSalesnumber(generateSalesNumber());
         sale.setTotal_amount(saleRequest.getTotalAmount());
         sale.setPaid_amount(saleRequest.getPaidAmount());
+        sale.setPaymentType(saleRequest.getPaymentType());
+        sale.setBalanceAmount(saleRequest.getBalanceAmount());
+        sale.setDiscount(saleRequest.getDiscount());
+        sale.setSubtotal(saleRequest.getSubtotal());
         // Set employee (hardcoded to id=3 for now)
         Employee emp = employeeRepository.findById(3).orElse(null);
         sale.setEmployee(emp);

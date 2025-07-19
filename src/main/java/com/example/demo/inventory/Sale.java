@@ -13,8 +13,16 @@ public class Sale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String salesnumber;
+    @com.fasterxml.jackson.annotation.JsonProperty("total_amount")
     private BigDecimal total_amount;
+    @com.fasterxml.jackson.annotation.JsonProperty("paid_amount")
     private BigDecimal paid_amount;
+    @Column(name = "payment_type")
+    private String paymentType;
+    @Column(name = "balance_amount")
+    private BigDecimal balanceAmount;
+    private BigDecimal discount;
+    private BigDecimal subtotal;
     @ManyToOne
     @JoinColumn(name = "added_user", referencedColumnName = "id")
     private Employee employee;
@@ -35,6 +43,14 @@ public class Sale {
     public void setTotal_amount(BigDecimal total_amount) { this.total_amount = total_amount; }
     public BigDecimal getPaid_amount() { return paid_amount; }
     public void setPaid_amount(BigDecimal paid_amount) { this.paid_amount = paid_amount; }
+    public String getPaymentType() { return paymentType; }
+    public void setPaymentType(String paymentType) { this.paymentType = paymentType; }
+    public BigDecimal getBalanceAmount() { return balanceAmount; }
+    public void setBalanceAmount(BigDecimal balanceAmount) { this.balanceAmount = balanceAmount; }
+    public BigDecimal getDiscount() { return discount; }
+    public void setDiscount(BigDecimal discount) { this.discount = discount; }
+    public BigDecimal getSubtotal() { return subtotal; }
+    public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
     public Employee getEmployee() { return employee; }
     public void setEmployee(Employee employee) { this.employee = employee; }
 

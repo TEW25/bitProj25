@@ -8,6 +8,17 @@ import java.util.Optional;
 
 @Service
 public class ItemService {
+    public Item findByItemcode(String itemcode) {
+        List<Item> items = itemRepository.findFilteredItems(null, null, null, itemcode);
+        if (items != null && !items.isEmpty()) {
+            for (Item item : items) {
+                if (item.getItemcode().equalsIgnoreCase(itemcode)) {
+                    return item;
+                }
+            }
+        }
+        return null;
+    }
 
     @Autowired
     private ItemRepository itemRepository;

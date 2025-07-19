@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     addDateFilterUI();
-    fetchSales();
+    // Set filter to today and show today's sales
+    const todayStr = new Date().toISOString().slice(0, 10);
+    document.getElementById('filterDate').value = todayStr;
+    fetchSales(todayStr);
 });
 
 function addDateFilterUI() {
@@ -11,8 +14,7 @@ function addDateFilterUI() {
         filterDiv.id = 'dateFilterDiv';
         filterDiv.className = 'mb-3';
         filterDiv.innerHTML = `
-            <label class="mr-2">From: <input type="date" id="fromDate" class="mr-2"></label>
-            <label class="mr-2">To: <input type="date" id="toDate" class="mr-2"></label>
+            <label class="mr-2">Date: <input type="date" id="filterDate" class="mr-2"></label>
             <button class="btn btn-primary btn-sm" id="filterBtn">Filter</button>
             <button class="btn btn-secondary btn-sm ml-2" id="clearFilterBtn">Clear</button>
         `;
@@ -25,24 +27,21 @@ function addDateFilterUI() {
         }
     }
     document.getElementById('filterBtn').onclick = function() {
-        const from = document.getElementById('fromDate').value;
-        const to = document.getElementById('toDate').value;
-        fetchSales(from, to);
+        const date = document.getElementById('filterDate').value;
+        fetchSales(date);
     };
     document.getElementById('clearFilterBtn').onclick = function() {
-        document.getElementById('fromDate').value = '';
-        document.getElementById('toDate').value = '';
-        fetchSales();
+        // Reset to today
+        const todayStr = new Date().toISOString().slice(0, 10);
+        document.getElementById('filterDate').value = todayStr;
+        fetchSales(todayStr);
     };
 }
 
-function fetchSales(fromDate, toDate) {
+function fetchSales(date) {
     let url = '/api/sales';
-    if (fromDate || toDate) {
-        const params = [];
-        if (fromDate) params.push(`from=${encodeURIComponent(fromDate)}`);
-        if (toDate) params.push(`to=${encodeURIComponent(toDate)}`);
-        url += '?' + params.join('&');
+    if (date) {
+        url += `?date=${encodeURIComponent(date)}`;
     }
     fetch(url)
         .then(res => res.json())
@@ -56,7 +55,6 @@ function populateSalesTable(sales) {
     sales.forEach(sale => {
         const tr = document.createElement('tr');
         tr.classList.add('sale-row');
-        // Use sale.employee.employee_number if available
         let empNum = sale.employee && sale.employee.employee_number ? sale.employee.employee_number : '';
         let dateStr = sale.added_datetime ? new Date(sale.added_datetime).toLocaleString() : '';
         tr.innerHTML = `
@@ -64,6 +62,10 @@ function populateSalesTable(sales) {
             <td>${dateStr}</td>
             <td>${sale.total_amount}</td>
             <td>${sale.paid_amount}</td>
+            <td>${sale.paymentType || sale.payment_type || ''}</td>
+            <td>${sale.balanceAmount || sale.balance_amount || ''}</td>
+            <td>${sale.discount}</td>
+            <td>${sale.subtotal}</td>
             <td>${empNum}</td>
         `;
         tr.addEventListener('click', () => showSaleDetails(sale.id));
@@ -84,7 +86,6 @@ function showSaleDetails(saleId) {
 }
 
 function renderSaleDetails(sale) {
-    // Use sale.employee.employee_number if available
     let empNum = sale.employee && sale.employee.employee_number ? sale.employee.employee_number : '';
     let dateStr = sale.added_datetime ? new Date(sale.added_datetime).toLocaleString() : '';
     return `
@@ -93,6 +94,10 @@ function renderSaleDetails(sale) {
         <div>Date: ${dateStr}</div>
         <div>Total Amount: <b>${sale.total_amount}</b></div>
         <div>Paid Amount: <b>${sale.paid_amount}</b></div>
+        <div>Payment Type: <b>${sale.paymentType || sale.payment_type || ''}</b></div>
+        <div>Balance Amount: <b>${sale.balanceAmount || sale.balance_amount || ''}</b></div>
+        <div>Discount: <b>${sale.discount}</b></div>
+        <div>Subtotal: <b>${sale.subtotal}</b></div>
         <div>Added By: ${empNum}</div>
     </div>
     <h6>Items</h6>
