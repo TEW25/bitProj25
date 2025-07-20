@@ -47,6 +47,11 @@ public class WebController {
     public String purchaseOrderViewManagement() {
         return "purchase_order_view.html";
     }
+    @GetMapping("/grn_records")
+    public String grnOrderViewManagement() {
+        return "item_receive_note_records.html";
+    }
+    
 
     @GetMapping("/sales")
     public String salesManagement() {

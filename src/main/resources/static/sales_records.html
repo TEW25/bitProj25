@@ -4,66 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Records</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/styles.css">
+    <!-- Bootstrap Icons (optional, for consistency) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <style>
-        .sale-row:hover { background: #f1f1f1; cursor: pointer; }
-        .modal-lg { max-width: 800px; }
+        /* Minimal custom styles, offload to styles.css */
+        .sale-row:hover { background: #f8f9fa; cursor: pointer; }
         .table-details th, .table-details td { vertical-align: middle; }
     </style>
-    <!-- Remove this line: <script src="common.js"></script> -->
 </head>
 <body>
-  
-  <div id="navbar-placeholder"></div>
-<div class="container py-4">
-    <h2 class="mb-4">Sales Records</h2>
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover" id="salesTable">
-            <thead class="table-light">
-                <tr>
-                    <th>Sale #</th>
-                    <th>Date</th>
-                    <th>Total Amount</th>
-                    <th>Paid Amount</th>
-                    <th>Payment Type</th>
-                    <th>Balance Amount</th>
-                    <th>Discount</th>
-                    <th>Subtotal</th>
-                    <th>Added By</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Sales rows will be populated here -->
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Sale Details Modal -->
-<div class="modal fade" id="saleDetailsModal" tabindex="-1" aria-labelledby="saleDetailsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="saleDetailsModalLabel">Sale Details</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div id="saleDetailsContent">
-          <!-- Sale details will be loaded here -->
-          <!-- All columns will be shown in the popup -->
+    <div id="navbar-placeholder"></div>
+    <div class="container mt-4">
+        <!-- Title Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body d-flex align-items-center">
+                <span class="me-2" style="font-size:2rem;color:#6c63ff;">
+                    <i class="bi bi-journal-text"></i>
+                </span>
+                <h2 class="mb-0 fw-bold flex-grow-1" style="color:#343a40;">Sales Records</h2>
+            </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="common.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="sales_records.js"></script>
+        <!-- Sales Table Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped align-middle mb-0" id="salesTable">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th>Sale #</th>
+                                <th>Date</th>
+                                <th>Total Amount</th>
+                                <th>Paid Amount</th>
+                                <th>Payment Type</th>
+                                <th>Balance Amount</th>
+                                <th>Discount</th>
+                                <th>Subtotal</th>
+                                <th>Added By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Sales rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sale Details Modal -->
+        <div class="modal fade" id="saleDetailsModal" tabindex="-1" aria-labelledby="saleDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="saleDetailsModalLabel">Sale Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="saleDetailsContent">
+                            <!-- Sale details will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="common.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="sales_records.js"></script>
 </body>
-</html>
 </html>

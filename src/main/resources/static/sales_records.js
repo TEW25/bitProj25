@@ -13,11 +13,12 @@ function addDateFilterUI() {
         filterDiv = document.createElement('div');
         filterDiv.id = 'dateFilterDiv';
         filterDiv.className = 'mb-3';
-        filterDiv.innerHTML = `
-            <label class="mr-2">Date: <input type="date" id="filterDate" class="mr-2"></label>
-            <button class="btn btn-primary btn-sm" id="filterBtn">Filter</button>
-            <button class="btn btn-secondary btn-sm ml-2" id="clearFilterBtn">Clear</button>
-        `;
+    filterDiv.innerHTML = `
+        <label class="mr-2">Date: <input type="date" id="filterDate" class="mr-2"></label>
+        <button class="btn btn-primary btn-sm" id="filterBtn">Filter</button>
+        <button class="btn btn-secondary btn-sm ml-2" id="clearFilterBtn">Clear</button>
+        <button class="btn btn-success btn-sm ml-2" id="exportExcelBtn"><i class="bi bi-file-earmark-excel"></i> Export as Excel</button>
+    `;
         // Insert above the table if possible
         const table = document.getElementById('salesTable');
         if (table && table.parentNode) {
@@ -36,6 +37,20 @@ function addDateFilterUI() {
         document.getElementById('filterDate').value = todayStr;
         fetchSales(todayStr);
     };
+
+    document.getElementById('exportExcelBtn').onclick = function() {
+        exportTableToExcelXLSX('salesTable', 'sales_records');
+    };
+}
+
+// Export table to real .xlsx using SheetJS
+function exportTableToExcelXLSX(tableId, filename = '') {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    /* Convert table to worksheet */
+    const wb = XLSX.utils.table_to_book(table, {sheet: "Sales Records"});
+    filename = filename ? filename + '.xlsx' : 'export.xlsx';
+    XLSX.writeFile(wb, filename);
 }
 
 function fetchSales(date) {

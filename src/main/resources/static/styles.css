@@ -1,3 +1,20 @@
+/* GRN (Goods Received Note) custom styles */
+.purchase-order-dropdown {
+    z-index: 1060 !important;
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+/* Sales Records custom styles */
+.sale-row:hover {
+    background: #f8f9fa;
+    cursor: pointer;
+}
+.table-details th, .table-details td {
+    vertical-align: middle;
+}
 /* Reduce vertical spacing between table rows for supplier and sales history tables */
 table.table th, table.table td {
     padding-top: 0.35rem !important;
@@ -115,7 +132,8 @@ label {
 }
 
 .nav-link {
-    color: #34495e !important;
+    color: #eee !important;
+    font-weight: bold !important;
     padding: 0.5rem 0.5rem !important; /* Reduce horizontal padding */
     margin: 0 0.05rem; /* Reduce horizontal margin */
     border-radius: 4px;
