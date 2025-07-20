@@ -1,15 +1,71 @@
+/* ================= Dashboard Chart Containers & Visuals ================= */
+.ds-chart-container.ds-chart-fixed-height {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.ds-chart-container {
+  border: 1.5px solid #eaeaea;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px 0 rgba(60, 60, 90, 0.08), 0 1.5px 4px 0 rgba(60, 60, 90, 0.06);
+  background: #f9fafc;
+  padding: 12px 12px 12px 12px;
+  margin-bottom: 18px;
+  margin-top: 8px;
+  transition: box-shadow 0.2s;
+}
+/* .ds-chart-container canvas {
+  display: block;
+  margin: 0 auto;
+} */
+/* Reduce the size of the pie chart */
+#revenue-breakdown-chart {
+    max-width: 320px;
+    max-height: 320px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
 /* Dashboard-specific styles (ds- prefix) */
 .ds-dashboard-main-wrapper {
     margin-left: 240px;
     min-height: 100vh;
     background: #f5f6fa;
+    width: calc(100vw - 240px);
+    box-sizing: border-box;
+    margin-right: 0;
+    padding-left: 0;
+}
+
+/* Add space between sidebar and content */
+.ds-dashboard-main {
+    padding-left: 32px;
+}
+
+.container-fluid {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 .ds-dashboard-main {
-    padding: 0 24px;
+    paddin: 0 24px;
     max-width: 100vw;
+    width: 100%;
 }
 .ds-dashboard-container {
     padding-top: 32px;
+    width: 100%;
+}
+.dashboard-section {
+    width: 100%;
+    max-width: none;
+    overflow-x: visible;
+}
+canvas {
+    width: 100% !important;
+    max-width: 100%;
+    height: auto !important;
+    display: block;
 }
 .ds-kpi-row {
     display: flex;
@@ -76,10 +132,23 @@
     letter-spacing: 1px;
 }
 @media (max-width: 900px) {
-    .ds-dashboard-main-wrapper { margin-left: 0; }
-    .ds-dashboard-main { padding: 0 8px; }
+    .ds-dashboard-main-wrapper {
+        margin-left: 0;
+        width: 100vw;
+        padding-left: 0;
+    }
+    .ds-dashboard-main { padding: 0 8px !important; }
     .ds-kpi-row { flex-direction: column; gap: 16px; }
     .ds-kpi-card { max-width: 100%; min-width: 0; }
+}
+
+/* Make tables horizontally scrollable if needed */
+.dashboard-section table {
+    display: table;
+    width: 90%;
+    min-width: 1175px;
+    max-width: none;
+    white-space: nowrap;
 }
 /* Make select dropdown scrollable for long item lists */
 .scrollable-select {
@@ -108,20 +177,16 @@ table.table th, table.table td {
     padding-top: 0.35rem !important;
     padding-bottom: 0.35rem !important;
 }
-/* styles.css - Minimal custom styles, mostly Bootstrap 5 utilities */
 
-/* Optional: Custom modal rounding and shadow */
 .modal-content {
     border-radius: 0.75rem;
     box-shadow: 0 4px 24px rgba(76,110,245,0.08);
 }
 
-/* Optional: Table shadow for aesthetics */
 .table {
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-/* Responsive tweaks for form rows */
 @media (max-width: 768px) {
     .row > div {
         margin-bottom: 1rem;
@@ -151,23 +216,6 @@ table.table th, table.table td {
     box-shadow: 0 0 0 0.2rem rgba(108,99,255,.15);
 }
 
-/* Remove custom gradient for buttons, use Bootstrap defaults */
-/*
-.btn-primary {
-    background: linear-gradient(90deg, #6c63ff 0%, #48c6ef 100%);
-    border: none;
-    border-radius: 6px;
-    font-weight: 500;
-}
-.btn-secondary {
-    background: linear-gradient(90deg, #48c6ef 0%, #6c63ff 100%);
-    border: none;
-    border-radius: 6px;
-    font-weight: 500;
-}
-*/
-
-/* Optional: keep rounded corners if you want */
 .btn-primary, .btn-secondary {
     border-radius: 6px;
     font-weight: 500;
@@ -190,14 +238,12 @@ label {
     }
 }
 
-/* Sticky table header for better UX */
 .sticky-top {
     position: sticky;
     top: 0;
     z-index: 2;
 }
 
-/* Optional: Slightly larger table cells for readability */
 .table th, .table td {
     vertical-align: middle;
     padding: 0.75rem 0.5rem;

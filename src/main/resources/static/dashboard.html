@@ -6,7 +6,7 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body style="overflow-x:hidden;">
     <!-- Top Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-primary" style="z-index:1040; padding-top:0.3rem; padding-bottom:0.3rem; min-height:48px;">
         <div class="container-fluid">
@@ -16,10 +16,10 @@
             </div>
         </div>
     </nav>
-    <div class="container-fluid">
-        <div class="row">
+    <div class="container-fluid p-0">
+        <div class="row g-0">
     <!-- Sidebar (now above navbar) -->
-    <nav id="sidebarMenu" class="position-fixed top-0 start-0 bg-dark sidebar" style="width:240px; min-height:100vh; z-index:1050;">
+    <nav id="sidebarMenu" class="position-fixed top-0 start-0 bg-dark sidebar" style="width:240px; min-height:100vh; z-index:1050; overflow-x:hidden;">
         <div class="position-sticky pt-3">
             <div class="sidebar-header text-white mb-4 ps-3" style="font-size:1.3rem;font-weight:600;">
                 <i class="bi bi-building"></i> DS Enterprises
@@ -68,10 +68,10 @@
         </div>
     </nav>
 
-    <div class="ds-dashboard-main-wrapper">
+    <div class="ds-dashboard-main-wrapper" style="margin-left:240px; min-width:0;">
         <!-- Main content -->
-        <main class="ds-dashboard-main">
-            <div class="ds-dashboard-container pt-4">
+        <main class="ds-dashboard-main" style="min-width:0;">
+            <div class="ds-dashboard-container pt-4" style="min-width:0;">
                     <h1>Dashboard</h1>
                     <div class="ds-kpi-row">
                         <div class="ds-kpi-card ds-kpi-blue">
@@ -115,17 +115,26 @@
                             </div>
                         </div>
                     </div>
-                    <div class="dashboard-section">
-                        <h2>Sales Over Time</h2>
-                        <canvas id="sales-over-time-chart"></canvas>
+                    <div class="row g-4 mt-2">
+                        <div class="col-lg-4 col-md-12">
+                            <div class="dashboard-section h-100">
+                                <ul id="top-ordered-items"></ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="dashboard-section h-100">
+                                <canvas id="revenue-breakdown-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="dashboard-section h-100">
+                                <canvas id="sales-over-time-chart"></canvas>
+                            </div>
+                        </div>
                     </div>
-                    <div class="dashboard-section">
-                        <h2>Top Ordered Items</h2>
-                        <ul id="top-ordered-items"></ul>
-                    </div>
-                    <div class="dashboard-section">
-                        <h2>Revenue Breakdown</h2>
-                        <canvas id="revenue-breakdown-chart"></canvas>
+                    <div class="dashboard-section mt-4" style="max-width:1200px;">
+                        <h2>Items Below Reorder Point</h2>
+                        <div id="low-stock-table-wrapper"></div>
                     </div>
                 </div>
             </main>
