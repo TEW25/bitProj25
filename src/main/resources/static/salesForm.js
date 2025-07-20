@@ -245,7 +245,9 @@ function showSalesSuccessModal(sale) {
         return val;
     }
     if (sale.items && sale.items.length > 0) {
-        itemsHtml = `<table class="table table-bordered" style="table-layout:fixed;width:100%"><thead><tr>
+        itemsHtml = `<div class="card shadow-sm mb-3"><div class="card-body p-0">
+        <div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped align-middle mb-0" style="table-layout:fixed;width:100%"><thead class="table-light sticky-top"><tr>
             <th style="width:40%">Item</th>
             <th style="width:20%">Qty</th>
             <th style="width:20%">Unit Price</th>
@@ -259,7 +261,7 @@ function showSalesSuccessModal(sale) {
                 <td>${showZero(item.line_price)}</td>
             </tr>`;
         });
-        itemsHtml += '</tbody></table>';
+        itemsHtml += '</tbody></table></div></div></div>';
     }
     function showDiscount(val) {
         if (val === undefined || val === null || val === "" || val === 0 || val === "0" || val === 0.00 || val === "0.00") return "None";
@@ -279,6 +281,8 @@ function showSalesSuccessModal(sale) {
         ${itemsHtml}
     `;
     document.getElementById('salesSuccessDetails').innerHTML = html;
-    // Show modal (Bootstrap 4)
-    $('#salesSuccessModal').modal('show');
+    // Show modal (Bootstrap 5)
+    var modal = document.getElementById('salesSuccessModal');
+    var bsModal = bootstrap.Modal.getOrCreateInstance(modal);
+    bsModal.show();
 }

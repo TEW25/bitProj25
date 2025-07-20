@@ -4,90 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Item Management</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/styles.css">
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Bootstrap 5 JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
     <script src="/item.js"></script>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <script src="common.js"></script>
 </head>
 <body>
-    <div class="container mt-4">
-        <h2>Item Management</h2>
-        <button class="btn btn-primary mb-3" id="addItemBtn">Add Item</button>
+    <div id="navbar-placeholder"></div>
 
-        <div class="form-row align-items-end mb-3">
+    <div class="container mt-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body d-flex align-items-center">
+                <span class="me-2" style="font-size:2rem;color:#6c63ff;">
+                    <i class="bi bi-box-seam"></i>
+                </span>
+                <h2 class="mb-0 fw-bold flex-grow-1" style="color:#343a40;">Item Management</h2>
+                <button class="btn btn-primary" id="addItemBtn">Add Item</button>
+            </div>
+        </div>
+
+        <div class="row g-2 mb-3">
             <div class="col-md-3">
-                <label for="filterBrand">Filter by Brand:</label>
-                <select class="form-control" id="filterBrand">
+                <label for="filterBrand" class="form-label">Filter by Brand:</label>
+                <select class="form-select" id="filterBrand">
                     <option value="">All Brands</option>
                     <!-- Brand options will be loaded here by JavaScript -->
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="filterStatus">Filter by Status:</label>
-                <select class="form-control" id="filterStatus">
+                <label for="filterStatus" class="form-label">Filter by Status:</label>
+                <select class="form-select" id="filterStatus">
                     <option value="">All Statuses</option>
                     <!-- Status options will be loaded here by JavaScript -->
                 </select>
             </div>
             <div class="col-md-4">
-                <label for="searchItem">Search Items:</label>
+                <label for="searchItem" class="form-label">Search Items:</label>
                 <input type="text" class="form-control" id="searchItem" placeholder="Enter item code or name">
             </div>
-            <div class="col-md-2">
-                <button class="btn btn-secondary btn-block" id="applyFilterBtn">Apply Filter/Search</button>
+            <div class="col-md-2 d-grid">
+                <label class="form-label" style="visibility:hidden;">&nbsp;</label>
+                <button class="btn btn-secondary" id="applyFilterBtn">Apply Filter/Search</button>
             </div>
         </div>
 
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Code</th>
-                    <th>Name</th>
-                    <th>Size</th>
-                    <th>ROP</th>
-                    <th>ROQ</th>
-                    <th>Sales Price</th>
-                    <th>Purchase Price</th>
-                    <th>Status</th>
-                    <th>Brand</th>
-                    <th>Category</th>
-                    <th>Subcategory</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="itemTableBody">
-                <!-- Item rows will be loaded here by JavaScript -->
-            </tbody>
-        </table>
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped align-middle mb-0">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Code</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Size</th>
+                                <th scope="col">ROP</th>
+                                <th scope="col">ROQ</th>
+                                <th scope="col">Sales Price</th>
+                                <th scope="col">Purchase Price</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Brand</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">Subcategory</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemTableBody">
+                            <!-- Item rows will be loaded here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Add/Edit Item Modal -->
-    <div class="modal fade" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="itemModalLabel" aria-hidden="true">
+    <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="itemModalLabel">Add Item</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="itemForm">
                         <input type="hidden" id="itemId">
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="itemCode">Item Code</label>
                                     <input type="text" class="form-control" id="itemCode" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="itemName">Item Name</label>
                                     <input type="text" class="form-control" id="itemName" required>
                                 </div>
@@ -95,13 +114,13 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="itemSize">Item Size</label>
                                     <input type="text" class="form-control" id="itemSize">
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="itemRop">ROP</label>
                                     <input type="number" class="form-control" id="itemRop">
                                 </div>
@@ -109,13 +128,13 @@
                         </div>
                         <div class="row">
                              <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="itemRoq">ROQ</label>
                                     <input type="number" class="form-control" id="itemRoq">
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="itemSalesPrice">Sales Price</label>
                                     <input type="number" step="0.01" class="form-control" id="itemSalesPrice" required>
                                 </div>
@@ -123,13 +142,13 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="itemPurchasePrice">Purchase Price</label>
                                     <input type="number" step="0.01" class="form-control" id="itemPurchasePrice" required>
                                 </div>
                             </div>
                              <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="itemStatus">Status</label>
                                     <select class="form-control" id="itemStatus" required>
                                         <!-- Options will be loaded by JavaScript -->
@@ -139,7 +158,7 @@
                         </div>
                         <div class="row">
                              <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="itemBrand">Brand</label>
                                     <select class="form-control" id="itemBrand" required>
                                         <!-- Options will be loaded by JavaScript -->
@@ -147,7 +166,7 @@
                                 </div>
                             </div>
                              <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="itemCategory">Category</label>
                                     <select class="form-control" id="itemCategory" required>
                                         <!-- Options will be loaded by JavaScript -->
@@ -157,7 +176,7 @@
                         </div>
                          <div class="row">
                              <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="itemSubcategory">Subcategory</label>
                                     <select class="form-control" id="itemSubcategory" required>
                                         <!-- Options will be loaded by JavaScript -->
@@ -165,7 +184,9 @@
                                 </div>
                             </div>
                          </div>
-                        <button type="submit" class="btn btn-primary">Save Item</button>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">Save Item</button>
+                        </div>
                     </form>
                 </div>
             </div>

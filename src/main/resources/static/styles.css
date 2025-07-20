@@ -1,0 +1,134 @@
+/* Reduce vertical spacing between table rows for supplier and sales history tables */
+table.table th, table.table td {
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.35rem !important;
+}
+/* styles.css - Minimal custom styles, mostly Bootstrap 5 utilities */
+
+/* Optional: Custom modal rounding and shadow */
+.modal-content {
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 24px rgba(76,110,245,0.08);
+}
+
+/* Optional: Table shadow for aesthetics */
+.table {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Responsive tweaks for form rows */
+@media (max-width: 768px) {
+    .row > div {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Remove background color and font overrides, use Bootstrap defaults */
+
+/* Remove all other custom styles, rely on Bootstrap 5 classes */
+    border: none;
+}
+
+.table-bordered td, .table-bordered th {
+    border: 1px solid #dee2e6;
+}
+
+.table tbody tr:hover {
+    background-color: #e9ecef;
+    transition: background 0.2s;
+}
+
+.form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    box-shadow: none;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    border-color: #6c63ff;
+    box-shadow: 0 0 0 0.2rem rgba(108,99,255,.15);
+}
+
+/* Remove custom gradient for buttons, use Bootstrap defaults */
+/*
+.btn-primary {
+    background: linear-gradient(90deg, #6c63ff 0%, #48c6ef 100%);
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+}
+.btn-secondary {
+    background: linear-gradient(90deg, #48c6ef 0%, #6c63ff 100%);
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+}
+*/
+
+/* Optional: keep rounded corners if you want */
+.btn-primary, .btn-secondary {
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(76,110,245,0.08);
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .row > div {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Sticky table header for better UX */
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+/* Optional: Slightly larger table cells for readability */
+.table th, .table td {
+    vertical-align: middle;
+    padding: 0.75rem 0.5rem;
+}
+
+/* Navbar styles */
+.navbar {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 0.5rem 1rem;
+}
+
+.navbar-brand {
+    color: #2c3e50 !important;
+    font-weight: 600;
+}
+
+.nav-link {
+    color: #34495e !important;
+    padding: 0.5rem 0.5rem !important; /* Reduce horizontal padding */
+    margin: 0 0.05rem; /* Reduce horizontal margin */
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: #e8e9eb;
+    color: #2c3e50 !important;
+}
+
+.nav-link.active {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     addDateFilterUI();
-    // Set filter to today and show today's sales
-    const todayStr = new Date().toISOString().slice(0, 10);
+    // Set filter to today (local date) and show today's sales
+    const todayStr = new Date().toLocaleDateString('en-CA'); // 'YYYY-MM-DD' format
     document.getElementById('filterDate').value = todayStr;
     fetchSales(todayStr);
 });
@@ -31,8 +31,8 @@ function addDateFilterUI() {
         fetchSales(date);
     };
     document.getElementById('clearFilterBtn').onclick = function() {
-        // Reset to today
-        const todayStr = new Date().toISOString().slice(0, 10);
+        // Reset to today (local date)
+        const todayStr = new Date().toLocaleDateString('en-CA');
         document.getElementById('filterDate').value = todayStr;
         fetchSales(todayStr);
     };
@@ -52,6 +52,12 @@ function fetchSales(date) {
 function populateSalesTable(sales) {
     const tbody = document.querySelector('#salesTable tbody');
     tbody.innerHTML = '';
+    // Sort sales by added_datetime descending (newest first)
+    sales.sort((a, b) => {
+        const dateA = new Date(a.added_datetime || a.date || 0).getTime();
+        const dateB = new Date(b.added_datetime || b.date || 0).getTime();
+        return dateB - dateA;
+    });
     sales.forEach(sale => {
         const tr = document.createElement('tr');
         tr.classList.add('sale-row');

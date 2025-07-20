@@ -1,7 +1,14 @@
 package com.example.demo.inventory;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "inventory")
@@ -19,11 +26,8 @@ public class Inventory {
     @JoinColumn(name = "item_id")
     private Item item;
 
-    // Removed Supplier relationship as supplier_id is no longer in inventory table
-    // private Supplier supplier;
-
-    @ManyToOne // Add ManyToOne relationship to Inventorystatus
-    @JoinColumn(name = "inventorystatus_id") // Assuming a foreign key column inventorystatus_id in inventory table
+    @ManyToOne 
+    @JoinColumn(name = "inventorystatus_id") 
     private Inventorystatus inventorystatus;
 
     // Getters and setters

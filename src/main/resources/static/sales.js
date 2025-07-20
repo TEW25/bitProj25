@@ -47,7 +47,9 @@ function loadSalesRecords(dateStr) {
                 const dateB = new Date(b.added_datetime);
                 return dateB - dateA;
             });
-            let html = `<table class="table table-bordered table-sm" style="table-layout:fixed;width:100%"><thead><tr>
+            let html = `<div class="card shadow-sm mb-0"><div class="card-body p-0">
+                <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped align-middle mb-0" style="table-layout:fixed;width:100%"><thead class="table-light sticky-top"><tr>
                 <th style="width:10%">Sales #</th>
                 <th style="width:22%">Date</th>
                 <th style="width:16%">Total</th>
@@ -72,7 +74,7 @@ function loadSalesRecords(dateStr) {
                     <td>${sale.paymentType || ''}</td>
                 </tr>`;
             });
-            html += '</tbody></table>';
+            html += '</tbody></table></div></div></div>';
             container.innerHTML = html;
 
             // Add click event for refund popup
