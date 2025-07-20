@@ -1,3 +1,4 @@
+
 package com.example.demo.inventory;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/api/itemreceivenotes")
@@ -16,6 +18,20 @@ public class ItemreceivenoteController {
 
     @Autowired
     private ItemreceivenoteService itemreceivenoteService;
+
+    // Endpoint to get a single item receive note by ID (for detail popup)
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getItemreceivenoteById(@PathVariable Integer id) {
+        try {
+            Itemreceivenote irn = itemreceivenoteService.getItemreceivenoteById(id);
+            if (irn == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item Receive Note not found");
+            }
+            return ResponseEntity.ok(irn);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
 
     @PostMapping
     public ResponseEntity<Itemreceivenote> createItemreceivenote(@RequestBody Itemreceivenote itemreceivenote) {

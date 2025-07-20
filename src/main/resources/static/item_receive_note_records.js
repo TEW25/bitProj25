@@ -39,7 +39,7 @@ function renderTable(records) {
     const tbody = document.querySelector('#irnTable tbody');
     tbody.innerHTML = '';
     if (!records || records.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8">No records found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7">No records found.</td></tr>';
         return;
     }
     records.forEach(irn => {
@@ -51,11 +51,55 @@ function renderTable(records) {
             <td>${irn.totalamount ?? ''}</td>
             <td>${irn.discountrate ?? ''}</td>
             <td>${irn.grossamount ?? ''}</td>
-            <td>${irn.purchaseorder ? irn.purchaseorder.id : ''}</td>
-            <td>${irn.irnstatus ? irn.irnstatus.statusname : ''}</td>
+            <td>${irn.purchaseorder && irn.purchaseorder.purchaseordercode ? irn.purchaseorder.purchaseordercode : ''}</td>
         `;
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', () => fetchAndShowIrnDetail(irn.id));
         tbody.appendChild(row);
     });
+}
+
+async function fetchAndShowIrnDetail(irnId) {
+    try {
+        const response = await fetch(`/api/itemreceivenotes/${irnId}`);
+        if (!response.ok) throw new Error('Failed to fetch details');
+        const irn = await response.json();
+        showIrnDetailModal(irn);
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+}
+
+function showIrnDetailModal(irn) {
+    document.getElementById('detailIrnId').textContent = irn.id ?? '';
+    document.getElementById('detailIrnNo').textContent = irn.irnno ?? '';
+    document.getElementById('detailReceivedDate').textContent = irn.receiveddate ?? '';
+    document.getElementById('detailTotalAmount').textContent = irn.totalamount ?? '';
+    document.getElementById('detailDiscountRate').textContent = irn.discountrate ?? '';
+    document.getElementById('detailGrossAmount').textContent = irn.grossamount ?? '';
+    document.getElementById('detailPurchaseOrderCode').textContent = irn.purchaseorder && irn.purchaseorder.purchaseordercode ? irn.purchaseorder.purchaseordercode : '';
+
+    // Items table: show items from purchaseorder.purchaseOrderItems
+    const itemsTbody = document.getElementById('detailItemsTableBody');
+    itemsTbody.innerHTML = '';
+    if (irn.purchaseorder && Array.isArray(irn.purchaseorder.purchaseOrderItems) && irn.purchaseorder.purchaseOrderItems.length > 0) {
+        irn.purchaseorder.purchaseOrderItems.forEach(poItem => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${poItem.item && poItem.item.itemname ? poItem.item.itemname : ''}</td>
+                <td>${poItem.orderedqty ?? ''}</td>
+                <td>${poItem.purchaseprice ?? ''}</td>
+                <td>${poItem.lineprice ?? ''}</td>
+            `;
+            itemsTbody.appendChild(tr);
+        });
+    } else {
+        itemsTbody.innerHTML = '<tr><td colspan="4">No items found.</td></tr>';
+    }
+
+    // Show modal (Bootstrap 5)
+    const modal = new bootstrap.Modal(document.getElementById('irnDetailModal'));
+    modal.show();
 }
 
 function resetFilters() {

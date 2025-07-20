@@ -21,4 +21,9 @@ public class ItemreceivenoteServiceImpl implements ItemreceivenoteService {
     public List<Itemreceivenote> getItemreceivenotesFiltered(Integer supplierId, Date date) {
         return itemreceivenoteRepository.findBySupplierIdAndDate(supplierId, date);
     }
+
+    @Override
+    public Itemreceivenote getItemreceivenoteById(Integer id) {
+        return itemreceivenoteRepository.findById(id).orElse(null);
+    }
 }
