@@ -4,30 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Purchase Orders</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css"> 
-    <script src="common.js"></script>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Bootstrap Icons (optional, for consistency) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <!-- Scripts loaded at the end of body for proper dependency order -->
 </head>
 <body>
     
     <div id="navbar-placeholder"></div>
+    <!-- The navigation bar will be loaded here from nav.html by common.js -->
     <div class="container mt-4">
-        <h2>Purchase Orders</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Order Code</th>
-                    <th id="sortRequiredDate" style="cursor:pointer;">Required Date &#8597;</th>
-                    <th>Total Amount</th>
-                    <th>Supplier</th>
-                    <th id="sortStatus" style="cursor:pointer;">Status &#8597;</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="purchaseOrderTableBody">
-            </tbody>
-        </table>
+        <!-- Title Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body d-flex align-items-center">
+                <span class="me-2" style="font-size:2rem;color:#6c63ff;">
+                    <i class="bi bi-journal-text"></i>
+                </span>
+                <h2 class="mb-0 fw-bold flex-grow-1" style="color:#343a40;">Purchase Orders</h2>
+            </div>
+        </div>
+
+        <!-- Purchase Orders Table Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped align-middle mb-0" id="purchaseOrderTable">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th>ID</th>
+                                <th>Order Code</th>
+                                <th id="sortRequiredDate" style="cursor:pointer;">Required Date &#8597;</th>
+                                <th>Total Amount</th>
+                                <th>Supplier</th>
+                                <th id="sortStatus" style="cursor:pointer;">Status &#8597;</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchaseOrderTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Purchase Order Detail Modal -->
@@ -36,9 +57,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="purchaseOrderDetailModalLabel">Purchase Order Details</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p><strong>ID:</strong> <span id="detailId"></span></p>
@@ -64,15 +83,17 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger d-none" id="cancelOrderBtn">Cancel Order</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="purchase_order_view.js"></script> <!-- Link to the new JavaScript file -->
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="common.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="purchase_order_view.js"></script>
 </body>
 </html>

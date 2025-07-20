@@ -1,3 +1,8 @@
+/* Make select dropdown scrollable for long item lists */
+.scrollable-select {
+    max-height: 200px;
+    overflow-y: auto;
+}
 /* GRN (Goods Received Note) custom styles */
 .purchase-order-dropdown {
     z-index: 1060 !important;
@@ -40,11 +45,7 @@ table.table th, table.table td {
     }
 }
 
-/* Remove background color and font overrides, use Bootstrap defaults */
 
-/* Remove all other custom styles, rely on Bootstrap 5 classes */
-    border: none;
-}
 
 .table-bordered td, .table-bordered th {
     border: 1px solid #dee2e6;

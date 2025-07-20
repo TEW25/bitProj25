@@ -110,6 +110,18 @@ function showPurchaseOrderDetail(orderId) {
             if (order) {
                 document.getElementById('detailId').textContent = order.id;
 
+                // Show Cancel button only if status id === 1 (Cancelled)
+                const cancelBtn = document.getElementById('cancelOrderBtn');
+                if (order.porderstatus && order.porderstatus.id === 1) {
+                    cancelBtn.classList.remove('d-none');
+                    cancelBtn.onclick = function() {
+                        cancelPurchaseOrder(order.id);
+                    };
+                } else {
+                    cancelBtn.classList.add('d-none');
+                    cancelBtn.onclick = null;
+                }
+
 // Sorting function should be top-level
 function sortTable(column) {
     let sortedOrders = [...purchaseOrdersData];
@@ -161,4 +173,30 @@ function sortTable(column) {
             console.error(`Error fetching purchase order details for ID ${orderId}:`, error);
             // Optionally display an error message to the user
         });
+}
+
+// Cancel purchase order function
+function cancelPurchaseOrder(orderId) {
+    if (!confirm('Are you sure you want to cancel this purchase order?')) return;
+    fetch(`/api/purchaseorders/${orderId}/cancel`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Hide modal, refresh table
+        $('#purchaseOrderDetailModal').modal('hide');
+        fetchPurchaseOrders();
+    })
+    .catch(error => {
+        alert('Failed to cancel purchase order.');
+        console.error('Cancel error:', error);
+    });
 }

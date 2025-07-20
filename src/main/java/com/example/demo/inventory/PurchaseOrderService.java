@@ -1,13 +1,12 @@
 package com.example.demo.inventory;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.sql.Date;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PurchaseOrderService {
@@ -78,5 +77,21 @@ public class PurchaseOrderService {
         return purchaseOrder.orElse(null);
     }
 
-    // You can add other service methods here (e.g., update status, etc.)
+    // Cancel a purchase order by setting porderstatus_id to 3
+    @Transactional
+    public boolean cancelPurchaseOrder(Integer id) {
+        Optional<PurchaseOrder> optionalOrder = purchaseOrderRepository.findById(id);
+        if (optionalOrder.isPresent()) {
+            PurchaseOrder order = optionalOrder.get();
+            Optional<PurchaseOrderStatus> cancelledStatus = purchaseOrderStatusRepository.findById(3);
+            if (cancelledStatus.isPresent()) {
+                order.setPorderstatus(cancelledStatus.get());
+                purchaseOrderRepository.save(order);
+                return true;
+            } else {
+                throw new RuntimeException("Cancelled status (id=3) not found.");
+            }
+        }
+        return false;
+    }
 }

@@ -43,7 +43,7 @@ public class WebController {
         return "item_receive_note.html";
     }
 
-    @GetMapping("/purchase_order_view")
+    @GetMapping("/purchase_order_records")
     public String purchaseOrderViewManagement() {
         return "purchase_order_view.html";
     }
