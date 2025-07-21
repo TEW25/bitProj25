@@ -14,6 +14,8 @@ document.querySelector('form').addEventListener('submit', async function(e) {
         if (response.ok) {
             msgDiv.textContent = 'Login successful!';
             msgDiv.classList.add('text-success');
+            // Forward to /dashboard after a successful login
+            window.location.href = '/dashboard';
         } else {
             const errorText = await response.text();
             msgDiv.textContent = errorText || 'Login failed!';

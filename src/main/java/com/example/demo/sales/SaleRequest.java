@@ -3,7 +3,13 @@ package com.example.demo.sales;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 public class SaleRequest {
+    @com.fasterxml.jackson.annotation.JsonProperty("employee_id")
+    @JsonAlias({"employeeId"})
+    private Integer employeeId;
+    @com.fasterxml.jackson.annotation.JsonProperty("sale_employee_id")
+    private Integer saleEmployeeId;
     @com.fasterxml.jackson.annotation.JsonProperty("total_amount")
     private BigDecimal totalAmount;
     @com.fasterxml.jackson.annotation.JsonProperty("paid_amount")
@@ -20,6 +26,10 @@ public class SaleRequest {
     private List<SaleItemRequest> items;
 
     // Getters and setters
+    public Integer getEmployeeId() { return employeeId; }
+    public void setEmployeeId(Integer employeeId) { this.employeeId = employeeId; }
+    public Integer getSaleEmployeeId() { return saleEmployeeId; }
+    public void setSaleEmployeeId(Integer saleEmployeeId) { this.saleEmployeeId = saleEmployeeId; }
     public BigDecimal getTotalAmount() { return totalAmount; }
     public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
     public BigDecimal getPaidAmount() { return paidAmount; }

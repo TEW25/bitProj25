@@ -61,4 +61,8 @@ public class WebController {
     public String loginManagement() {
         return "login.html";
     }
+    @GetMapping("/employee")
+    public String employeeManagement() {
+        return "employee.html";
+    }
 }

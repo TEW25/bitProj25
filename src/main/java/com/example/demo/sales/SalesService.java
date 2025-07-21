@@ -110,8 +110,12 @@ public class SalesService {
         sale.setBalanceAmount(saleRequest.getBalanceAmount());
         sale.setDiscount(saleRequest.getDiscount());
         sale.setSubtotal(saleRequest.getSubtotal());
-        // Set employee (hardcoded to id=3 for now)
-        Employee emp = employeeRepository.findById(3).orElse(null);
+        // Set employee from request
+        // Set sale employee if provided (optional, adjust as needed)
+        Employee emp = null;
+        if (saleRequest.getEmployeeId() != null) {
+            emp = employeeRepository.findById(saleRequest.getEmployeeId()).orElse(null);
+        }
         sale.setEmployee(emp);
         sale.setAdded_datetime(new Date());
         sale = saleRepository.save(sale);

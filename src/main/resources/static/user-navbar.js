@@ -28,8 +28,39 @@ function setupLogoutBtn() {
     }
 }
 
+// Dropdown logic for user area
+function setupUserDropdown() {
+    const userArea = document.getElementById('navbar-user-area');
+    const dropdown = document.getElementById('logout-dropdown');
+    if (!userArea || !dropdown) return;
+    let isOpen = false;
+    function openDropdown() {
+        dropdown.style.display = 'block';
+        isOpen = true;
+    }
+    function closeDropdown() {
+        dropdown.style.display = 'none';
+        isOpen = false;
+    }
+    userArea.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (isOpen) {
+            closeDropdown();
+        } else {
+            openDropdown();
+        }
+    });
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (isOpen && !userArea.contains(e.target) && !dropdown.contains(e.target)) {
+            closeDropdown();
+        }
+    });
+}
+
 // Run on nav load
 if (document.getElementById('navbar-username')) {
     updateNavbarUser();
     setupLogoutBtn();
+    setupUserDropdown();
 }

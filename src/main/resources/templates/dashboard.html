@@ -16,8 +16,14 @@
                 <i class="bi bi-list"></i>
             </button>
             <a class="navbar-brand text-white fw-bold" href="/dashboard">DS Enterprises</a>
-            <div class="d-flex ms-auto">
-                <span class="navbar-text text-white fw-normal" style="font-size:1.25rem; margin-right:24px;">John Doe</span>
+            <div class="d-flex ms-auto position-relative">
+                <div id="navbar-user-area" class="navbar-text text-white fw-normal" style="font-size:1.25rem; margin-right:24px; cursor:pointer; user-select:none;">
+                    <span id="navbar-username">User</span>
+                    <i class="bi bi-caret-down-fill ms-1"></i>
+                </div>
+                <div id="logout-dropdown" style="display:none; position:absolute; right:0; top:100%; background:#fff; min-width:120px; box-shadow:0 2px 8px rgba(0,0,0,0.15); border-radius:4px; z-index:2000;">
+                    <button id="logoutBtn" class="dropdown-item" style="width:100%; text-align:left; padding:10px 16px; border:none; background:none; color:#333; cursor:pointer;">Logout</button>
+                </div>
             </div>
         </div>
     </nav>
@@ -58,9 +64,9 @@
                     <a class="nav-link text-white" href="/sales"><i class="bi bi-cart4"></i> Sales Orders</a>
                 </li>
                 <li class="nav-item mb-2">
-                    <a class="nav-link text-white" href="#"><i class="bi bi-person"></i> Employees</a>
+                    <a class="nav-link text-white" href="/employee"><i class="bi bi-person"></i> Employees</a>
                 </li>
-                <li class="nav-item mb-2">
+                <!-- <li class="nav-item mb-2">
                     <a class="nav-link text-white" data-bs-toggle="collapse" href="#userMgmtMenu" role="button" aria-expanded="false" aria-controls="userMgmtMenu">
                         <i class="bi bi-gear"></i> User Management <i class="bi bi-chevron-down float-end"></i>
                     </a>
@@ -70,7 +76,7 @@
                             <li class="nav-item mb-2"><a class="nav-link text-white" href="#">Privilege Details</a></li>
                         </ul>
                     </div>
-                </li>
+                </li> -->
             </ul>
         </div>
     </nav>
@@ -153,6 +159,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="user-navbar.js"></script>
     <script src="dashboard.js"></script>
 </body>
 <!-- Dashboard styles moved to styles.css as .ds-* classes -->

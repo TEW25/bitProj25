@@ -65,6 +65,7 @@ public class Sale {
     public void setDiscount(BigDecimal discount) { this.discount = discount; }
     public BigDecimal getSubtotal() { return subtotal; }
     public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
+
     public Employee getEmployee() { return employee; }
     public void setEmployee(Employee employee) { this.employee = employee; }
 

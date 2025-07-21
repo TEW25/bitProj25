@@ -25,6 +25,7 @@ public class AuthStatusController {
                 .map(user -> {
                     Employee emp = user.getEmployee();
                     result.put("logged_in", true);
+                    result.put("user_id", user.getId());
                     result.put("fullname", emp != null ? emp.getFullname() : null);
                     result.put("designation_id", emp != null ? emp.getDesignation_id() : null);
                     return ResponseEntity.ok(result);

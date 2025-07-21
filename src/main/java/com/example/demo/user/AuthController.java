@@ -21,8 +21,12 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
         Optional<User> userOpt = userService.authenticate(loginRequest.getUsername(), loginRequest.getPassword());
         if (userOpt.isPresent()) {
-            session.setAttribute("user", userOpt.get().getId());
-            return ResponseEntity.ok("Login successful");
+            User user = userOpt.get();
+            session.setAttribute("user", user.getId());
+            java.util.Map<String, Object> result = new java.util.HashMap<>();
+            result.put("message", "Login successful");
+            result.put("user_id", user.getId());
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.status(401).body("Invalid username or password");
         }

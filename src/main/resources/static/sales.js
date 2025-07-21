@@ -11,27 +11,52 @@ document.addEventListener('click', function(e) {
 });
 
 // --- Sales Records History Logic ---
+
+let loggedInUserId = null;
+let loggedInUserDesignationId = null;
 document.addEventListener('DOMContentLoaded', function () {
-    // Set salesHistoryDate to today
-    const salesHistoryDateInput = document.getElementById('salesHistoryDate');
-    if (salesHistoryDateInput) {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        const todayStr = `${yyyy}-${mm}-${dd}`;
-        salesHistoryDateInput.value = todayStr;
-        loadSalesRecords(todayStr);
-        document.getElementById('filterSalesHistoryBtn').addEventListener('click', function () {
-            loadSalesRecords(salesHistoryDateInput.value);
+    // Fetch logged-in user id first
+    fetch('/api/auth/status')
+        .then(res => {
+            if (!res.ok) throw new Error('Not logged in');
+            return res.json();
+        })
+        .then(data => {
+            loggedInUserId = data.user_id;
+            loggedInUserDesignationId = data.designation_id;
+            console.log('[Sales] Logged-in user ID:', loggedInUserId, 'Designation ID:', loggedInUserDesignationId);
+            // Set salesHistoryDate to today
+            const salesHistoryDateInput = document.getElementById('salesHistoryDate');
+            if (salesHistoryDateInput) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                const todayStr = `${yyyy}-${mm}-${dd}`;
+                salesHistoryDateInput.value = todayStr;
+                loadSalesRecords(todayStr);
+                document.getElementById('filterSalesHistoryBtn').addEventListener('click', function () {
+                    loadSalesRecords(salesHistoryDateInput.value);
+                });
+            }
+        })
+        .catch(() => {
+            // fallback: redirect to login or show error
+            window.location.href = '/login';
         });
-    }
 });
 
 function loadSalesRecords(dateStr) {
     const container = document.getElementById('salesRecordsContainer');
     container.innerHTML = '<div>Loading sales records...</div>';
-    fetch(`/api/sales?date=${dateStr}&employeeId=3`)
+    // Safeguard: ensure loggedInUserId is a valid number
+    if (!loggedInUserId || isNaN(Number(loggedInUserId))) {
+        container.innerHTML = '<div class="text-danger">User not found or invalid user ID.</div>';
+        console.error('[Sales] Invalid or missing loggedInUserId:', loggedInUserId);
+        return;
+    }
+    console.log(`[Sales] Fetching sales records for employeeId=${loggedInUserId} and date=${dateStr}`);
+    fetch(`/api/sales?date=${dateStr}&employeeId=${loggedInUserId}`)
         .then(response => {
             if (!response.ok) throw new Error('Failed to fetch sales records');
             return response.json();
@@ -138,8 +163,17 @@ function openRefundModal(sale) {
     document.getElementById('refundModalBody').innerHTML = html;
     // Show modal (Bootstrap 4)
     $('#refundModal').modal('show');
+    // Disable refund button if designation_id is not 1 or 2
+    const refundBtn = document.getElementById('saveRefundBtn');
+    if (loggedInUserDesignationId !== 1 && loggedInUserDesignationId !== 2) {
+        refundBtn.disabled = true;
+        refundBtn.title = 'You do not have permission to perform refunds.';
+    } else {
+        refundBtn.disabled = false;
+        refundBtn.title = '';
+    }
     // Save button handler (no backend, just close)
-    document.getElementById('saveRefundBtn').onclick = function() {
+    refundBtn.onclick = function() {
         // Collect refund data
         const refundData = {
             saleId: sale.id,

@@ -200,6 +200,13 @@ function submitSale() {
     const balanceAmount = parseFloat(document.getElementById('balanceAmount').value) || 0;
     const discount = parseFloat(document.getElementById('globalDiscount').value) || 0;
     const paymentType = document.getElementById('paymentType').value;
+    // Get employeeId from global variable (set in sales.js)
+    let employeeId = null;
+    if (typeof loggedInUserId !== 'undefined' && loggedInUserId !== null) {
+        employeeId = loggedInUserId;
+    } else if (window.loggedInUserId) {
+        employeeId = window.loggedInUserId;
+    }
     const sale = {
         subtotal: subtotal,
         totalAmount: totalAmount,
@@ -210,7 +217,8 @@ function submitSale() {
         balance_amount: balanceAmount,
         discount: discount,
         paymentType: paymentType,
-        items: items
+        items: items,
+        employeeId: employeeId
     };
     // Send to backend
     fetch('/api/sales', {
