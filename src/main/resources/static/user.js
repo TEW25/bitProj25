@@ -43,7 +43,16 @@ function showUserForm(user) {
                 </form>
             `;
             $('#userFormContainer').html(formHtml);
-            loadEmployeeOptions(user ? user.employee_id : null);
+            // Determine selected employee id for edit
+            var selectedEmployeeId = null;
+            if (user) {
+                if (user.employee_id) {
+                    selectedEmployeeId = user.employee_id;
+                } else if (user.employee && user.employee.id) {
+                    selectedEmployeeId = user.employee.id;
+                }
+            }
+            loadEmployeeOptions(selectedEmployeeId);
             var modal = new bootstrap.Modal(document.getElementById('userFormModal'));
             modal.show();
         },
@@ -58,12 +67,39 @@ function showUserForm(user) {
 
 $(document).on('submit', '#userForm', function(e) {
     e.preventDefault();
-    // TODO: AJAX call to save user
-    alert('User save not implemented.');
-    var modalEl = document.getElementById('userFormModal');
-    var modal = bootstrap.Modal.getInstance(modalEl);
-    if(modal) modal.hide();
-    loadUsers();
+    var formData = {};
+    $('#userForm').serializeArray().forEach(function(item) {
+        formData[item.name] = item.value;
+    });
+    var isEdit = formData.id && formData.id !== '';
+    var method = isEdit ? 'PUT' : 'POST';
+    var url = '/api/users' + (isEdit ? '/' + formData.id : '');
+    // Remove empty id for POST
+    if (!isEdit) delete formData.id;
+    // Convert status to number if needed
+    if (formData.status) formData.status = parseInt(formData.status);
+    // Attach employee as object for backend compatibility
+    if (formData.employee_id) {
+        formData.employee = { id: parseInt(formData.employee_id) };
+        delete formData.employee_id;
+    }
+    // Don't send empty password on update
+    if (isEdit && !formData.password) delete formData.password;
+    $.ajax({
+        url: url,
+        method: method,
+        contentType: 'application/json',
+        data: JSON.stringify(formData),
+        success: function() {
+            var modalEl = document.getElementById('userFormModal');
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            if(modal) modal.hide();
+            loadUsers();
+        },
+        error: function(xhr) {
+            alert('Failed to save user. ' + (xhr.responseText || ''));
+        }
+    });
 });
 
 function loadUsers() {
@@ -130,15 +166,20 @@ function deleteUser(id) {
 }
 
 function loadEmployeeOptions(selectedId) {
-    // TODO: AJAX call to fetch employees
-    var employees = [
-        {id:1, fullname:'John Doe'},
-        {id:2, fullname:'Jane Smith'}
-    ];
-    var options = employees.map(function(e) {
-        return `<option value='${e.id}' ${selectedId == e.id ? 'selected' : ''}>${e.fullname}</option>`;
-    }).join('');
-    $('#userEmployeeSelect').html(options);
+    // AJAX call to fetch employees from backend
+    $.ajax({
+        url: '/api/employees',
+        method: 'GET',
+        success: function(employees) {
+            var options = employees.map(function(e) {
+                return `<option value='${e.id}' ${selectedId == e.id ? 'selected' : ''}>${e.fullname}</option>`;
+            }).join('');
+            $('#userEmployeeSelect').html(options);
+        },
+        error: function() {
+            $('#userEmployeeSelect').html('<option value="">Failed to load employees</option>');
+        }
+    });
 }
 
 // Load users when user tab is shown

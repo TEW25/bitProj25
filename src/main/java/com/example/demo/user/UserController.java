@@ -50,4 +50,25 @@ public class UserController {
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    // Endpoint to get users with their employee id and fullname
+    @GetMapping("/with-employee")
+    public List<java.util.Map<String, Object>> getUsersWithEmployee() {
+        List<User> users = userRepository.findAll();
+        List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
+        for (User user : users) {
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("user_id", user.getId());
+            if (user.getEmployee() != null) {
+                map.put("employee_id", user.getEmployee().getId());
+                map.put("employee_fullname", user.getEmployee().getFullname());
+            } else {
+                map.put("employee_id", null);
+                map.put("employee_fullname", null);
+            }
+            map.put("username", user.getUsername());
+            result.add(map);
+        }
+        return result;
+    }
 }

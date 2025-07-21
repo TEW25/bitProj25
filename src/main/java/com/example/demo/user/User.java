@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 @Table(name = "user")
 public class User {
     @Id
+    @jakarta.persistence.GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Integer id;
     private String username;
     private String password;

@@ -67,9 +67,62 @@ function showEmployeeForm(employee) {
 $(document).on('submit', '#employeeForm', function(e) {
     e.preventDefault();
     var formData = {};
+    var errors = [];
     $('#employeeForm').serializeArray().forEach(function(item) {
-        formData[item.name] = item.value;
+        formData[item.name] = item.value.trim();
     });
+
+    // Employee Number: required, alphanumeric, length 2-20
+    if (!formData.employee_number || !/^[a-zA-Z0-9\-]{2,20}$/.test(formData.employee_number)) {
+        errors.push('Employee Number is required (2-20 chars, alphanumeric or dash).');
+    }
+    // Full Name: required, letters and spaces, 2-50 chars
+    if (!formData.fullname || !/^[a-zA-Z\s]{2,50}$/.test(formData.fullname)) {
+        errors.push('Full Name is required (2-50 letters).');
+    }
+    // NIC: required, 10-12 chars, alphanumeric
+    if (!formData.nic || !/^[a-zA-Z0-9]{10,12}$/.test(formData.nic)) {
+        errors.push('NIC is required (10-12 alphanumeric characters).');
+    }
+    // Gender: required, must be Male or Female
+    if (!formData.gender || !['Male','Female'].includes(formData.gender)) {
+        errors.push('Gender is required.');
+    }
+    // DOB: required, must be a valid date, age 18-65
+    if (!formData.dob) {
+        errors.push('Date of Birth is required.');
+    } else {
+        var dob = new Date(formData.dob);
+        var today = new Date();
+        var age = today.getFullYear() - dob.getFullYear();
+        var m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+        if (isNaN(dob.getTime()) || age < 18 || age > 65) {
+            errors.push('DOB must be valid and age between 18 and 65.');
+        }
+    }
+    // Mobile Number: required, 10 digits, starts with 0
+    if (!formData.mobilenumber || !/^0\d{9}$/.test(formData.mobilenumber)) {
+        errors.push('Mobile Number is required (10 digits, starts with 0).');
+    }
+    // Email: required, valid format
+    if (!formData.email || !/^\S+@\S+\.\S+$/.test(formData.email)) {
+        errors.push('Valid Email is required.');
+    }
+    // Designation: required, must be a number
+    if (!formData.designation_id || isNaN(Number(formData.designation_id))) {
+        errors.push('Designation is required.');
+    }
+    // Status: required, must be a number
+    if (!formData.employeestatus_id || isNaN(Number(formData.employeestatus_id))) {
+        errors.push('Status is required.');
+    }
+
+    if (errors.length > 0) {
+        alert(errors.join('\n'));
+        return;
+    }
+
     var isEdit = formData.id && formData.id !== '';
     var method = isEdit ? 'PUT' : 'POST';
     var url = '/api/employees' + (isEdit ? '/' + formData.id : '');

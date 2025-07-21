@@ -8,7 +8,11 @@ async function checkLogin() {
         }
         const data = await response.json();
         if (data.designation_id !== 1 && data.designation_id !== 2) {
-            window.location.href = '/login';
+            // Only redirect to /sales if not already on the sales page
+            if (!window.location.pathname.startsWith('/sales')) {
+                window.location.href = '/sales';
+            }
+            // If already on /sales, do nothing (allow access)
             return;
         }
     } catch (e) {
