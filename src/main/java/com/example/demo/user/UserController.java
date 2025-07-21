@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -36,6 +40,10 @@ public class UserController {
         if (user.getAddeddatetime() == null) {
             user.setAddeddatetime(java.time.LocalDateTime.now());
         }
+        // Hash the password before saving
+        if (user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         return userRepository.save(user);
     }
 
@@ -44,7 +52,9 @@ public class UserController {
         return userRepository.findById(id)
                 .map(user -> {
                     user.setUsername(userDetails.getUsername());
-                    user.setPassword(userDetails.getPassword());
+                    if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+                        user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+                    }
                     user.setStatus(userDetails.getStatus());
                     user.setAddeddatetime(userDetails.getAddeddatetime());
                     user.setEmployee(userDetails.getEmployee());

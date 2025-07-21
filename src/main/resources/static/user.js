@@ -33,9 +33,14 @@ function showUserForm(user) {
                         </div>
                         <div class="col-md-6 mb-2">
                             <label>Password <span style='color:red'>*</span></label>
-                            <input type="password" class="form-control" name="password" ${user ? '' : 'required'}>
+                            <input type="password" class="form-control" name="password" id="passwordField" ${user ? '' : 'required'}>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label>Confirm Password <span style='color:red'>*</span></label>
+                            <input type="password" class="form-control" name="confirm_password" id="confirmPasswordField" ${user ? '' : 'required'}>
                         </div>
                     </div>
+                    <div id="passwordMismatchMsg" class="text-danger mb-2" style="display:none;">Passwords do not match.</div>
                     <button type="submit" class="btn btn-success">${user ? 'Update' : 'Add'} User</button>
                 </form>
             `;
@@ -68,7 +73,16 @@ $(document).on('submit', '#userForm', function(e) {
     $('#userForm').serializeArray().forEach(function(item) {
         formData[item.name] = item.value;
     });
+    // Password confirmation check (only if password is being set)
+    var password = $('#passwordField').val();
+    var confirmPassword = $('#confirmPasswordField').val();
     var isEdit = formData.id && formData.id !== '';
+    if ((password || confirmPassword) && password !== confirmPassword) {
+        $('#passwordMismatchMsg').show();
+        return;
+    } else {
+        $('#passwordMismatchMsg').hide();
+    }
     var method = isEdit ? 'PUT' : 'POST';
     var url = '/api/users' + (isEdit ? '/' + formData.id : '');
     // Remove empty id for POST
@@ -82,6 +96,8 @@ $(document).on('submit', '#userForm', function(e) {
     }
     // Don't send empty password on update
     if (isEdit && !formData.password) delete formData.password;
+    // Remove confirm_password before sending
+    delete formData.confirm_password;
     $.ajax({
         url: url,
         method: method,

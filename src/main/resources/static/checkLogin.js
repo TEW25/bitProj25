@@ -7,7 +7,13 @@ async function checkLogin() {
             return;
         }
         const data = await response.json();
-        if (data.designation_id !== 1 && data.designation_id !== 2) {
+        // If designation_id is 2, redirect to /inventory and block /employee
+        if (data.designation_id === 2) {
+            if (window.location.pathname.startsWith('/employee')) {
+                window.location.href = '/inventory';
+                return;
+            }
+        } else if (data.designation_id !== 1) {
             // Only redirect to /sales if not already on the sales page
             if (!window.location.pathname.startsWith('/sales')) {
                 window.location.href = '/sales';
