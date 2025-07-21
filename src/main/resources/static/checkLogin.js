@@ -16,5 +16,3 @@ async function checkLogin() {
     }
 }
 
-// Call checkLogin() on every protected page (not on login page)
-// Example usage: add <script src="/checkLogin.js"></script> to protected pages

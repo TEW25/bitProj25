@@ -1,6 +1,5 @@
 package com.example.demo.user;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,4 +38,11 @@ public class AuthStatusController {
             return ResponseEntity.status(401).body(result);
         }
     }
+
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok("Logged out");
+    }
 }
+

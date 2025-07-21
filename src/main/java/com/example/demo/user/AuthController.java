@@ -28,6 +28,7 @@ public class AuthController {
         }
     }
 
+    // This endpoint is not being used, consider removing it
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         session.invalidate();
