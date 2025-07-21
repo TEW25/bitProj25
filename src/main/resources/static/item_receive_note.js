@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-
     // --- Purchase Order Search Logic ---
-    let allPurchaseOrders = [];    
+    let allPurchaseOrders = [];
     const purchaseOrderSearch = document.getElementById('purchaseOrderSearch');
     const purchaseOrderResults = document.getElementById('purchaseOrderResults');
     const selectedPurchaseOrderId = document.getElementById('selectedPurchaseOrderId');
+    const formErrorMsg = document.getElementById('formErrorMsg');
 
     // Fetch all purchase orders for searching
     fetch('/api/purchaseorders')
@@ -78,27 +78,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const grnForm = document.getElementById('grnForm');
-    grnForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        createGRN();
-    });
-
-    // Add event listener for input changes in received quantity to calculate line price
+    // Add event listener for input changes in received quantity to calculate line price and validate
     document.getElementById('receivedItemsTableBody').addEventListener('input', (event) => {
         if (event.target.classList.contains('received-qty')) {
+            validateReceivedQty(event.target);
             calculateLinePrice(event.target);
             calculateTotalAndGrossAmount();
         }
-    // Error containers
-    const receivedDate = document.getElementById('receivedDate');
-    const discountRateInput = document.getElementById('discountRate');
-    const grnForm = document.getElementById('grnForm');
     });
 
     // Add event listener for discount rate changes
     document.getElementById('discountRate').addEventListener('input', () => {
+        validateDiscountRate();
         calculateTotalAndGrossAmount();
+    });
+
+    // Add event listener for received date validation
+    document.getElementById('receivedDate').addEventListener('change', validateReceivedDate);
+
+    // Form submit validation
+    const grnForm = document.getElementById('grnForm');
+    grnForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (validateForm()) {
+            createGRN();
+        }
     });
 });
 
@@ -133,28 +137,25 @@ function fetchPurchaseOrderDetails(purchaseOrderId) {
 }
 function populateReceivedItemsTable(items) {
     const tableBody = document.getElementById('receivedItemsTableBody');
-    tableBody.innerHTML = ''; // Clear existing rows
-
+    tableBody.innerHTML = '';
     items.forEach(itemDetail => {
         const row = document.createElement('tr');
-        // Assuming itemDetail has item, orderedqty, and purchaseprice
         const itemCode = itemDetail.item ? itemDetail.item.itemcode : 'N/A';
         const itemName = itemDetail.item ? itemDetail.item.itemname : 'N/A';
         const orderedQty = itemDetail.orderedqty !== undefined ? itemDetail.orderedqty : 0;
         const purchasePrice = itemDetail.purchaseprice !== undefined ? itemDetail.purchaseprice : 0;
         const itemId = itemDetail.item ? itemDetail.item.id : '';
-
         row.innerHTML = `
             <td>${itemCode}</td>
             <td>${itemName}</td>
-            <td>${orderedQty}</td>
-            <td><input type="number" class="form-control received-qty" data-item-id="${itemId}" data-purchase-price="${purchasePrice}" value="${orderedQty}" min="0"></td>
+            <td class="ordered-qty">${orderedQty}</td>
+            <td><input type="number" class="form-control received-qty" data-item-id="${itemId}" data-purchase-price="${purchasePrice}" value="${orderedQty}" min="0" max="${orderedQty}" step="1"></td>
             <td>${purchasePrice.toFixed(2)}</td>
             <td class="line-price">${(orderedQty * purchasePrice).toFixed(2)}</td>
         `;
         tableBody.appendChild(row);
     });
-    calculateTotalAndGrossAmount(); // Calculate initial amounts
+    calculateTotalAndGrossAmount();
 }
 function clearReceivedItemsTable() {
     const tableBody = document.getElementById('receivedItemsTableBody');
@@ -162,14 +163,103 @@ function clearReceivedItemsTable() {
     document.getElementById('totalAmount').value = '';
     document.getElementById('grossAmount').value = '';
 }
-// Add event listener for input changes in received quantity to calculate line price and validate
-    document.getElementById('receivedItemsTableBody').addEventListener('input', (event) => {
-        if (event.target.classList.contains('received-qty')) {
-            validateReceivedQty(event.target);
-            calculateLinePrice(event.target);
-            calculateTotalAndGrossAmount();
+
+// --- Validation Functions ---
+function validateReceivedQty(input) {
+    const row = input.closest('tr');
+    const orderedQty = parseFloat(row.querySelector('.ordered-qty').textContent);
+    let val = parseFloat(input.value);
+    if (isNaN(val) || val < 0) {
+        input.value = 0;
+        val = 0;
+    }
+    if (val > orderedQty) {
+        input.value = orderedQty;
+        val = orderedQty;
+    }
+    // Optionally, show error message inline or highlight
+    input.classList.toggle('is-invalid', val < 0 || val > orderedQty);
+}
+
+function validateDiscountRate() {
+    const discountInput = document.getElementById('discountRate');
+    let val = parseFloat(discountInput.value);
+    if (isNaN(val) || val < 0) {
+        discountInput.value = 0;
+        val = 0;
+    }
+    if (val > 100) {
+        discountInput.value = 100;
+        val = 100;
+    }
+    discountInput.classList.toggle('is-invalid', val < 0 || val > 100);
+}
+
+function validateReceivedDate() {
+    const receivedDate = document.getElementById('receivedDate');
+    const today = new Date();
+    const inputDate = new Date(receivedDate.value);
+    let valid = true;
+    if (!receivedDate.value) {
+        valid = false;
+    } else if (inputDate > today) {
+        valid = false;
+    }
+    receivedDate.classList.toggle('is-invalid', !valid);
+    return valid;
+}
+
+function validateForm() {
+    let valid = true;
+    let errorMsg = [];
+    // Validate purchase order
+    const poId = document.getElementById('selectedPurchaseOrderId').value;
+    if (!poId) {
+        valid = false;
+        errorMsg.push('Please select a Purchase Order.');
+    }
+    // Validate received date
+    if (!validateReceivedDate()) {
+        valid = false;
+        errorMsg.push('Please enter a valid Received Date (not in the future).');
+    }
+    // Validate discount rate
+    const discountInput = document.getElementById('discountRate');
+    let discountVal = parseFloat(discountInput.value);
+    if (isNaN(discountVal) || discountVal < 0 || discountVal > 100) {
+        valid = false;
+        errorMsg.push('Discount Rate must be between 0 and 100.');
+    }
+    // Validate received quantities
+    let hasValidQty = false;
+    document.querySelectorAll('#receivedItemsTableBody tr').forEach(row => {
+        const qtyInput = row.querySelector('.received-qty');
+        const orderedQty = parseFloat(row.querySelector('.ordered-qty').textContent);
+        let val = parseFloat(qtyInput.value);
+        if (!isNaN(val) && val > 0 && val <= orderedQty) {
+            hasValidQty = true;
+        }
+        if (isNaN(val) || val < 0 || val > orderedQty) {
+            qtyInput.classList.add('is-invalid');
+            valid = false;
+        } else {
+            qtyInput.classList.remove('is-invalid');
         }
     });
+    if (!hasValidQty) {
+        valid = false;
+        errorMsg.push('Please enter received quantities for at least one item (must be > 0 and ≤ ordered quantity).');
+    }
+    // Show error message if any
+    const formErrorMsg = document.getElementById('formErrorMsg');
+    if (!valid) {
+        formErrorMsg.innerHTML = errorMsg.join('<br>');
+        formErrorMsg.classList.remove('d-none');
+    } else {
+        formErrorMsg.classList.add('d-none');
+    }
+    return valid;
+}
 
 
 
@@ -212,31 +302,26 @@ function createGRN() {
         const purchasePrice = parseFloat(row.querySelector('.received-qty').dataset.purchasePrice);
         const linePrice = parseFloat(row.querySelector('.line-price').textContent);
 
-        if (!isNaN(receivedQty) && receivedQty > 0) { // Only include items with received quantity > 0
+        if (!isNaN(receivedQty) && receivedQty > 0) {
              itemreceivenoteItems.push({
                 item: { id: parseInt(itemId) },
-                orderqty: receivedQty, // Note: Using orderqty field in backend for received quantity
+                orderqty: receivedQty,
                 purchaseprice: purchasePrice,
                 lineprice: linePrice
             });
         }
     });
 
-    if (!purchaseOrderId) {
-        alert('Please select a Purchase Order.');
-        return;
-    }
-
-    if (itemreceivenoteItems.length === 0) {
-        alert('Please enter received quantities for at least one item.');
-        return;
-    }
+    // Get totalamount and grossamount from the form
+    const totalAmount = document.getElementById('totalAmount').value;
+    const grossAmount = document.getElementById('grossAmount').value;
 
     const grnData = {
         purchaseorder: { id: parseInt(purchaseOrderId) },
         receiveddate: receivedDate,
         discountrate: parseFloat(discountRate),
-        // totalamount and grossamount will be calculated on the backend
+        totalamount: parseFloat(totalAmount),
+        grossamount: parseFloat(grossAmount),
         itemreceivenoteItems: itemreceivenoteItems
     };
 
@@ -249,22 +334,20 @@ function createGRN() {
     })
     .then(response => {
         if (!response.ok) {
-            // TODO: Handle backend errors and display appropriate message
              return response.text().then(text => { throw new Error(`HTTP error! status: ${response.status}, Details: ${text}`); });
         }
-        return response.json(); // Assuming backend returns the created GRN object
+        return response.json();
     })
     .then(data => {
         console.log('GRN created successfully:', data);
         alert('GRN created successfully!');
-        // TODO: Redirect or clear form after successful creation
         document.getElementById('grnForm').reset();
         clearReceivedItemsTable();
-        // No need to refresh PO list for search box
+        document.getElementById('formErrorMsg').classList.add('d-none');
     })
     .catch(error => {
         console.error('Error creating GRN:', error);
-        alert('Error creating GRN. See console for details.');
-        // TODO: Display error message to the user
+        document.getElementById('formErrorMsg').innerHTML = 'Error creating GRN. ' + error.message;
+        document.getElementById('formErrorMsg').classList.remove('d-none');
     });
 }
