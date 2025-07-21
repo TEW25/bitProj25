@@ -57,4 +57,8 @@ public class WebController {
     public String salesManagement() {
         return "sales.html";
     }
+    @GetMapping("/login")
+    public String loginManagement() {
+        return "login.html";
+    }
 }

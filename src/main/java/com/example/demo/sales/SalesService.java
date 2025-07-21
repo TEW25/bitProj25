@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.inventory.Employee;
-import com.example.demo.inventory.EmployeeRepository;
+import com.example.demo.employee.Employee;
+import com.example.demo.employee.EmployeeRepository;
 import com.example.demo.inventory.Inventory;
 import com.example.demo.inventory.InventoryRepository;
 import com.example.demo.item.Item;
