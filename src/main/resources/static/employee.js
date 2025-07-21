@@ -12,42 +12,42 @@ function showEmployeeForm(employee) {
             <input type="hidden" name="id" value="${employee ? employee.id : ''}">
             <div class="row">
                 <div class="col-md-6 mb-2">
-                    <label>Employee Number</label>
+                    <label>Employee Number <span style='color:red'>*</span></label>
                     <input type="text" class="form-control" name="employee_number" value="${employee ? employee.employee_number : ''}" required>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label>Full Name</label>
+                    <label>Full Name <span style='color:red'>*</span></label>
                     <input type="text" class="form-control" name="fullname" value="${employee ? employee.fullname : ''}" required>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label>NIC</label>
+                    <label>NIC <span style='color:red'>*</span></label>
                     <input type="text" class="form-control" name="nic" value="${employee ? employee.nic : ''}" required>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label>Gender</label>
+                    <label>Gender <span style='color:red'>*</span></label>
                     <select class="form-control" name="gender">
                         <option value="Male" ${employee && employee.gender == 'Male' ? 'selected' : ''}>Male</option>
                         <option value="Female" ${employee && employee.gender == 'Female' ? 'selected' : ''}>Female</option>
                     </select>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label>DOB</label>
+                    <label>DOB <span style='color:red'>*</span></label>
                     <input type="date" class="form-control" name="dob" value="${employee ? employee.dob : ''}" required>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label>Mobile Number</label>
+                    <label>Mobile Number <span style='color:red'>*</span></label>
                     <input type="text" class="form-control" name="mobilenumber" value="${employee ? employee.mobilenumber : ''}" required>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label>Email</label>
+                    <label>Email <span style='color:red'>*</span></label>
                     <input type="email" class="form-control" name="email" value="${employee ? employee.email : ''}" required>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label>Designation</label>
+                    <label>Designation <span style='color:red'>*</span></label>
                     <select class="form-control" name="designation_id" id="employeeDesignationSelect"></select>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <label>Status</label>
+                    <label>Status <span style='color:red'>*</span></label>
                     <select class="form-control" name="employeestatus_id" id="employeeStatusSelect"></select>
                 </div>
             </div>

@@ -329,3 +329,39 @@ label {
     color: #212529 !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
+.inventory-title {
+    color: #343a40;
+    /* font-size and font-weight are already set by Bootstrap classes */
+}
+
+.inventory-title-icon {
+    font-size: 2rem;
+    color: #6c63ff;
+}
+
+.inventory-title-main-icon {
+    font-size: 1.5rem;
+    color: #6c63ff;
+    margin-right: 0.5rem;
+}
+
+.inventory-title-icon-dark {
+    font-size: 2.7rem;
+    color: #343a40;
+}
+
+.inventory-title-main-icon-dark {
+    font-size: 1.7rem;
+    color: #343a40;
+    margin-right: 0.5rem;
+}
+
+.card-body d-flex align-items-center{
+    box-shadow: 2px 4px rgba(0,0,0,0.4);
+    
+}
+.card-title-header {
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
+    }

@@ -19,23 +19,20 @@ function showUserForm(user) {
                     <input type="hidden" name="id" value="${user ? user.id : ''}">
                     <div class="row">
                         <div class="col-md-6 mb-2">
-                            <label>Username</label>
+                            <label>Username <span style='color:red'>*</span></label>
                             <input type="text" class="form-control" name="username" value="${user ? user.username : ''}" required>
                         </div>
+                        <!-- Email field removed -->
                         <div class="col-md-6 mb-2">
-                            <label>Email</label>
-                            <input type="email" class="form-control" name="email" value="${user ? user.email : ''}" required>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label>Status</label>
+                            <label>Status <span style='color:red'>*</span></label>
                             <select class="form-control" name="status">${statusOptions}</select>
                         </div>
                         <div class="col-md-6 mb-2">
-                            <label>Employee</label>
+                            <label>Employee <span style='color:red'>*</span></label>
                             <select class="form-control" name="employee_id" id="userEmployeeSelect"></select>
                         </div>
                         <div class="col-md-6 mb-2">
-                            <label>Password</label>
+                            <label>Password <span style='color:red'>*</span></label>
                             <input type="password" class="form-control" name="password" ${user ? '' : 'required'}>
                         </div>
                     </div>
@@ -121,7 +118,6 @@ function loadUsers() {
                         return `<tr>
                             <td>${i+1}</td>
                             <td>${u.username || ''}</td>
-                            <td>${u.email || ''}</td>
                             <td>${statusName}</td>
                             <td>${u.employee && u.employee.fullname ? u.employee.fullname : ''}</td>
                             <td>
@@ -133,12 +129,12 @@ function loadUsers() {
                     $('#userTableBody').html(rows);
                 },
                 error: function() {
-                    $('#userTableBody').html('<tr><td colspan="6">Failed to load user statuses.</td></tr>');
+                    $('#userTableBody').html('<tr><td colspan="5">Failed to load user statuses.</td></tr>');
                 }
             });
         },
         error: function() {
-            $('#userTableBody').html('<tr><td colspan="6">Failed to load users.</td></tr>');
+            $('#userTableBody').html('<tr><td colspan="5">Failed to load users.</td></tr>');
         }
     });
 }

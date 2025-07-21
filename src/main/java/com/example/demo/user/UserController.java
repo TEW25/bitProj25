@@ -45,7 +45,6 @@ public class UserController {
                 .map(user -> {
                     user.setUsername(userDetails.getUsername());
                     user.setPassword(userDetails.getPassword());
-                    user.setEmail(userDetails.getEmail());
                     user.setStatus(userDetails.getStatus());
                     user.setAddeddatetime(userDetails.getAddeddatetime());
                     user.setEmployee(userDetails.getEmployee());
