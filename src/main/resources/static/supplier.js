@@ -147,12 +147,14 @@ $(document).ready(function() {
             }
         }
 
-        // Frontend validation for Email (optional but recommended)
-        // if (supplierEmail && !/^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$/.test(supplierEmail)) {
-        //     // For email, we'll still use the text error below the field as it's a backend check too
-        //     $('#supplierEmailError').text('Please enter a valid email address.');
-        //     isValid = false;
-        // }
+        // Frontend validation for Email (required and must be valid format)
+        if (!supplierEmail) {
+            $('#supplierEmailError').text('Email is required.');
+            isValid = false;
+        } else if (!/^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$/.test(supplierEmail)) {
+            $('#supplierEmailError').text('Please enter a valid email address.');
+            isValid = false;
+        }
 
         if (!isValid) {
             // If frontend validation fails, the browser will show tooltips.

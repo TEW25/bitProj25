@@ -56,7 +56,8 @@ function loadSalesRecords(dateStr) {
         return;
     }
     console.log(`[Sales] Fetching sales records for employeeId=${loggedInUserId} and date=${dateStr}`);
-    fetch(`/api/sales?date=${dateStr}&employeeId=${loggedInUserId}`)
+    // Always send loggedInUserId as employeeId
+    fetch(`/api/sales?date=${encodeURIComponent(dateStr)}&employeeId=${encodeURIComponent(loggedInUserId)}`)
         .then(response => {
             if (!response.ok) throw new Error('Failed to fetch sales records');
             return response.json();

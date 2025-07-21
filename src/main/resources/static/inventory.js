@@ -348,10 +348,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const inventoryCodeInput = document.getElementById('addInventoryCode');
             const inventorycode = inventoryCodeInput ? inventoryCodeInput.value : '';
             // Use correct input IDs for available and total qty
-            const availableqty = document.getElementById('addAvailableQty') ? document.getElementById('addAvailableQty').value : '';
-            const totalqty = document.getElementById('addTotalQty') ? document.getElementById('addTotalQty').value : '';
+            const availableqtyStr = document.getElementById('addAvailableQty') ? document.getElementById('addAvailableQty').value : '';
+            const totalqtyStr = document.getElementById('addTotalQty') ? document.getElementById('addTotalQty').value : '';
             const statusId = document.getElementById('addStatusSelect') ? document.getElementById('addStatusSelect').value : '';
-            // Basic validation
+
+            // Stricter validation
             if (!itemId || itemId === '') {
                 alert('Please select an item.');
                 itemSelect.focus();
@@ -362,12 +363,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (inventoryCodeInput) inventoryCodeInput.focus();
                 return;
             }
-            if (availableqty === '' || isNaN(availableqty)) {
+            if (!/^INV\d{6}$/.test(inventorycode)) {
+                alert('Inventory Code must start with "INV" followed by 6 digits (e.g., INV123456).');
+                if (inventoryCodeInput) inventoryCodeInput.focus();
+                return;
+            }
+            if (availableqtyStr === '' || isNaN(availableqtyStr)) {
                 alert('Available Qty is required and must be a number.');
                 return;
             }
-            if (totalqty === '' || isNaN(totalqty)) {
+            if (totalqtyStr === '' || isNaN(totalqtyStr)) {
                 alert('Total Qty is required and must be a number.');
+                return;
+            }
+            const availableqty = parseFloat(availableqtyStr);
+            const totalqty = parseFloat(totalqtyStr);
+            if (availableqty < 0) {
+                alert('Available Qty must be a non-negative number.');
+                return;
+            }
+            if (totalqty < 0) {
+                alert('Total Qty must be a non-negative number.');
+                return;
+            }
+            if (availableqty > totalqty) {
+                alert('Available Qty cannot exceed Total Qty.');
                 return;
             }
             if (!statusId) {
@@ -409,21 +429,35 @@ document.addEventListener('DOMContentLoaded', function () {
             event.preventDefault();
             // Get form values for edit
             const id = document.getElementById('editInventoryId').value;
-            const availableqty = document.getElementById('editQuantityInput').value;
-            const totalqty = document.getElementById('editTotalQtyInput').value;
+            const availableqtyStr = document.getElementById('editQuantityInput').value;
+            const totalqtyStr = document.getElementById('editTotalQtyInput').value;
             const statusName = document.getElementById('editTransactionStatusSelect').value;
 
-            // Basic validation
+            // Stricter validation
             if (!id) {
                 alert('No inventory item selected for editing.');
                 return;
             }
-            if (availableqty === '' || isNaN(availableqty)) {
+            if (availableqtyStr === '' || isNaN(availableqtyStr)) {
                 alert('Available Qty is required and must be a number.');
                 return;
             }
-            if (totalqty === '' || isNaN(totalqty)) {
+            if (totalqtyStr === '' || isNaN(totalqtyStr)) {
                 alert('Total Qty is required and must be a number.');
+                return;
+            }
+            const availableqty = parseFloat(availableqtyStr);
+            const totalqty = parseFloat(totalqtyStr);
+            if (availableqty < 0) {
+                alert('Available Qty must be a non-negative number.');
+                return;
+            }
+            if (totalqty < 0) {
+                alert('Total Qty must be a non-negative number.');
+                return;
+            }
+            if (availableqty > totalqty) {
+                alert('Available Qty cannot exceed Total Qty.');
                 return;
             }
             if (!statusName) {
@@ -443,8 +477,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Prepare data for PUT
                     const inventoryData = {
                         id: id,
-                        availableqty: parseFloat(availableqty),
-                        totalqty: parseFloat(totalqty),
+                        availableqty: availableqty,
+                        totalqty: totalqty,
                         inventorystatus: { id: selectedStatus.id, name: selectedStatus.name }
                     };
                     // Send PUT request

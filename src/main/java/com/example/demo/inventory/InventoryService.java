@@ -1,14 +1,15 @@
 package com.example.demo.inventory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import jakarta.persistence.criteria.Predicate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import jakarta.persistence.criteria.Predicate;
 
 @Service
 public class InventoryService {
@@ -121,6 +122,9 @@ public class InventoryService {
 
             // Only include items with available quantity > 0
             predicates.add(cb.greaterThan(root.get("availableqty"), 0));
+
+            // Only include items with inventorystatus.id = 1
+            predicates.add(cb.equal(root.get("inventorystatus").get("id"), 1));
 
             if (searchTerm != null && !searchTerm.isEmpty()) {
                 String lowerSearchTerm = searchTerm.toLowerCase();

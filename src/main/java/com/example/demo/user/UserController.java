@@ -33,6 +33,9 @@ public class UserController {
 
     @PostMapping
     public User createUser(@RequestBody User user) {
+        if (user.getAddeddatetime() == null) {
+            user.setAddeddatetime(java.time.LocalDateTime.now());
+        }
         return userRepository.save(user);
     }
 
