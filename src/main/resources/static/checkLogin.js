@@ -10,7 +10,7 @@ async function checkLogin() {
         // If designation_id is 2, redirect to /inventory and block /employee
         if (data.designation_id === 2) {
             if (window.location.pathname.startsWith('/employee')) {
-                window.location.href = '/inventory';
+                window.location.href = '/manage_inventory';
                 return;
             }
         } else if (data.designation_id !== 1) {
