@@ -16,7 +16,7 @@ public class WebController {
     }
     @GetMapping("/dashboard")
     public String dashboardManagement() {
-        return "dashboard.html";
+        return "dashboard";
     }
     @GetMapping("/manage_items")
     public String itemManagement() {

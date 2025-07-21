@@ -24,7 +24,12 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
 }
+
+// rootProject.name = 'DSE'
+
 // group = 'com.example'
 // version = '0.0.1-SNAPSHOT'
 description = 'demo'

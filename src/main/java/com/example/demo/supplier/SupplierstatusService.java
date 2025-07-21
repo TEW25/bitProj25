@@ -20,5 +20,4 @@ public class SupplierstatusService {
         return supplierstatusRepository.findById(id);
     }
 
-    // Add methods for creating, updating, and deleting if needed
 }

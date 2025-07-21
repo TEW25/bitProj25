@@ -1,7 +1,7 @@
 package com.example.demo.supplier;
 
 import java.util.List;
-import java.util.Optional; // Import DataIntegrityViolationException
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -37,12 +37,11 @@ public class SupplierService {
         try {
             return supplierRepository.save(supplier);
         } catch (DataIntegrityViolationException e) {
-            // Check if the exception is due to duplicate email (this might need refinement
-            // depending on the exact database error message or code)
+            // Check if the exception is due to duplicate email
             if (e.getMessage() != null && e.getMessage().contains("supplier.email")) {
-                return null; // Indicate duplicate email error
+                return null;
             } else {
-                throw e; // Re-throw other data integrity violations
+                throw e;
             }
         }
     }
@@ -58,11 +57,11 @@ public class SupplierService {
             try {
                 return supplierRepository.save(existingSupplier);
             } catch (DataIntegrityViolationException e) {
-                 // Check if the exception is due to duplicate email
+                // Check if the exception is due to duplicate email
                 if (e.getMessage() != null && e.getMessage().contains("supplier.email")) {
-                    return null; // Indicate duplicate email error
+                    return null;
                 } else {
-                    throw e; // Re-throw other data integrity violations
+                    throw e;
                 }
             }
         } else {

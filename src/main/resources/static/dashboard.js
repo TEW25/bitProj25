@@ -1,4 +1,35 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Sidebar collapse/expand for mobile
+    const sidebar = document.getElementById('sidebarMenu');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    function openSidebar() {
+        sidebar.classList.add('ds-sidebar-open');
+        sidebarOverlay.classList.add('ds-sidebar-overlay-active');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+        sidebar.classList.remove('ds-sidebar-open');
+        sidebarOverlay.classList.remove('ds-sidebar-overlay-active');
+        document.body.style.overflow = '';
+    }
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            openSidebar();
+        });
+    }
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function() {
+            closeSidebar();
+        });
+    }
+    // Close sidebar on resize to large screens
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 992) {
+            closeSidebar();
+        }
+    });
     // Fetch KPIs
     fetch('/api/dashboard/kpis')
         .then(response => response.json())
