@@ -19,6 +19,15 @@
     <script src="common.js"></script>
     <script src="/checkLogin.js"></script>
     <script>checkLogin();</script>
+    <style>
+    #category-subcategory-tab .nav-link {
+        color: #343a40 !important;
+    }
+    #brand-tab .nav-link.active {
+        color: #343a40 !important;
+        font-weight: bold;
+    }
+    </style>
 </head>
 <body>
     <div id="navbar-placeholder"></div>
@@ -37,14 +46,17 @@
             </div>
         </div>
 
+
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="category-subcategory-tab" data-bs-toggle="tab" data-bs-target="#category-subcategory" type="button" role="tab" aria-controls="category-subcategory" aria-selected="true">
+                <button class="nav-link active" id="category-subcategory-tab" data-bs-toggle="tab" data-bs-target="#category-subcategory" type="button" role="tab" aria-controls="category-subcategory" aria-selected="true"
+                    style="color:#343a40 !important;font-weight:600;">
                     Categories & Subcategories
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="brand-tab" data-bs-toggle="tab" data-bs-target="#brand" type="button" role="tab" aria-controls="brand" aria-selected="false">
+                <button class="nav-link" id="brand-tab" data-bs-toggle="tab" data-bs-target="#brand" type="button" role="tab" aria-controls="brand" aria-selected="false"
+                    style="color:#343a40 !important;font-weight:600;">
                     Brands
                 </button>
             </li>
