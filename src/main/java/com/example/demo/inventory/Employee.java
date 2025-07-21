@@ -10,7 +10,6 @@ public class Employee {
     private Integer id;
     private String employee_number;
     private String fullname;
-    // ... other fields ...
 
     // Getters and setters
     public Integer getId() { return id; }

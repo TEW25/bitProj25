@@ -5,5 +5,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InventorystatusRepository extends JpaRepository<Inventorystatus, Integer> {
-    // You can add custom query methods here if needed
 }

@@ -29,7 +29,6 @@ public class InventoryService {
             if (inventoryDetails.getItem() != null) {
                 existingInventory.setItem(inventoryDetails.getItem());
             }
-            // Removed supplier update as supplier is no longer present
             if (inventoryDetails.getInventorystatus() != null) {
                 existingInventory.setInventorystatus(inventoryDetails.getInventorystatus());
             }
@@ -107,7 +106,6 @@ public class InventoryService {
             existingInventory.setAvailableqty(inventoryDetails.getAvailableqty());
             existingInventory.setTotalqty(inventoryDetails.getTotalqty());
             existingInventory.setItem(inventoryDetails.getItem());
-            // Removed supplier update as supplier is no longer present
             existingInventory.setInventorystatus(inventoryDetails.getInventorystatus());
 
             // Add any business logic or validation before saving
@@ -137,6 +135,4 @@ public class InventoryService {
 
         return inventoryRepository.findAll(spec);
     }
-
-    // Add other service methods as needed (e.g., for deleting)
 }

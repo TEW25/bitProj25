@@ -2,6 +2,8 @@ package com.example.demo.inventory;
 
 import java.math.BigDecimal;
 
+import com.example.demo.item.Item;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -71,8 +73,6 @@ public class Inventory {
     public void setItem(Item item) {
         this.item = item;
     }
-
-    // Removed getSupplier and setSupplier methods
 
     public Inventorystatus getInventorystatus() {
         return inventorystatus;

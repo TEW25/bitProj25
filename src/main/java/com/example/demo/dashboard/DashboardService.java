@@ -9,14 +9,14 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.inventory.BrandRepository;
-import com.example.demo.inventory.CategoryRepository;
+import com.example.demo.categoryBrand.BrandRepository;
+import com.example.demo.categoryBrand.CategoryRepository;
 import com.example.demo.inventory.Inventory;
 import com.example.demo.inventory.InventoryRepository;
-import com.example.demo.inventory.ItemHasSale;
-import com.example.demo.inventory.ItemHasSaleRepository;
-import com.example.demo.inventory.ItemRepository;
-import com.example.demo.inventory.SaleRepository;
+import com.example.demo.item.ItemRepository;
+import com.example.demo.sales.ItemHasSale;
+import com.example.demo.sales.ItemHasSaleRepository;
+import com.example.demo.sales.SaleRepository;
 
 @Service
 public class DashboardService {

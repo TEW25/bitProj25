@@ -242,9 +242,7 @@ $(document).ready(function() {
         }
 
         if (!categoryId) {
-            // Note: setCustomValidity on select elements might not be universally supported or styled well.
-            // A text error below the select might be a more reliable approach for the category dropdown.
-            // For now, we'll keep the alert for the category selection.
+
             alert('Category is required.');
             isValid = false;
         }

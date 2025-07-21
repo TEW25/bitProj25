@@ -1,8 +1,8 @@
-package com.example.demo.inventory;
+package com.example.demo.supplier;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface IrnstatusRepository extends JpaRepository<Irnstatus, Integer> {
+public interface SupplierstatusRepository extends JpaRepository<Supplierstatus, Integer> {
 }
