@@ -153,7 +153,7 @@ $(document).ready(function() {
         }
     });
 
-    // Function to update line price and enable/disable add item button
+    // Function to update line price and enable/disable add item button with improved validation
     function updateLinePriceAndAddItemButton() {
         const quantityInput = $('#itemQuantity');
         const priceInput = $('#itemPrice');
@@ -161,11 +161,35 @@ $(document).ready(function() {
         const addItemBtn = $('#addItemBtn');
         const itemSelect = $('#itemSelect');
 
-        const quantity = parseInt(quantityInput.val());
-        const price = parseFloat(priceInput.val());
+        let quantity = quantityInput.val();
+        let price = priceInput.val();
+        let valid = true;
 
-        // Check if an item is selected and quantity/price are valid numbers
-        if (itemSelect.val() && !isNaN(quantity) && quantity > 0 && !isNaN(price) && price >= 0) {
+        // Validate quantity: must be integer >= 1
+        if (!/^[1-9]\d*$/.test(quantity)) {
+            valid = false;
+            if (quantity !== "") {
+                alert('Quantity must be a positive integer (1 or more).');
+                quantityInput.val(1);
+                quantity = 1;
+            }
+        } else {
+            quantity = parseInt(quantity);
+        }
+
+        // Validate price: must be > 0
+        if (isNaN(price) || parseFloat(price) <= 0) {
+            valid = false;
+            if (price !== "") {
+                alert('Price must be greater than 0.');
+                priceInput.val('');
+            }
+        } else {
+            price = parseFloat(price);
+        }
+
+        // Check if an item is selected and both values are valid
+        if (itemSelect.val() && valid) {
             linePriceInput.val((quantity * price).toFixed(2));
             addItemBtn.prop('disabled', false);
         } else {
@@ -179,7 +203,7 @@ $(document).ready(function() {
         updateLinePriceAndAddItemButton();
     });
 
-    // Function to add selected item to the order table
+    // Function to add selected item to the order table with improved validation
     $('#addItemBtn').click(function() {
         const itemSelect = $('#itemSelect');
         const selectedItemOption = itemSelect.find(':selected');
@@ -190,6 +214,20 @@ $(document).ready(function() {
         const purchasePrice = parseFloat($('#itemPrice').val());
         const quantity = parseInt($('#itemQuantity').val());
         const linePrice = parseFloat($('#linePrice').val());
+
+        // Final validation before adding
+        if (!itemId) {
+            alert('Please select an item.');
+            return;
+        }
+        if (!Number.isInteger(quantity) || quantity < 1) {
+            alert('Quantity must be a positive integer (1 or more).');
+            return;
+        }
+        if (isNaN(purchasePrice) || purchasePrice <= 0) {
+            alert('Price must be greater than 0.');
+            return;
+        }
 
         // Check if item is already in the table
         let existingRow = $(`#orderItemsTableBody tr[data-item-id="${itemId}"]`);

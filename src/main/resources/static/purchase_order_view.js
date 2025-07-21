@@ -49,7 +49,17 @@ function sortTable(column) {
         });
         sortDirections.requireddate = !sortDirections.requireddate;
     } else if (column === 'status') {
+        // Orders with porderstatus.id === 1 at top, id === 3 at bottom
         sortedOrders.sort((a, b) => {
+            const getPriority = (order) => {
+                if (order.porderstatus && order.porderstatus.id === 1) return -1; // top
+                if (order.porderstatus && order.porderstatus.id === 3) return 1;  // bottom
+                return 0; // middle
+            };
+            const aPriority = getPriority(a);
+            const bPriority = getPriority(b);
+            if (aPriority !== bPriority) return aPriority - bPriority;
+            // If both are not id 1 or 3, sort by status name
             const statusA = a.porderstatus && a.porderstatus.name ? a.porderstatus.name.toLowerCase() : '';
             const statusB = b.porderstatus && b.porderstatus.name ? b.porderstatus.name.toLowerCase() : '';
             if (statusA < statusB) return sortDirections.status ? -1 : 1;

@@ -69,7 +69,9 @@ public class PurchaseOrderService {
     }
 
     public List<PurchaseOrder> getAllPurchaseOrders() {
-        return purchaseOrderRepository.findAllWithSupplier();
+        List<PurchaseOrder> orders = purchaseOrderRepository.findAllWithSupplier();
+        orders.sort((o1, o2) -> o2.getRequireddate().compareTo(o1.getRequireddate())); // Descending by requireddate
+        return orders;
     }
 
     public PurchaseOrder getPurchaseOrderById(Integer id) {

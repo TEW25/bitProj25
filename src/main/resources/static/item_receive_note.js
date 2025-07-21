@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- Purchase Order Search Logic ---
-    let allPurchaseOrders = [];
+    let allPurchaseOrders = [];    
     const purchaseOrderSearch = document.getElementById('purchaseOrderSearch');
     const purchaseOrderResults = document.getElementById('purchaseOrderResults');
     const selectedPurchaseOrderId = document.getElementById('selectedPurchaseOrderId');
@@ -90,6 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
             calculateLinePrice(event.target);
             calculateTotalAndGrossAmount();
         }
+    // Error containers
+    const receivedDate = document.getElementById('receivedDate');
+    const discountRateInput = document.getElementById('discountRate');
+    const grnForm = document.getElementById('grnForm');
     });
 
     // Add event listener for discount rate changes
@@ -127,7 +131,6 @@ function fetchPurchaseOrderDetails(purchaseOrderId) {
             alert(`Error fetching purchase order details: ${error.message}`);
         });
 }
-
 function populateReceivedItemsTable(items) {
     const tableBody = document.getElementById('receivedItemsTableBody');
     tableBody.innerHTML = ''; // Clear existing rows
@@ -153,26 +156,22 @@ function populateReceivedItemsTable(items) {
     });
     calculateTotalAndGrossAmount(); // Calculate initial amounts
 }
-
 function clearReceivedItemsTable() {
     const tableBody = document.getElementById('receivedItemsTableBody');
     tableBody.innerHTML = '';
     document.getElementById('totalAmount').value = '';
     document.getElementById('grossAmount').value = '';
 }
+// Add event listener for input changes in received quantity to calculate line price and validate
+    document.getElementById('receivedItemsTableBody').addEventListener('input', (event) => {
+        if (event.target.classList.contains('received-qty')) {
+            validateReceivedQty(event.target);
+            calculateLinePrice(event.target);
+            calculateTotalAndGrossAmount();
+        }
+    });
 
-function calculateLinePrice(inputElement) {
-    const row = inputElement.closest('tr');
-    const receivedQty = parseFloat(inputElement.value);
-    const purchasePrice = parseFloat(inputElement.dataset.purchasePrice);
-    const linePriceCell = row.querySelector('.line-price');
 
-    if (!isNaN(receivedQty) && !isNaN(purchasePrice)) {
-        linePriceCell.textContent = (receivedQty * purchasePrice).toFixed(2);
-    } else {
-        linePriceCell.textContent = '0.00';
-    }
-}
 
 function calculateTotalAndGrossAmount() {
     const itemRows = document.querySelectorAll('#receivedItemsTableBody tr');
@@ -192,14 +191,9 @@ function calculateTotalAndGrossAmount() {
     const discountRate = parseFloat(discountRateInput.value);
     let grossAmount = totalAmount;
 
-    if (!isNaN(discountRate) && discountRate >= 0 && discountRate <= 100) { // Validate discount rate
+    if (!isNaN(discountRate) && discountRate >= 0 && discountRate <= 100) {
         const discountAmount = totalAmount * (discountRate / 100);
         grossAmount = totalAmount - discountAmount;
-    } else if (!isNaN(discountRate) && (discountRate < 0 || discountRate > 100)) {
-         alert('Discount rate must be between 0 and 100.');
-         discountRateInput.value = discountRate < 0 ? 0 : 100;
-         calculateTotalAndGrossAmount(); // Recalculate with corrected rate
-         return;
     }
 
     document.getElementById('grossAmount').value = grossAmount.toFixed(2);
