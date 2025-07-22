@@ -51,7 +51,6 @@ function renderTable(records) {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${irn.id}</td>
-            <td>${irn.irnno}</td>
             <td>${irn.receiveddate ? irn.receiveddate : ''}</td>
             <td>${irn.totalamount ?? ''}</td>
             <td>${irn.discountrate ?? ''}</td>

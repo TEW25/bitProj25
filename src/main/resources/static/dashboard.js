@@ -34,9 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch('/api/dashboard/kpis')
         .then(response => response.json())
         .then(data => {
-            document.getElementById('kpi-total-revenue').textContent = data.totalRevenue ?? '-';
+            document.getElementById('kpi-total-revenue').textContent = (data.totalRevenue ? data.totalRevenue + ' LKR' : '-');
             document.getElementById('kpi-number-orders').textContent = data.numberOfOrders ?? '-';
-            document.getElementById('kpi-aov').textContent = data.averageOrderValue ?? '-';
+            document.getElementById('kpi-aov').textContent = (data.averageOrderValue ? data.averageOrderValue + ' LKR' : '-');
             document.getElementById('kpi-low-stock').textContent = data.lowStockItems ?? '-';
         })
         .catch(() => {
@@ -51,23 +51,34 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             let wrapper = document.getElementById('low-stock-table-wrapper');
+            wrapper.innerHTML = '';
+            // Add heading above the table
+            let heading = document.createElement('h2');
+            heading.className = 'ds-chart-title';
+            heading.style.textAlign = 'center';
+            heading.style.color = '#4a4a4a';
+            heading.style.fontSize = '20px';
+            heading.style.fontWeight = 'bold';
+            heading.style.paddingTop = '10px';
+            heading.style.paddingBottom = '10px';
+            heading.textContent = 'Items Below Reorder Point';
+            wrapper.appendChild(heading);
             // Wrap table in a styled container for consistency
             let container = document.createElement('div');
             container.className = 'ds-chart-container';
             let table = document.createElement('table');
-            table.className = 'table table-striped table-bordered';
+            table.className = 'table table-striped table-bordered table-low-stock';
             let thead = document.createElement('thead');
             thead.innerHTML = '<tr><th>Inventory Code</th><th>Item Code</th><th>Item Name</th><th>Available Qty</th><th>ROP</th></tr>';
             table.appendChild(thead);
             let tbody = document.createElement('tbody');
-            data.forEach(row => {
+            data.slice(0, 4).forEach(row => {
                 let tr = document.createElement('tr');
                 tr.innerHTML = `<td>${row.inventorycode}</td><td>${row.itemcode}</td><td>${row.itemname}</td><td>${row.availableqty}</td><td>${row.rop}</td>`;
                 tbody.appendChild(tr);
             });
             table.appendChild(tbody);
             container.appendChild(table);
-            wrapper.innerHTML = '';
             wrapper.appendChild(container);
         });
 

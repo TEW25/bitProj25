@@ -1,6 +1,6 @@
 /* ================= Dashboard Chart Containers & Visuals ================= */
 .ds-chart-container.ds-chart-fixed-height {
-  min-height: 400px;
+  min-height: 350px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -11,7 +11,7 @@
   box-shadow: 0 4px 18px 0 rgba(60, 60, 90, 0.08), 0 1.5px 4px 0 rgba(60, 60, 90, 0.06);
   background: #f9fafc;
   padding: 12px 12px 12px 12px;
-  margin-bottom: 18px;
+  margin-bottom: 10px;
   margin-top: 8px;
   transition: box-shadow 0.2s;
 }
@@ -119,7 +119,7 @@ canvas {
 .ds-kpi-row {
     display: flex;
     gap: 24px;
-    margin-bottom: 32px;
+    margin-bottom: 6px;
     flex-wrap: wrap;
 }
 .ds-kpi-card {
@@ -195,9 +195,9 @@ canvas {
 .dashboard-section table {
     display: table;
     width: 90%;
-    min-width: 1175px;
-    max-width: none;
-    white-space: nowrap;
+    min-width: 400px;
+    max-width: 600px;
+    /* white-space: nowrap; */
 }
 /* Make select dropdown scrollable for long item lists */
 .scrollable-select {
@@ -365,3 +365,34 @@ label {
         padding-top: 0rem !important;
         padding-bottom: 0rem !important;
     }
+/* Custom column widths for Items Below Reorder Point table */
+.ds-chart-container table.table-low-stock {
+    table-layout: fixed;
+    width: 100%;
+}
+.ds-chart-container table.table-low-stock th,
+.ds-chart-container table.table-low-stock td {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.85rem;
+    word-break: break-word;
+}
+.ds-chart-container table.table-low-stock th:nth-child(1),
+.ds-chart-container table.table-low-stock td:nth-child(1) {
+    width: 80px;
+}
+.ds-chart-container table.table-low-stock th:nth-child(2),
+.ds-chart-container table.table-low-stock td:nth-child(2) {
+    width: 80px;
+}
+.ds-chart-container table.table-low-stock th:nth-child(3),
+.ds-chart-container table.table-low-stock td:nth-child(3) {
+    width: 120px;
+}
+.ds-chart-container table.table-low-stock th:nth-child(4),
+.ds-chart-container table.table-low-stock td:nth-child(4) {
+    width: 70px;
+}
+.ds-chart-container table.table-low-stock th:nth-child(5),
+.ds-chart-container table.table-low-stock td:nth-child(5) {
+    width: 60px;
+}
