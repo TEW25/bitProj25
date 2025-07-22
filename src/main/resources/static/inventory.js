@@ -227,12 +227,68 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentSortField = '';
     let currentSortDirection = 'asc'; // 'asc' or 'desc'
 
-    // Function to fetch and display inventory items
-    function fetchInventoryItems(searchTerm = '', status = '', sortBy = '') {
-        console.log('Fetching inventory items...'); // Added log
+    // Pagination state
+    let currentPage = 0;
+    let pageSize = 10;
+    let totalPages = 1;
+    let lastSearchTerm = '';
+    let lastStatus = '';
+    let lastSortBy = '';
+
+    // Function to render Bootstrap-styled pagination controls
+    function renderPaginationControls(page, totalPages, totalElements) {
+        let container = document.getElementById('paginationControls');
+        if (!container) {
+            // Create container if not exists
+            const card = document.querySelector('.table');
+            container = document.createElement('div');
+            container.id = 'paginationControls';
+            container.className = 'd-flex justify-content-center my-3';
+            card.parentNode.insertBefore(container, card.nextSibling);
+        }
+        if (totalPages > 1 || totalElements > pageSize) {
+            let html = `
+                <nav aria-label="Inventory pagination">
+                  <ul class="pagination">
+                    <li class="page-item ${page === 0 ? 'disabled' : ''}">
+                      <button class="page-link" id="prevPageBtn">Previous</button>
+                    </li>
+                    <li class="page-item disabled">
+                      <span class="page-link" id="pageInfo">Page ${page + 1} of ${totalPages} (${totalElements} items)</span>
+                    </li>
+                    <li class="page-item ${page >= totalPages - 1 ? 'disabled' : ''}">
+                      <button class="page-link" id="nextPageBtn">Next</button>
+                    </li>
+                  </ul>
+                </nav>
+            `;
+            container.innerHTML = html;
+            // Attach event listeners
+            document.getElementById('prevPageBtn').onclick = function() {
+                if (currentPage > 0) {
+                    fetchInventoryItems(lastSearchTerm, lastStatus, lastSortBy, currentPage - 1, pageSize);
+                }
+            };
+            document.getElementById('nextPageBtn').onclick = function() {
+                if (currentPage < totalPages - 1) {
+                    fetchInventoryItems(lastSearchTerm, lastStatus, lastSortBy, currentPage + 1, pageSize);
+                }
+            };
+            container.style.display = '';
+        } else {
+            container.style.display = 'none';
+        }
+    }
+
+    // Function to fetch and display inventory items with pagination
+    function fetchInventoryItems(searchTerm = '', status = '', sortBy = '', page = 0, size = 10) {
+        lastSearchTerm = searchTerm;
+        lastStatus = status;
+        lastSortBy = sortBy;
+        currentPage = page;
+        pageSize = size;
         let url = '/api/inventory';
         const params = new URLSearchParams();
-
         if (searchTerm) {
             params.append('searchTerm', searchTerm);
         }
@@ -242,36 +298,28 @@ document.addEventListener('DOMContentLoaded', function () {
         if (sortBy) {
             params.append('sortBy', sortBy);
         }
-
+        params.append('page', page);
+        params.append('size', size);
         if (params.toString()) {
             url += '?' + params.toString();
         }
-
-        console.log('Fetching from URL:', url); // Added log
-
         fetch(url)
             .then(response => {
                 if (!response.ok) {
-                    // Handle HTTP errors
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Data received:', data); // Added log
-                inventoryTableBody.innerHTML = ''; // Clear existing rows
-                console.log('Table body cleared.'); // Added log
-
-                if (!data || data.length === 0) {
-                    console.warn('No inventory data found or data is empty.'); // Added log
+                inventoryTableBody.innerHTML = '';
+                if (!data || !data.content || data.content.length === 0) {
                     const noDataRow = document.createElement('tr');
                     noDataRow.innerHTML = '<td colspan="8">No inventory items found.</td>';
                     inventoryTableBody.appendChild(noDataRow);
-                    return; // Exit if no data
+                    renderPaginationControls(data.number || 0, data.totalPages || 1, data.totalElements || 0);
+                    return;
                 }
-
-                console.log('Populating table with data...'); // Added log
-                data.forEach(item => {
+                data.content.forEach(item => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${item.id ?? ''}</td>
@@ -287,12 +335,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     `;
                     inventoryTableBody.appendChild(row);
                 });
-                console.log('Table population complete.'); // Added log
+                renderPaginationControls(data.number, data.totalPages, data.totalElements);
             })
             .catch(error => {
-                console.error('Error loading inventory:', error); // Improved error logging
-                // Display an error message in the table
                 inventoryTableBody.innerHTML = '<tr><td colspan="8">Error loading inventory. Please try again.</td></tr>';
+                renderPaginationControls(0, 1, 0);
             });
     }
 
@@ -508,7 +555,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('applyFilterBtn').addEventListener('click', function() {
         const searchTerm = document.getElementById('searchName').value.trim();
         const status = document.getElementById('filterStatus').value;
-        fetchInventoryItems(searchTerm, status, currentSortField ? `${currentSortField},${currentSortDirection}` : '');
+        fetchInventoryItems(searchTerm, status, currentSortField ? `${currentSortField},${currentSortDirection}` : '', 0, pageSize);
     });
 
     // Event listener for table header clicks (for sorting)
@@ -545,4 +592,4 @@ document.addEventListener('DOMContentLoaded', function () {
 fetchInventoryItems();
 }); // <-- Close DOMContentLoaded handler
 
-  
+

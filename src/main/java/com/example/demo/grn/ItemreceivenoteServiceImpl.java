@@ -2,7 +2,6 @@ package com.example.demo.grn;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -78,9 +77,20 @@ public class ItemreceivenoteServiceImpl implements ItemreceivenoteService {
         return itemreceivenoteRepository.save(itemreceivenote);
     }
 
+
+    
     @Override
-    public List<Itemreceivenote> getItemreceivenotesFiltered(Integer supplierId, Date date) {
-        return itemreceivenoteRepository.findBySupplierIdAndDate(supplierId, date);
+    public org.springframework.data.domain.Page<Itemreceivenote> getItemreceivenotesFiltered(Integer supplierId, Date date, org.springframework.data.domain.Pageable pageable) {
+        // Use correct repository methods for filtering
+        if (supplierId != null && date != null) {
+            return itemreceivenoteRepository.findBySupplierIdAndDate(supplierId, date, pageable);
+        } else if (supplierId != null) {
+            return itemreceivenoteRepository.findByPurchaseorder_Supplier_Id(supplierId, pageable);
+        } else if (date != null) {
+            return itemreceivenoteRepository.findByReceiveddate(date, pageable);
+        } else {
+            return itemreceivenoteRepository.findAll(pageable);
+        }
     }
 
     @Override

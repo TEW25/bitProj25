@@ -1,9 +1,15 @@
+let currentPage = 0;
+let pageSize = 10;
+let lastPage = 0;
+let lastDate = null;
+
 document.addEventListener('DOMContentLoaded', function() {
     addDateFilterUI();
+    addPaginationUI();
     // Set filter to today (local date) and show today's sales
     const todayStr = new Date().toLocaleDateString('en-CA'); // 'YYYY-MM-DD' format
     document.getElementById('filterDate').value = todayStr;
-    fetchSales(todayStr);
+    fetchSales(todayStr, currentPage);
 });
 
 function addDateFilterUI() {
@@ -53,14 +59,24 @@ function exportTableToExcelXLSX(tableId, filename = '') {
     XLSX.writeFile(wb, filename);
 }
 
-function fetchSales(date) {
+function fetchSales(date, page = 0) {
+    lastDate = date;
     let url = '/api/sales';
+    let params = [];
     if (date) {
-        url += `?date=${encodeURIComponent(date)}`;
+        params.push(`date=${encodeURIComponent(date)}`);
+    }
+    params.push(`page=${page}`);
+    params.push(`size=${pageSize}`);
+    if (params.length) {
+        url += '?' + params.join('&');
     }
     fetch(url)
         .then(res => res.json())
-        .then(data => populateSalesTable(data))
+        .then(data => {
+            populateSalesTable(data.content);
+            updatePagination(data);
+        })
         .catch(() => alert('Failed to load sales records.'));
 }
 
@@ -92,6 +108,53 @@ function populateSalesTable(sales) {
         tr.addEventListener('click', () => showSaleDetails(sale.id));
         tbody.appendChild(tr);
     });
+}
+
+function addPaginationUI() {
+    let table = document.getElementById('salesTable');
+    if (!table) return;
+    let paginationDiv = document.getElementById('salesPagination');
+    if (!paginationDiv) {
+        paginationDiv = document.createElement('nav');
+        paginationDiv.id = 'salesPagination';
+        paginationDiv.className = 'mt-3';
+        table.parentNode.insertBefore(paginationDiv, table.nextSibling);
+    }
+    paginationDiv.innerHTML = `<ul class="pagination justify-content-center"></ul>`;
+}
+
+function updatePagination(pageData) {
+    lastPage = pageData.totalPages;
+    currentPage = pageData.number;
+    let paginationDiv = document.getElementById('salesPagination');
+    if (!paginationDiv) return;
+    let ul = paginationDiv.querySelector('ul');
+    ul.innerHTML = '';
+    // Previous button
+    ul.appendChild(createPageItem('Previous', currentPage > 0 ? currentPage - 1 : null, currentPage === 0));
+    // Page numbers
+    for (let i = 0; i < pageData.totalPages; i++) {
+        ul.appendChild(createPageItem(i + 1, i, i === currentPage));
+    }
+    // Next button
+    ul.appendChild(createPageItem('Next', currentPage < pageData.totalPages - 1 ? currentPage + 1 : null, currentPage === pageData.totalPages - 1));
+}
+
+function createPageItem(text, page, disabled) {
+    let li = document.createElement('li');
+    li.className = 'page-item' + (disabled ? ' disabled' : '');
+    let a = document.createElement('a');
+    a.className = 'page-link';
+    a.href = '#';
+    a.innerText = text;
+    if (!disabled && page !== null) {
+        a.onclick = function(e) {
+            e.preventDefault();
+            fetchSales(lastDate, page);
+        };
+    }
+    li.appendChild(a);
+    return li;
 }
 
 function showSaleDetails(saleId) {

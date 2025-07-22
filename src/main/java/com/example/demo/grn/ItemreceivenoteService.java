@@ -2,10 +2,9 @@
 package com.example.demo.grn;
 
 import java.sql.Date;
-import java.util.List;
 
 public interface ItemreceivenoteService {
     Itemreceivenote createItemreceivenote(Itemreceivenote itemreceivenote);
-    List<Itemreceivenote> getItemreceivenotesFiltered(Integer supplierId, Date date);
+    org.springframework.data.domain.Page<Itemreceivenote> getItemreceivenotesFiltered(Integer supplierId, Date date, org.springframework.data.domain.Pageable pageable);
     Itemreceivenote getItemreceivenoteById(Integer id);
 }

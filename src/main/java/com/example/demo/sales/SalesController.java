@@ -1,9 +1,10 @@
 
 package com.example.demo.sales;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,16 +28,19 @@ public class SalesController {
 
     // List all sales, optionally filtered by date
     @GetMapping
-    public ResponseEntity<List<Sale>> getAllSales(
+    public ResponseEntity<Page<Sale>> getAllSales(
             @RequestParam(value = "date", required = false) String date,
-            @RequestParam(value = "employeeId", required = false) Integer employeeId) {
-        List<Sale> sales;
+            @RequestParam(value = "employeeId", required = false) Integer employeeId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Sale> sales;
         if (date != null && !date.isEmpty()) {
-            sales = salesService.getSalesByDateAndEmployee(date, employeeId);
+            sales = salesService.getSalesByDateAndEmployee(date, employeeId, pageable);
         } else if (employeeId != null) {
-            sales = salesService.getSalesByEmployee(employeeId);
+            sales = salesService.getSalesByEmployee(employeeId, pageable);
         } else {
-            sales = salesService.getAllSales();
+            sales = salesService.getAllSales(pageable);
         }
         return ResponseEntity.ok(sales);
     }

@@ -12,8 +12,14 @@ document.addEventListener('click', function(e) {
 
 // --- Sales Records History Logic ---
 
+
 let loggedInUserId = null;
 let loggedInUserDesignationId = null;
+let historyCurrentPage = 0;
+let historyPageSize = 10;
+let historyLastDate = null;
+let historyTotalPages = 0;
+
 document.addEventListener('DOMContentLoaded', function () {
     // Fetch logged-in user id first
     fetch('/api/auth/status')
@@ -34,9 +40,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 const dd = String(today.getDate()).padStart(2, '0');
                 const todayStr = `${yyyy}-${mm}-${dd}`;
                 salesHistoryDateInput.value = todayStr;
-                loadSalesRecords(todayStr);
+                addHistoryPaginationUI();
+                loadSalesRecords(todayStr, 0);
                 document.getElementById('filterSalesHistoryBtn').addEventListener('click', function () {
-                    loadSalesRecords(salesHistoryDateInput.value);
+                    loadSalesRecords(salesHistoryDateInput.value, 0);
                 });
             }
         })
@@ -46,7 +53,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 });
 
-function loadSalesRecords(dateStr) {
+function loadSalesRecords(dateStr, page = 0) {
+    historyLastDate = dateStr;
+    historyCurrentPage = page;
     const container = document.getElementById('salesRecordsContainer');
     container.innerHTML = '<div>Loading sales records...</div>';
     // Safeguard: ensure loggedInUserId is a valid number
@@ -55,16 +64,18 @@ function loadSalesRecords(dateStr) {
         console.error('[Sales] Invalid or missing loggedInUserId:', loggedInUserId);
         return;
     }
-    console.log(`[Sales] Fetching sales records for employeeId=${loggedInUserId} and date=${dateStr}`);
-    // Always send loggedInUserId as employeeId
-    fetch(`/api/sales?date=${encodeURIComponent(dateStr)}&employeeId=${encodeURIComponent(loggedInUserId)}`)
+    let url = `/api/sales?date=${encodeURIComponent(dateStr)}&employeeId=${encodeURIComponent(loggedInUserId)}&page=${page}&size=${historyPageSize}`;
+    fetch(url)
         .then(response => {
             if (!response.ok) throw new Error('Failed to fetch sales records');
             return response.json();
         })
-        .then(sales => {
+        .then(pageData => {
+            const sales = pageData.content || [];
+            historyTotalPages = pageData.totalPages || 0;
             if (!sales || sales.length === 0) {
                 container.innerHTML = '<div class="text-muted">No sales records found for this date.</div>';
+                updateHistoryPagination(pageData);
                 return;
             }
             // Sort sales by added_datetime descending (newest first)
@@ -102,6 +113,7 @@ function loadSalesRecords(dateStr) {
             });
             html += '</tbody></table></div></div></div>';
             container.innerHTML = html;
+            updateHistoryPagination(pageData);
 
             // Add click event for refund popup
             container.querySelectorAll('.sales-record-row').forEach(row => {
@@ -124,6 +136,50 @@ function loadSalesRecords(dateStr) {
         .catch(err => {
             container.innerHTML = `<div class="text-danger">Error loading sales records.</div>`;
         });
+}
+
+function addHistoryPaginationUI() {
+    const container = document.getElementById('salesRecordsContainer');
+    let paginationDiv = document.getElementById('salesHistoryPagination');
+    if (!paginationDiv) {
+        paginationDiv = document.createElement('nav');
+        paginationDiv.id = 'salesHistoryPagination';
+        paginationDiv.className = 'mt-3';
+        container.parentNode.insertBefore(paginationDiv, container.nextSibling);
+    }
+    paginationDiv.innerHTML = `<ul class="pagination justify-content-center"></ul>`;
+}
+
+function updateHistoryPagination(pageData) {
+    let paginationDiv = document.getElementById('salesHistoryPagination');
+    if (!paginationDiv) return;
+    let ul = paginationDiv.querySelector('ul');
+    ul.innerHTML = '';
+    // Previous button
+    ul.appendChild(createHistoryPageItem('Previous', historyCurrentPage > 0 ? historyCurrentPage - 1 : null, historyCurrentPage === 0));
+    // Page numbers
+    for (let i = 0; i < pageData.totalPages; i++) {
+        ul.appendChild(createHistoryPageItem(i + 1, i, i === historyCurrentPage));
+    }
+    // Next button
+    ul.appendChild(createHistoryPageItem('Next', historyCurrentPage < pageData.totalPages - 1 ? historyCurrentPage + 1 : null, historyCurrentPage === pageData.totalPages - 1));
+}
+
+function createHistoryPageItem(text, page, disabled) {
+    let li = document.createElement('li');
+    li.className = 'page-item' + (disabled ? ' disabled' : '');
+    let a = document.createElement('a');
+    a.className = 'page-link';
+    a.href = '#';
+    a.innerText = text;
+    if (!disabled && page !== null) {
+        a.onclick = function(e) {
+            e.preventDefault();
+            loadSalesRecords(historyLastDate, page);
+        };
+    }
+    li.appendChild(a);
+    return li;
 }
 
 function openRefundModal(sale) {

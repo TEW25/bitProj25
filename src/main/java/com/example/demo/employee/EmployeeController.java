@@ -1,6 +1,5 @@
 package com.example.demo.employee;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +19,11 @@ public class EmployeeController {
     private EmployeeRepository employeeRepository;
 
     @GetMapping
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+    public org.springframework.data.domain.Page<Employee> getAllEmployees(
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "10") int size) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        return employeeRepository.findAll(pageable);
     }
 
     @GetMapping("/{id}")

@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,15 +15,15 @@ public class SupplierService {
     @Autowired
     private SupplierRepository supplierRepository;
 
-    public List<Supplier> getAllSuppliers(Integer statusId, String supplierName) {
+    public Page<Supplier> getAllSuppliers(Integer statusId, String supplierName, Pageable pageable) {
         if (statusId != null && supplierName != null && !supplierName.isEmpty()) {
-            return supplierRepository.findAllBySupplierstatus_IdAndSuppliernameContainingIgnoreCase(statusId, supplierName);
+            return supplierRepository.findAllBySupplierstatus_IdAndSuppliernameContainingIgnoreCase(statusId, supplierName, pageable);
         } else if (statusId != null) {
-            return supplierRepository.findAllBySupplierstatus_Id(statusId);
+            return supplierRepository.findAllBySupplierstatus_Id(statusId, pageable);
         } else if (supplierName != null && !supplierName.isEmpty()) {
-            return supplierRepository.findAllBySuppliernameContainingIgnoreCase(supplierName);
+            return supplierRepository.findAllBySuppliernameContainingIgnoreCase(supplierName, pageable);
         } else {
-            return supplierRepository.findAll();
+            return supplierRepository.findAll(pageable);
         }
     }
 

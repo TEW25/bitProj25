@@ -180,11 +180,15 @@ function loadDesignationOptions(selectedId) {
 }
 
 function loadEmployees() {
-    // Fetch employees, statuses, and designations, then render table with names
+    // Pagination state
+    if (typeof window.employeeCurrentPage === 'undefined') window.employeeCurrentPage = 0;
+    if (typeof window.employeePageSize === 'undefined') window.employeePageSize = 10;
+    var page = window.employeeCurrentPage;
+    var size = window.employeePageSize;
     $.ajax({
-        url: '/api/employees',
+        url: `/api/employees?page=${page}&size=${size}`,
         method: 'GET',
-        success: function(employees) {
+        success: function(data) {
             $.ajax({
                 url: '/api/employeestatus',
                 method: 'GET',
@@ -197,11 +201,11 @@ function loadEmployees() {
                         success: function(designations) {
                             var designationMap = {};
                             designations.forEach(function(d) { designationMap[d.id] = d.name; });
-                            var rows = employees.map(function(e, i) {
+                            var rows = data.content.map(function(e, i) {
                                 var statusName = statusMap[e.employeestatus_id] || e.employeestatus_id || '';
                                 var designationName = designationMap[e.designation_id] || e.designation_id || '';
                                 return `<tr>
-                                    <td>${i+1}</td>
+                                    <td>${(page * size) + i + 1}</td>
                                     <td>${e.employee_number || ''}</td>
                                     <td>${e.fullname || ''}</td>
                                     <td>${e.nic || ''}</td>
@@ -218,6 +222,7 @@ function loadEmployees() {
                                 </tr>`;
                             }).join('');
                             $('#employeeTableBody').html(rows);
+                            renderEmployeePaginationBar(data);
                         },
                         error: function() {
                             $('#employeeTableBody').html('<tr><td colspan="11">Failed to load designations.</td></tr>');
@@ -231,9 +236,42 @@ function loadEmployees() {
         },
         error: function() {
             $('#employeeTableBody').html('<tr><td colspan="11">Failed to load employees.</td></tr>');
+            $('#employeePaginationBar').empty();
         }
     });
 }
+
+// Render Bootstrap pagination bar for employees
+function renderEmployeePaginationBar(pageData) {
+    const paginationBar = $('#employeePaginationBar');
+    paginationBar.empty();
+    if (!pageData || pageData.totalPages <= 1) return;
+    var currentPage = pageData.number;
+    var totalPages = pageData.totalPages;
+    // Previous button
+    paginationBar.append('<li class="page-item' + (pageData.first ? ' disabled' : '') + '"><a class="page-link" href="#" data-page="' + (currentPage - 1) + '">Previous</a></li>');
+    // Page numbers (show up to 5 pages around current)
+    let start = Math.max(0, currentPage - 2);
+    let end = Math.min(totalPages - 1, currentPage + 2);
+    if (currentPage < 2) end = Math.min(4, totalPages - 1);
+    if (currentPage > totalPages - 3) start = Math.max(0, totalPages - 5);
+    for (let i = start; i <= end; i++) {
+        paginationBar.append('<li class="page-item' + (i === currentPage ? ' active' : '') + '"><a class="page-link" href="#" data-page="' + i + '">' + (i + 1) + '</a></li>');
+    }
+    // Next button
+    paginationBar.append('<li class="page-item' + (pageData.last ? ' disabled' : '') + '"><a class="page-link" href="#" data-page="' + (currentPage + 1) + '">Next</a></li>');
+}
+
+// Handle pagination bar click
+$(document).on('click', '#employeePaginationBar a.page-link', function(e) {
+    e.preventDefault();
+    var page = parseInt($(this).data('page'));
+    if (!isNaN(page) && page >= 0 && page !== window.employeeCurrentPage) {
+        window.employeeCurrentPage = page;
+        loadEmployees();
+    }
+});
+
 
 function editEmployee(id) {
     $.ajax({

@@ -1,10 +1,11 @@
 package com.example.demo.purchaseOrder;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,10 +69,10 @@ public class PurchaseOrderService {
         return savedPurchaseOrder;
     }
 
-    public List<PurchaseOrder> getAllPurchaseOrders() {
-        List<PurchaseOrder> orders = purchaseOrderRepository.findAllWithSupplier();
-        orders.sort((o1, o2) -> o2.getRequireddate().compareTo(o1.getRequireddate())); // Descending by requireddate
-        return orders;
+    public Page<PurchaseOrder> getAllPurchaseOrders(Pageable pageable) {
+        Page<PurchaseOrder> ordersPage = purchaseOrderRepository.findAllWithSupplier(pageable);
+        // Optionally sort by requireddate descending if not handled by JPA
+        return ordersPage;
     }
 
     public PurchaseOrder getPurchaseOrderById(Integer id) {

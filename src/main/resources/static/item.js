@@ -1,24 +1,29 @@
 console.log('item.js loaded');
 
 $(document).ready(function() {
-    // Function to load items into the table
-    function loadItems(brandId, statusId, searchTerm) {
+    // Pagination state
+    let currentPage = 0;
+    let pageSize = 10;
+    let lastBrandId = null;
+    let lastStatusId = null;
+    let lastSearchTerm = null;
+
+    // Function to load items into the table (paginated)
+    function loadItems(brandId, statusId, searchTerm, page = 0, size = 10) {
+        lastBrandId = brandId;
+        lastStatusId = statusId;
+        lastSearchTerm = searchTerm;
+        currentPage = page;
+        pageSize = size;
+
         let url = '/api/items';
         const params = new URLSearchParams();
-
-        if (brandId) {
-            params.append('brandId', brandId);
-        }
-        if (statusId) {
-            params.append('statusId', statusId);
-        }
-        if (searchTerm) {
-            params.append('searchTerm', searchTerm);
-        }
-
-        if (params.toString()) {
-            url += '?' + params.toString();
-        }
+        params.append('page', page);
+        params.append('size', size);
+        if (brandId) params.append('brandId', brandId);
+        if (statusId) params.append('statusId', statusId);
+        if (searchTerm) params.append('searchTerm', searchTerm);
+        url += '?' + params.toString();
 
         console.log('Loading items with URL:', url);
 
@@ -28,20 +33,21 @@ $(document).ready(function() {
             success: function(data) {
                 console.log('Items data received:', data);
                 $('#itemTableBody').empty(); // Clear existing rows
-                data.forEach(function(item) {
+                // data.content is the array of items
+                data.content.forEach(function(item) {
                     $('#itemTableBody').append(
                         '<tr>' +
                         '<td>' + item.id + '</td>' +
                         '<td>' + item.itemcode + '</td>' +
                         '<td>' + item.itemname + '</td>' +
-                        '<td>' + (item.itemsize !== null ? item.itemsize : '') + '</td>' + // Handle potential nulls
-                        '<td>' + (item.rop !== null ? item.rop : '') + '</td>' + // Handle potential nulls
-                        '<td>' + (item.roq !== null ? item.roq : '') + '</td>' + // Handle potential nulls
-                        '<td>' + (item.salesprice !== null ? item.salesprice : '') + '</td>' + // Handle potential nulls
-                        '<td>' + (item.purchaseprice !== null ? item.purchaseprice : '') + '</td>' + // Handle potential nulls
+                        '<td>' + (item.itemsize !== null ? item.itemsize : '') + '</td>' +
+                        '<td>' + (item.rop !== null ? item.rop : '') + '</td>' +
+                        '<td>' + (item.roq !== null ? item.roq : '') + '</td>' +
+                        '<td>' + (item.salesprice !== null ? item.salesprice : '') + '</td>' +
+                        '<td>' + (item.purchaseprice !== null ? item.purchaseprice : '') + '</td>' +
                         '<td>' + (item.itemstatus ? item.itemstatus.name : '') + '</td>' +
                         '<td>' + (item.brand ? item.brand.name : '') + '</td>' +
-                        '<td>' + (item.subcategory && item.subcategory.category ? item.subcategory.category.name : '') + '</td>' + // Display Category name
+                        '<td>' + (item.subcategory && item.subcategory.category ? item.subcategory.category.name : '') + '</td>' +
                         '<td>' + (item.subcategory ? item.subcategory.name : '') + '</td>' +
                         '<td>' +
                         '<button class="btn btn-sm btn-warning edit-btn" data-id="' + item.id + '">Edit</button> ' +
@@ -50,13 +56,46 @@ $(document).ready(function() {
                         '</tr>'
                     );
                 });
+                renderPaginationBar(data);
             },
             error: function(error) {
                 console.error('Error loading items:', error);
                 $('#itemTableBody').html('<tr><td colspan="13">Error loading items.</td></tr>');
+                $('#paginationBar').empty();
             }
         });
     }
+
+    // Render Bootstrap pagination bar
+    function renderPaginationBar(pageData) {
+        const paginationBar = $('#paginationBar');
+        paginationBar.empty();
+        if (!pageData || pageData.totalPages <= 1) return;
+
+        // Previous button
+        paginationBar.append('<li class="page-item' + (pageData.first ? ' disabled' : '') + '"><a class="page-link" href="#" data-page="' + (currentPage - 1) + '">Previous</a></li>');
+
+        // Page numbers (show up to 5 pages around current)
+        let start = Math.max(0, currentPage - 2);
+        let end = Math.min(pageData.totalPages - 1, currentPage + 2);
+        if (currentPage < 2) end = Math.min(4, pageData.totalPages - 1);
+        if (currentPage > pageData.totalPages - 3) start = Math.max(0, pageData.totalPages - 5);
+        for (let i = start; i <= end; i++) {
+            paginationBar.append('<li class="page-item' + (i === currentPage ? ' active' : '') + '"><a class="page-link" href="#" data-page="' + i + '">' + (i + 1) + '</a></li>');
+        }
+
+        // Next button
+        paginationBar.append('<li class="page-item' + (pageData.last ? ' disabled' : '') + '"><a class="page-link" href="#" data-page="' + (currentPage + 1) + '">Next</a></li>');
+    }
+
+    // Handle pagination bar click
+    $('#paginationBar').on('click', 'a.page-link', function(e) {
+        e.preventDefault();
+        const page = parseInt($(this).data('page'));
+        if (!isNaN(page) && page >= 0 && page !== currentPage) {
+            loadItems(lastBrandId, lastStatusId, lastSearchTerm, page, pageSize);
+        }
+    });
 
     // Function to load dropdown options
     function loadDropdownOptions() {
@@ -167,7 +206,7 @@ $(document).ready(function() {
     }
 
     // Load items and dropdown options when the page is ready
-    loadItems();
+    loadItems(null, null, null, 0, pageSize);
     loadDropdownOptions();
 
     // Handle Add Item button click
@@ -361,6 +400,6 @@ $(document).ready(function() {
         const brandId = $('#filterBrand').val();
         const statusId = $('#filterStatus').val();
         const searchTerm = $('#searchItem').val();
-        loadItems(brandId, statusId, searchTerm);
+        loadItems(brandId, statusId, searchTerm, 0, pageSize); // Reset to first page on filter/search
     });
 });

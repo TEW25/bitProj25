@@ -1,17 +1,22 @@
 async function fetchRecords() {
     const supplierId = document.getElementById('supplierDropdownSelect').value;
     const date = document.getElementById('date').value;
+    const page = window.currentPage || 0;
+    const size = 10; // records per page
     let url = '/api/itemreceivenotes';
     const params = [];
     if (supplierId) params.push(`supplierId=${encodeURIComponent(supplierId)}`);
     if (date) params.push(`date=${encodeURIComponent(date)}`);
+    params.push(`page=${page}`);
+    params.push(`size=${size}`);
     if (params.length > 0) url += '?' + params.join('&');
 
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch records');
         const data = await response.json();
-        renderTable(data);
+        renderTable(data.content);
+        renderPagination(data);
     } catch (err) {
         alert('Error: ' + err.message);
     }
@@ -57,6 +62,42 @@ function renderTable(records) {
         row.addEventListener('click', () => fetchAndShowIrnDetail(irn.id));
         tbody.appendChild(row);
     });
+}
+
+function renderPagination(data) {
+    let paginationDiv = document.getElementById('paginationControls');
+    if (!paginationDiv) {
+        paginationDiv = document.createElement('div');
+        paginationDiv.id = 'paginationControls';
+        paginationDiv.className = 'd-flex justify-content-center my-3';
+        document.getElementById('irnTable').after(paginationDiv);
+    }
+    paginationDiv.innerHTML = '';
+    if (!data || data.totalPages <= 1) return;
+    const page = data.number;
+    const totalPages = data.totalPages;
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = 'Previous';
+    prevBtn.className = 'btn btn-outline-primary mx-1';
+    prevBtn.disabled = page === 0;
+    prevBtn.onclick = () => { window.currentPage = page - 1; fetchRecords(); };
+    paginationDiv.appendChild(prevBtn);
+
+    for (let i = 0; i < totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = (i + 1);
+        btn.className = 'btn btn-outline-secondary mx-1' + (i === page ? ' active' : '');
+        btn.disabled = i === page;
+        btn.onclick = () => { window.currentPage = i; fetchRecords(); };
+        paginationDiv.appendChild(btn);
+    }
+
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next';
+    nextBtn.className = 'btn btn-outline-primary mx-1';
+    nextBtn.disabled = page === totalPages - 1;
+    nextBtn.onclick = () => { window.currentPage = page + 1; fetchRecords(); };
+    paginationDiv.appendChild(nextBtn);
 }
 
 async function fetchAndShowIrnDetail(irnId) {
@@ -105,10 +146,12 @@ function showIrnDetailModal(irn) {
 function resetFilters() {
     document.getElementById('supplierDropdownSelect').value = '';
     document.getElementById('date').value = '';
+    window.currentPage = 0;
     fetchRecords();
 }
 
 // Initial load
 window.onload = function() {
+    window.currentPage = 0;
     populateSupplierDropdown().then(fetchRecords);
 };

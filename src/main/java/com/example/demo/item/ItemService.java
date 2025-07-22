@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.supplier.SupplierHasItem;
@@ -12,16 +14,19 @@ import com.example.demo.supplier.SupplierHasItemRepository;
 @Service
 public class ItemService {
     public Item findByItemcode(String itemcode) {
-        List<Item> items = itemRepository.findFilteredItems(null, null, null, itemcode);
-        if (items != null && !items.isEmpty()) {
-            for (Item item : items) {
-                if (item.getItemcode().equalsIgnoreCase(itemcode)) {
-                    return item;
-                }
+    // Add Pageable.unpaged() to get all results (not paginated)
+    List<Item> items = itemRepository
+        .findFilteredItems(null, null, null, itemcode, org.springframework.data.domain.Pageable.unpaged())
+        .getContent();
+    if (items != null && !items.isEmpty()) {
+        for (Item item : items) {
+            if (item.getItemcode().equalsIgnoreCase(itemcode)) {
+                return item;
             }
         }
-        return null;
     }
+    return null;
+}
 
     @Autowired
     private ItemRepository itemRepository;
@@ -29,9 +34,9 @@ public class ItemService {
     @Autowired
     private SupplierHasItemRepository supplierHasItemRepository;
 
-    public List<Item> getAllItems(Integer brandId, Integer statusId, Integer categoryId, String searchTerm) {
-        return itemRepository.findFilteredItems(brandId, statusId, categoryId, searchTerm);
-    }
+    public Page<Item> getAllItems(Integer brandId, Integer statusId, Integer categoryId, String searchTerm, Pageable pageable) {
+    return itemRepository.findFilteredItems(brandId, statusId, categoryId, searchTerm, pageable);
+}
 
     public Optional<Item> getItemById(Integer id) {
         return itemRepository.findById(id);
@@ -78,7 +83,8 @@ public class ItemService {
         return items;
     }
 
-    public List<Item> findAllItems() {
-        return itemRepository.findAll();
+    
+    public Page<Item> findAllItems(Pageable pageable) {
+        return itemRepository.findAll(pageable);
     }
 }

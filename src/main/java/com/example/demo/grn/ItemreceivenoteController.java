@@ -44,13 +44,16 @@ public class ItemreceivenoteController {
         }
     }
 
-    // Endpoint to get item receive notes with optional filters for supplierId and date
+    // Endpoint to get item receive notes with optional filters for supplierId and date, with pagination
     @GetMapping
     public ResponseEntity<?> getItemreceivenotes(
             @RequestParam(value = "supplierId", required = false) Integer supplierId,
-            @RequestParam(value = "date", required = false) java.sql.Date date) {
+            @RequestParam(value = "date", required = false) java.sql.Date date,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
         try {
-            return ResponseEntity.ok(itemreceivenoteService.getItemreceivenotesFiltered(supplierId, date));
+            org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+            return ResponseEntity.ok(itemreceivenoteService.getItemreceivenotesFiltered(supplierId, date, pageable));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }

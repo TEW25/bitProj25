@@ -1,9 +1,12 @@
 package com.example.demo.supplier;
 
 import java.util.List;
-import java.util.Optional; 
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,10 +27,14 @@ public class SupplierController {
     private SupplierService supplierService;
 
     @GetMapping
-    public List<Supplier> getAllSuppliers(
+    public ResponseEntity<Page<Supplier>> getAllSuppliers(
             @RequestParam(required = false) Integer statusId,
-            @RequestParam(required = false) String supplierName) {
-        return supplierService.getAllSuppliers(statusId, supplierName);
+            @RequestParam(required = false) String supplierName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Supplier> suppliers = supplierService.getAllSuppliers(statusId, supplierName, pageable);
+        return ResponseEntity.ok(suppliers);
     }
 
     @GetMapping("/all")

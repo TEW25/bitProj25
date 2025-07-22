@@ -1,5 +1,11 @@
+
+let currentPage = 0;
+let pageSize = 10;
+let totalPages = 1;
+
 document.addEventListener('DOMContentLoaded', () => {
-    fetchPurchaseOrders();
+    fetchPurchaseOrders(currentPage);
+    setupPaginationControls();
 });
 
 
@@ -14,8 +20,9 @@ function addSortingListeners() {
     }
 }
 
-function fetchPurchaseOrders() {
-    fetch('/api/purchaseorders')
+
+function fetchPurchaseOrders(page = 0) {
+    fetch(`/api/purchaseorders?page=${page}&size=${pageSize}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -23,13 +30,14 @@ function fetchPurchaseOrders() {
             return response.json();
         })
         .then(data => {
-            purchaseOrdersData = data;
+            purchaseOrdersData = data.content || [];
+            totalPages = data.totalPages || 1;
             populatePurchaseOrderTable(purchaseOrdersData);
-            addSortingListeners(); // Ensure sorting listeners are added after data is populated
+            addSortingListeners();
+            updatePaginationControls();
         })
         .catch(error => {
             console.error('Error fetching purchase orders:', error);
-            // Optionally display an error message to the user
         });
 }
 
@@ -81,10 +89,10 @@ function addSortingListeners() {
         statusHeader.onclick = () => sortTable('status');
     }
 }
+
 function populatePurchaseOrderTable(orders) {
     const tableBody = document.getElementById('purchaseOrderTableBody');
-    tableBody.innerHTML = ''; // Clear existing rows
-
+    tableBody.innerHTML = '';
     orders.forEach(order => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -92,20 +100,57 @@ function populatePurchaseOrderTable(orders) {
             <td>${order.purchaseordercode}</td>
             <td>${order.requireddate}</td>
             <td>${order.totalamount.toFixed(2)}</td>
-            <td>${order.supplier ? order.supplier.suppliername : 'N/A'}</td> <!-- Handle potential null supplier -->
-            <td>${order.porderstatus ? order.porderstatus.name : 'N/A'}</td> <!-- Handle potential null status -->
+            <td>${order.supplier ? order.supplier.suppliername : 'N/A'}</td>
+            <td>${order.porderstatus ? order.porderstatus.name : 'N/A'}</td>
             <td><button class="btn btn-info btn-sm view-details" data-id="${order.id}">View Details</button></td>
         `;
         tableBody.appendChild(row);
     });
-
-    // Add event listeners to the "View Details" buttons
     document.querySelectorAll('.view-details').forEach(button => {
         button.addEventListener('click', (event) => {
             const orderId = event.target.dataset.id;
             showPurchaseOrderDetail(orderId);
         });
     });
+}
+
+function setupPaginationControls() {
+    let container = document.getElementById('pagination-controls');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'pagination-controls';
+        container.className = 'd-flex justify-content-center my-3';
+        document.querySelector('.container').appendChild(container);
+    }
+    container.innerHTML = `
+        <button id="prevPageBtn" class="btn btn-outline-primary mx-2">Previous</button>
+        <span id="pageInfo" class="mx-2"></span>
+        <button id="nextPageBtn" class="btn btn-outline-primary mx-2">Next</button>
+    `;
+    document.getElementById('prevPageBtn').onclick = () => {
+        if (currentPage > 0) {
+            currentPage--;
+            fetchPurchaseOrders(currentPage);
+        }
+    };
+    document.getElementById('nextPageBtn').onclick = () => {
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            fetchPurchaseOrders(currentPage);
+        }
+    };
+    updatePaginationControls();
+}
+
+function updatePaginationControls() {
+    const pageInfo = document.getElementById('pageInfo');
+    if (pageInfo) {
+        pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`;
+    }
+    const prevBtn = document.getElementById('prevPageBtn');
+    const nextBtn = document.getElementById('nextPageBtn');
+    if (prevBtn) prevBtn.disabled = currentPage === 0;
+    if (nextBtn) nextBtn.disabled = currentPage >= totalPages - 1;
 }
 
 function showPurchaseOrderDetail(orderId) {

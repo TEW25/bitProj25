@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,37 +21,37 @@ import com.example.demo.item.ItemRepository;
 @Service
 public class SalesService {
     // List sales by date and employee
-    public List<Sale> getSalesByDateAndEmployee(String date, Integer employeeId) {
-        List<Sale> sales = getSalesByDate(date);
+    public Page<Sale> getSalesByDateAndEmployee(String date, Integer employeeId, Pageable pageable) {
+        Page<Sale> sales = getSalesByDate(date, pageable);
         if (employeeId != null) {
             List<Sale> filtered = new ArrayList<>();
-            for (Sale sale : sales) {
+            for (Sale sale : sales.getContent()) {
                 if (sale.getEmployee() != null && sale.getEmployee().getId() != null && sale.getEmployee().getId().equals(employeeId)) {
                     filtered.add(sale);
                 }
             }
-            return filtered;
+            return new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
         }
         return sales;
     }
 
     // List sales by employee only
-    public List<Sale> getSalesByEmployee(Integer employeeId) {
-        List<Sale> sales = saleRepository.findAll();
+    public Page<Sale> getSalesByEmployee(Integer employeeId, Pageable pageable) {
+        Page<Sale> sales = saleRepository.findAll(pageable);
         List<Sale> filtered = new ArrayList<>();
-        for (Sale sale : sales) {
+        for (Sale sale : sales.getContent()) {
             if (sale.getEmployee() != null && sale.getEmployee().getId() != null && sale.getEmployee().getId().equals(employeeId)) {
                 filtered.add(sale);
             }
         }
-        return filtered;
+        return new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
     }
     // List sales by a single date
-    public List<Sale> getSalesByDate(String date) {
+    public Page<Sale> getSalesByDate(String date, Pageable pageable) {
         try {
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
             java.util.Date day = (date != null && !date.isEmpty()) ? sdf.parse(date) : null;
-            if (day == null) return saleRepository.findAll();
+            if (day == null) return saleRepository.findAll(pageable);
             // Get start and end of the day
             java.util.Calendar cal = java.util.Calendar.getInstance();
             cal.setTime(day);
@@ -63,13 +65,13 @@ public class SalesService {
             cal.set(java.util.Calendar.SECOND, 59);
             cal.set(java.util.Calendar.MILLISECOND, 999);
             java.util.Date end = cal.getTime();
-            return saleRepository.findByAddedDatetimeBetween(start, end);
+            return saleRepository.findByAddedDatetimeBetween(start, end, pageable);
         } catch (Exception e) {
-            return saleRepository.findAll();
+            return saleRepository.findAll(pageable);
         }
     }
     // List sales by date range
-    public List<Sale> getSalesByDateRange(String from, String to) {
+    public Page<Sale> getSalesByDateRange(String from, String to, Pageable pageable) {
         try {
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
             java.util.Date fromDate = (from != null && !from.isEmpty()) ? sdf.parse(from) : null;
@@ -84,9 +86,9 @@ public class SalesService {
                 cal.set(java.util.Calendar.MILLISECOND, 999);
                 toDate = cal.getTime();
             }
-            return saleRepository.findByAddedDatetimeBetween(fromDate, toDate);
+            return saleRepository.findByAddedDatetimeBetween(fromDate, toDate, pageable);
         } catch (Exception e) {
-            return saleRepository.findAll();
+            return saleRepository.findAll(pageable);
         }
     }
     @Autowired
@@ -143,8 +145,8 @@ public class SalesService {
     }
 
     // List all sales
-    public List<Sale> getAllSales() {
-        return saleRepository.findAll();
+    public Page<Sale> getAllSales(Pageable pageable) {
+        return saleRepository.findAll(pageable);
     }
 
     @Transactional

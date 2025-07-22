@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -49,7 +52,7 @@ public class InventoryService {
     @Autowired
     private InventoryRepository inventoryRepository;
 
-    public List<Inventory> findAllInventory(String searchTerm, String status, String sortBy) {
+    public Page<Inventory> findAllInventory(String searchTerm, String status, String sortBy, Pageable pageable) {
         Specification<Inventory> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -90,7 +93,11 @@ public class InventoryService {
             }
         }
 
-        return inventoryRepository.findAll(spec, sort);
+        Pageable effectivePageable = pageable;
+        if (sort.isSorted()) {
+            effectivePageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        }
+        return inventoryRepository.findAll(spec, effectivePageable);
     }
 
     public Inventory createInventory(Inventory inventory) {

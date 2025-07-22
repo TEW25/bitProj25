@@ -24,8 +24,11 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public org.springframework.data.domain.Page<User> getAllUsers(
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "10") int size) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        return userRepository.findAll(pageable);
     }
 
     @GetMapping("/{id}")

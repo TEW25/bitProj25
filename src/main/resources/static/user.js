@@ -116,12 +116,15 @@ $(document).on('submit', '#userForm', function(e) {
 });
 
 function loadUsers() {
-    // TODO: AJAX call to fetch users
-    // Example static data:
+    // Pagination state
+    if (typeof window.userCurrentPage === 'undefined') window.userCurrentPage = 0;
+    if (typeof window.userPageSize === 'undefined') window.userPageSize = 10;
+    var page = window.userCurrentPage;
+    var size = window.userPageSize;
     $.ajax({
-        url: '/api/users',
+        url: `/api/users?page=${page}&size=${size}`,
         method: 'GET',
-        success: function(users) {
+        success: function(data) {
             // Fetch user statuses for mapping
             $.ajax({
                 url: '/api/userstatus',
@@ -129,10 +132,10 @@ function loadUsers() {
                 success: function(statuses) {
                     var statusMap = {};
                     statuses.forEach(function(s) { statusMap[s.id] = s.name; });
-                    var rows = users.map(function(u, i) {
+                    var rows = data.content.map(function(u, i) {
                         var statusName = statusMap[u.status] || u.status || '';
                         return `<tr>
-                            <td>${i+1}</td>
+                            <td>${(page * size) + i + 1}</td>
                             <td>${u.username || ''}</td>
                             <td>${statusName}</td>
                             <td>${u.employee && u.employee.fullname ? u.employee.fullname : ''}</td>
@@ -143,6 +146,7 @@ function loadUsers() {
                         </tr>`;
                     }).join('');
                     $('#userTableBody').html(rows);
+                    renderUserPaginationBar(data);
                 },
                 error: function() {
                     $('#userTableBody').html('<tr><td colspan="5">Failed to load user statuses.</td></tr>');
@@ -151,9 +155,42 @@ function loadUsers() {
         },
         error: function() {
             $('#userTableBody').html('<tr><td colspan="5">Failed to load users.</td></tr>');
+            $('#userPaginationBar').empty();
         }
     });
 }
+
+// Render Bootstrap pagination bar for users
+function renderUserPaginationBar(pageData) {
+    const paginationBar = $('#userPaginationBar');
+    paginationBar.empty();
+    if (!pageData || pageData.totalPages <= 1) return;
+    var currentPage = pageData.number;
+    var totalPages = pageData.totalPages;
+    // Previous button
+    paginationBar.append('<li class="page-item' + (pageData.first ? ' disabled' : '') + '"><a class="page-link" href="#" data-page="' + (currentPage - 1) + '">Previous</a></li>');
+    // Page numbers (show up to 5 pages around current)
+    let start = Math.max(0, currentPage - 2);
+    let end = Math.min(totalPages - 1, currentPage + 2);
+    if (currentPage < 2) end = Math.min(4, totalPages - 1);
+    if (currentPage > totalPages - 3) start = Math.max(0, totalPages - 5);
+    for (let i = start; i <= end; i++) {
+        paginationBar.append('<li class="page-item' + (i === currentPage ? ' active' : '') + '"><a class="page-link" href="#" data-page="' + i + '">' + (i + 1) + '</a></li>');
+    }
+    // Next button
+    paginationBar.append('<li class="page-item' + (pageData.last ? ' disabled' : '') + '"><a class="page-link" href="#" data-page="' + (currentPage + 1) + '">Next</a></li>');
+}
+
+// Handle pagination bar click
+$(document).on('click', '#userPaginationBar a.page-link', function(e) {
+    e.preventDefault();
+    var page = parseInt($(this).data('page'));
+    if (!isNaN(page) && page >= 0 && page !== window.userCurrentPage) {
+        window.userCurrentPage = page;
+        loadUsers();
+    }
+});
+
 
 function editUser(id) {
     // TODO: AJAX call to get user by id

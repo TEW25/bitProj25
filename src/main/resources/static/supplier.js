@@ -1,7 +1,14 @@
 $(document).ready(function() {
-    // Function to load suppliers into the table
-    function loadSuppliers(statusId = '', supplierName = '') {
-        const params = {};
+    // Function to load suppliers into the table with pagination
+    function loadSuppliers(statusId = '', supplierName = '', page = 0, size = 10) {
+        lastStatusId = statusId;
+        lastSupplierName = supplierName;
+        currentPage = page;
+        pageSize = size;
+        const params = {
+            page: page,
+            size: size
+        };
         if (statusId) {
             params.statusId = statusId;
         }
@@ -12,13 +19,14 @@ $(document).ready(function() {
         $.ajax({
             url: '/api/suppliers',
             method: 'GET',
-            data: params, // Pass filter and search parameters
+            data: params, // Pass filter, search, and pagination parameters
             success: function(data) {
+                // data is a Page object: { content, totalPages, number, size, totalElements }
                 $('#supplierTableBody').empty(); // Clear existing rows
-                if (data.length === 0) {
+                if (!data.content || data.content.length === 0) {
                     $('#supplierTableBody').append('<tr><td colspan="6">No suppliers found.</td></tr>');
                 } else {
-                    data.forEach(function(supplier) {
+                    data.content.forEach(function(supplier) {
                         $('#supplierTableBody').append(
                             '<tr>' +
                             '<td>' + supplier.id + '</td>' +
@@ -34,12 +42,58 @@ $(document).ready(function() {
                         );
                     });
                 }
+                // Update pagination controls
+                totalPages = data.totalPages;
+                renderPaginationControls(data.number, data.totalPages, data.totalElements);
             },
             error: function(error) {
                 console.error('Error loading suppliers:', error);
                 $('#supplierTableBody').html('<tr><td colspan="6">Error loading suppliers.</td></tr>');
+                $('#paginationControls').hide();
             }
         });
+    }
+
+    // Function to render Bootstrap-styled pagination controls
+    function renderPaginationControls(page, totalPages, totalElements) {
+        let container = $('#paginationControls');
+        if (container.length === 0) {
+            // Create container if not exists
+            $('.card.shadow-sm').after('<div id="paginationControls" class="d-flex justify-content-center my-3"></div>');
+            container = $('#paginationControls');
+        }
+        if (totalPages > 1 || totalElements > pageSize) {
+            let html = `
+                <nav aria-label="Supplier pagination">
+                  <ul class="pagination">
+                    <li class="page-item ${page === 0 ? 'disabled' : ''}">
+                      <button class="page-link" id="prevPageBtn">Previous</button>
+                    </li>
+                    <li class="page-item disabled">
+                      <span class="page-link" id="pageInfo">Page ${page + 1} of ${totalPages} (${totalElements} suppliers)</span>
+                    </li>
+                    <li class="page-item ${page >= totalPages - 1 ? 'disabled' : ''}">
+                      <button class="page-link" id="nextPageBtn">Next</button>
+                    </li>
+                  </ul>
+                </nav>
+            `;
+            container.html(html);
+            // Attach event listeners
+            $('#prevPageBtn').off('click').on('click', function() {
+                if (currentPage > 0) {
+                    loadSuppliers(lastStatusId, lastSupplierName, currentPage - 1, pageSize);
+                }
+            });
+            $('#nextPageBtn').off('click').on('click', function() {
+                if (currentPage < totalPages - 1) {
+                    loadSuppliers(lastStatusId, lastSupplierName, currentPage + 1, pageSize);
+                }
+            });
+            container.show();
+        } else {
+            container.hide();
+        }
     }
 
     // Function to load dropdown options (e.g., supplier statuses)
