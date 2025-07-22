@@ -100,30 +100,61 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Call this when add modal is opened
     $('#addInventoryModal').on('show.bs.modal', function () {
-        // Populate item dropdown
-        fetch('/api/items')
-            .then(response => response.json())
-            .then(items => {
-                const itemSelect = document.getElementById('addItemSelect');
-                if (!itemSelect) return;
-                itemSelect.innerHTML = '<option value="">-- Select Item --</option>';
-                items.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item.id;
-                    option.textContent = `${item.itemcode} - ${item.itemname}`;
-                    option.dataset.itemcode = item.itemcode || '';
-                    itemSelect.appendChild(option);
-                });
-                // Auto-fill inventory code with INV + random 6 digits when item is selected
-                itemSelect.addEventListener('change', function () {
-                    const inventoryCodeInput = document.getElementById('addInventoryCode');
-                    if (inventoryCodeInput) {
-                        // Generate random 6 digit number
-                        const randomDigits = Math.floor(100000 + Math.random() * 900000);
-                        inventoryCodeInput.value = 'INV' + randomDigits;
+        // Populate item dropdown with pagination
+        let itemPage = 0;
+        const itemSize = 50;
+        const itemSelect = document.getElementById('addItemSelect');
+        if (!itemSelect) return;
+        function fetchItems(page) {
+            fetch(`/api/items?page=${page}&size=${itemSize}`)
+                .then(response => response.json())
+                .then(data => {
+                    const items = data.content || [];
+                    if (page === 0) {
+                        itemSelect.innerHTML = '<option value="">-- Select Item --</option>';
                     }
+                    items.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.textContent = `${item.itemcode} - ${item.itemname}`;
+                        option.dataset.itemcode = item.itemcode || '';
+                        itemSelect.appendChild(option);
+                    });
+                    // Add Load More button if more pages
+                    if (!data.last) {
+                        if (!document.getElementById('loadMoreItemBtn')) {
+                            const btn = document.createElement('button');
+                            btn.type = 'button';
+                            btn.className = 'btn btn-link';
+                            btn.id = 'loadMoreItemBtn';
+                            btn.textContent = 'Load More';
+                            itemSelect.parentNode.appendChild(btn);
+                        }
+                        document.getElementById('loadMoreItemBtn').onclick = function() {
+                            itemPage++;
+                            fetchItems(itemPage);
+                        };
+                    } else {
+                        const btn = document.getElementById('loadMoreItemBtn');
+                        if (btn) btn.remove();
+                    }
+                })
+                .catch(() => {
+                    itemSelect.innerHTML = '<option value="">Failed to load items</option>';
+                    const btn = document.getElementById('loadMoreItemBtn');
+                    if (btn) btn.remove();
                 });
-            });
+        }
+        fetchItems(itemPage);
+        // Auto-fill inventory code with INV + random 6 digits when item is selected
+        itemSelect.addEventListener('change', function () {
+            const inventoryCodeInput = document.getElementById('addInventoryCode');
+            if (inventoryCodeInput) {
+                // Generate random 6 digit number
+                const randomDigits = Math.floor(100000 + Math.random() * 900000);
+                inventoryCodeInput.value = 'INV' + randomDigits;
+            }
+        });
     });
     if (addItemSearch) {
         addItemSearch.value = '';

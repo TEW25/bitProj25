@@ -65,20 +65,41 @@ $(document).ready(function() {
         $('#linePrice').val('');
         $('#addItemBtn').prop('disabled', true);
 
-        $.ajax({
-            url: '/api/items',
-            method: 'GET',
-            success: function(items) {
-                items.forEach(item => {
-                    itemSelect.append(`<option value="${item.id}" data-price="${item.purchaseprice}">${item.itemcode} - ${item.itemname}</option>`);
-                });
-                itemSelect.prop('disabled', false);
-            },
-            error: function(error) {
-                console.error('Error loading items:', error);
-                alert('Failed to load items.');
-            }
-        });
+        let itemPage = 0;
+        const itemSize = 20;
+        function fetchItems(page) {
+            $.ajax({
+                url: `/api/items?page=${page}&size=${itemSize}`,
+                method: 'GET',
+                success: function(data) {
+                    const items = data.content || [];
+                    if (page === 0) {
+                        itemSelect.empty().append('<option value="">-- Select an Item --</option>');
+                    }
+                    items.forEach(item => {
+                        itemSelect.append(`<option value="${item.id}" data-price="${item.purchaseprice}">${item.itemcode} - ${item.itemname}</option>`);
+                    });
+                    // Add Load More button if more pages
+                    if (!data.last) {
+                        if (!$('#loadMoreItemBtn').length) {
+                            itemSelect.parent().append('<button type="button" class="btn btn-link" id="loadMoreItemBtn">Load More</button>');
+                        }
+                        $('#loadMoreItemBtn').off('click').on('click', function() {
+                            itemPage++;
+                            fetchItems(itemPage);
+                        });
+                    } else {
+                        $('#loadMoreItemBtn').remove();
+                    }
+                    itemSelect.prop('disabled', false);
+                },
+                error: function(error) {
+                    itemSelect.empty().append('<option value="">Failed to load items</option>');
+                    $('#loadMoreItemBtn').remove();
+                }
+            });
+        }
+        fetchItems(itemPage);
     }
 
     // Function to load items based on filters
@@ -90,29 +111,47 @@ $(document).ready(function() {
         $('#linePrice').val('');
         $('#addItemBtn').prop('disabled', true);
 
-        const filters = {};
-        if (brandId) {
-            filters.brandId = brandId;
+        let itemPage = 0;
+        const itemSize = 20;
+        function fetchItems(page) {
+            const filters = {};
+            if (brandId) filters.brandId = brandId;
+            if (categoryId) filters.categoryId = categoryId;
+            filters.page = page;
+            filters.size = itemSize;
+            $.ajax({
+                url: '/api/items',
+                method: 'GET',
+                data: filters,
+                success: function(data) {
+                    const items = data.content || [];
+                    if (page === 0) {
+                        itemSelect.empty().append('<option value="">-- Select an Item --</option>');
+                    }
+                    items.forEach(item => {
+                        itemSelect.append(`<option value="${item.id}" data-price="${item.purchaseprice}">${item.itemcode} - ${item.itemname}</option>`);
+                    });
+                    // Add Load More button if more pages
+                    if (!data.last) {
+                        if (!$('#loadMoreItemBtn').length) {
+                            itemSelect.parent().append('<button type="button" class="btn btn-link" id="loadMoreItemBtn">Load More</button>');
+                        }
+                        $('#loadMoreItemBtn').off('click').on('click', function() {
+                            itemPage++;
+                            fetchItems(itemPage);
+                        });
+                    } else {
+                        $('#loadMoreItemBtn').remove();
+                    }
+                    itemSelect.prop('disabled', false);
+                },
+                error: function(error) {
+                    itemSelect.empty().append('<option value="">Failed to load items</option>');
+                    $('#loadMoreItemBtn').remove();
+                }
+            });
         }
-        if (categoryId) {
-            filters.categoryId = categoryId;
-        }
-
-        $.ajax({
-            url: '/api/items',
-            method: 'GET',
-            data: filters,
-            success: function(items) {
-                items.forEach(item => {
-                    itemSelect.append(`<option value="${item.id}" data-price="${item.purchaseprice}">${item.itemcode} - ${item.itemname}</option>`);
-                });
-                itemSelect.prop('disabled', false);
-            },
-            error: function(error) {
-                console.error('Error loading items:', error);
-                alert('Failed to load items.');
-            }
-        });
+        fetchItems(itemPage);
     }
 
     // Event listener for supplier selection change

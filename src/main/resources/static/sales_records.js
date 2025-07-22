@@ -23,7 +23,7 @@ function addDateFilterUI() {
         <label class="mr-2">Date: <input type="date" id="filterDate" class="mr-2"></label>
         <button class="btn btn-primary btn-sm" id="filterBtn">Filter</button>
         <button class="btn btn-secondary btn-sm ml-2" id="clearFilterBtn">Clear</button>
-        <button class="btn btn-success btn-sm ml-2" id="exportExcelBtn"><i class="bi bi-file-earmark-excel"></i> Export as Excel</button>
+        <button class="btn btn-success btn-sm ml-2" id="exportExcelBtn" style="display:none"><i class="bi bi-file-earmark-excel"></i> Export as Excel</button>
     `;
         // Insert above the table if possible
         const table = document.getElementById('salesTable');
@@ -44,9 +44,18 @@ function addDateFilterUI() {
         fetchSales(todayStr);
     };
 
-    document.getElementById('exportExcelBtn').onclick = function() {
-        exportTableToExcelXLSX('salesTable', 'sales_records');
-    };
+    // Check designation_id and show export button only for designation_id=1
+    fetch('/api/auth/status')
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+            if (data && data.designation_id === 1) {
+                const exportBtn = document.getElementById('exportExcelBtn');
+                exportBtn.style.display = '';
+                exportBtn.onclick = function() {
+                    exportTableToExcelXLSX('salesTable', 'sales_records');
+                };
+            }
+        });
 }
 
 // Export table to real .xlsx using SheetJS

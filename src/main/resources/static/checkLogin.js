@@ -18,7 +18,6 @@ async function checkLogin() {
             if (!window.location.pathname.startsWith('/sales')) {
                 window.location.href = '/sales';
             }
-            // If already on /sales, do nothing (allow access)
             return;
         }
     } catch (e) {

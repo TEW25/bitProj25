@@ -215,20 +215,45 @@ function deleteUser(id) {
 }
 
 function loadEmployeeOptions(selectedId) {
-    // AJAX call to fetch employees from backend
-    $.ajax({
-        url: '/api/employees',
-        method: 'GET',
-        success: function(employees) {
-            var options = employees.map(function(e) {
-                return `<option value='${e.id}' ${selectedId == e.id ? 'selected' : ''}>${e.fullname}</option>`;
-            }).join('');
-            $('#userEmployeeSelect').html(options);
-        },
-        error: function() {
-            $('#userEmployeeSelect').html('<option value="">Failed to load employees</option>');
-        }
-    });
+    // Support pagination for employee dropdown
+    var employeePage = 0;
+    var employeeSize = 30;
+    function fetchEmployees(page) {
+        $.ajax({
+            url: `/api/employees?page=${page}&size=${employeeSize}`,
+            method: 'GET',
+            success: function(data) {
+                var employees = data.content || [];
+                var options = employees.map(function(e) {
+                    return `<option value='${e.id}' ${selectedId == e.id ? 'selected' : ''}>${e.fullname}</option>`;
+                }).join('');
+                // If first page, set options; else, append
+                if (page === 0) {
+                    $('#userEmployeeSelect').html(options);
+                } else {
+                    $('#userEmployeeSelect').append(options);
+                }
+                // Add Load More button if more pages
+                if (!data.last) {
+                    if ($('#loadMoreEmployeeBtn').length === 0) {
+                        $('#userEmployeeSelect').after('<button type="button" class="btn btn-link" id="loadMoreEmployeeBtn">Load More</button>');
+                    }
+                    $('#loadMoreEmployeeBtn').off('click').on('click', function() {
+                        employeePage++;
+                        fetchEmployees(employeePage);
+                    });
+                } else {
+                    $('#loadMoreEmployeeBtn').remove();
+                }
+            },
+            error: function() {
+                $('#userEmployeeSelect').html('<option value="">Failed to load employees</option>');
+                $('#loadMoreEmployeeBtn').remove();
+            }
+        });
+    }
+    // Initial fetch
+    fetchEmployees(employeePage);
 }
 
 // Load users when user tab is shown

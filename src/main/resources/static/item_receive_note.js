@@ -1,42 +1,41 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Purchase Order Search Logic ---
-    let allPurchaseOrders = [];
+    let purchaseOrderPage = 0;
+    const purchaseOrderSize = 20;
+    let lastQuery = '';
+    let lastResults = [];
+    let lastPageData = null;
     const purchaseOrderSearch = document.getElementById('purchaseOrderSearch');
     const purchaseOrderResults = document.getElementById('purchaseOrderResults');
     const selectedPurchaseOrderId = document.getElementById('selectedPurchaseOrderId');
     const formErrorMsg = document.getElementById('formErrorMsg');
 
-    // Fetch all purchase orders for searching
-    fetch('/api/purchaseorders')
-        .then(response => response.json())
-        .then(data => {
-            allPurchaseOrders = data;
-        })
-        .catch(error => {
-            console.error('Error fetching purchase orders for search:', error);
-        });
-
-    purchaseOrderSearch.addEventListener('input', function() {
-        const query = this.value.trim().toLowerCase();
-        if (!query) {
-            purchaseOrderResults.style.display = 'none';
-            purchaseOrderResults.innerHTML = '';
-            selectedPurchaseOrderId.value = '';
-            clearReceivedItemsTable();
-            return;
+    function fetchPurchaseOrders(query, page = 0) {
+        let url = `/api/purchaseorders?page=${page}&size=${purchaseOrderSize}`;
+        if (query) {
+            url += `&search=${encodeURIComponent(query)}`;
         }
-        const filtered = allPurchaseOrders
-            .filter(po => po.porderstatus_id === 1 || (po.porderstatus && po.porderstatus.id === 1))
-            .filter(po =>
-                (po.purchaseordercode && po.purchaseordercode.toLowerCase().includes(query)) ||
-                (po.requireddate && po.requireddate.toLowerCase().includes(query))
-            );
-        if (filtered.length === 0) {
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                lastPageData = data;
+                let filtered = (data.content || []).filter(po => po.porderstatus_id === 1 || (po.porderstatus && po.porderstatus.id === 1));
+                lastResults = page === 0 ? filtered : lastResults.concat(filtered);
+                renderPurchaseOrderResults(lastResults, data);
+            })
+            .catch(error => {
+                console.error('Error fetching purchase orders for search:', error);
+                purchaseOrderResults.innerHTML = '<div class="list-group-item">Error loading purchase orders</div>';
+                purchaseOrderResults.style.display = 'block';
+            });
+    }
+
+    function renderPurchaseOrderResults(results, pageData) {
+        if (!results || results.length === 0) {
             purchaseOrderResults.innerHTML = '<div class="list-group-item">No results found</div>';
         } else {
-            purchaseOrderResults.innerHTML = filtered.map(po => {
+            purchaseOrderResults.innerHTML = results.map(po => {
                 let dateStr = '';
-                // Use requireddate field for purchase order date
                 if (po.requireddate) {
                     dateStr = po.requireddate;
                 } else if (po.date) {
@@ -46,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (po.createdDate) {
                     dateStr = po.createdDate;
                 }
-                // Optionally format date if it's in ISO format
                 if (dateStr && dateStr.length >= 10) {
                     dateStr = dateStr.substring(0, 10);
                 }
@@ -54,8 +52,42 @@ document.addEventListener('DOMContentLoaded', () => {
                     <strong>${po.purchaseordercode}${dateStr ? ' - ' + dateStr : ''}</strong>
                 </button>`;
             }).join('');
+            // Add Load More button if more pages
+            if (pageData && !pageData.last) {
+                purchaseOrderResults.innerHTML += '<button type="button" class="list-group-item list-group-item-action" id="loadMorePurchaseOrderBtn">Load More</button>';
+            }
         }
         purchaseOrderResults.style.display = 'block';
+    }
+
+    purchaseOrderSearch.addEventListener('input', function() {
+        const query = this.value.trim().toLowerCase();
+        lastQuery = query;
+        purchaseOrderPage = 0;
+        lastResults = [];
+        if (!query) {
+            purchaseOrderResults.style.display = 'none';
+            purchaseOrderResults.innerHTML = '';
+            selectedPurchaseOrderId.value = '';
+            clearReceivedItemsTable();
+            return;
+        }
+        fetchPurchaseOrders(query, purchaseOrderPage);
+    });
+
+    purchaseOrderResults.addEventListener('click', function(e) {
+        if (e.target.closest('button[data-id]')) {
+            const btn = e.target.closest('button[data-id]');
+            const poId = btn.getAttribute('data-id');
+            const poCode = btn.getAttribute('data-code');
+            purchaseOrderSearch.value = poCode;
+            selectedPurchaseOrderId.value = poId;
+            purchaseOrderResults.style.display = 'none';
+            fetchPurchaseOrderDetails(poId);
+        } else if (e.target.id === 'loadMorePurchaseOrderBtn') {
+            purchaseOrderPage++;
+            fetchPurchaseOrders(lastQuery, purchaseOrderPage);
+        }
     });
 
     // Handle selection from popup
