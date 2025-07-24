@@ -208,9 +208,16 @@ function editUser(id) {
 
 function deleteUser(id) {
     if(confirm('Delete this user?')) {
-        // TODO: AJAX call to delete user
-        alert('User deleted (not really, demo only).');
-        loadUsers();
+        $.ajax({
+            url: '/api/users/' + id,
+            method: 'DELETE',
+            success: function() {
+                loadUsers();
+            },
+            error: function(xhr) {
+                alert('Failed to delete user. ' + (xhr.responseText || ''));
+            }
+        });
     }
 }
 

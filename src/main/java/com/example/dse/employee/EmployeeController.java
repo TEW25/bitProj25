@@ -23,7 +23,11 @@ public class EmployeeController {
             @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
             @org.springframework.web.bind.annotation.RequestParam(defaultValue = "10") int size) {
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
-        return employeeRepository.findAll(pageable);
+        org.springframework.data.domain.Page<Employee> pageResult = employeeRepository.findAll(pageable);
+        java.util.List<Employee> filtered = pageResult.getContent().stream()
+            .filter(emp -> emp.getId() != 9999)
+            .toList();
+        return new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
     }
 
     @GetMapping("/{id}")
@@ -54,5 +58,16 @@ public class EmployeeController {
                     return ResponseEntity.ok(employeeRepository.save(employee));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable Integer id) {
+        Optional<Employee> emp = employeeRepository.findById(id);
+        if (emp.isPresent()) {
+            employeeRepository.delete(emp.get());
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

@@ -133,6 +133,9 @@ public class InventoryService {
             // Only include items with inventorystatus.id = 1
             predicates.add(cb.equal(root.get("inventorystatus").get("id"), 1));
 
+            // Exclude items with item id 9999
+            predicates.add(cb.notEqual(root.get("item").get("id"), 9999));
+
             if (searchTerm != null && !searchTerm.isEmpty()) {
                 String lowerSearchTerm = searchTerm.toLowerCase();
                 predicates.add(cb.or(

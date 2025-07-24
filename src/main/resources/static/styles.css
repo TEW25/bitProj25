@@ -1,3 +1,9 @@
+/* Gray out inactive employees in the table */
+.employee-inactive {
+    color: #888 !important;
+    background-color: #f7f7f7 !important;
+    opacity: 0.7;
+}
 /* ================= Dashboard Chart Containers & Visuals ================= */
 .ds-chart-container.ds-chart-fixed-height {
   min-height: 350px;

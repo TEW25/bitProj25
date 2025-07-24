@@ -178,17 +178,22 @@ public class SalesService {
                 refundTotal = refundTotal.add(BigDecimal.valueOf(item.getSalesPrice()).multiply(BigDecimal.valueOf(item.getRefundQty())));
             }
         }
-        // Reduce paid amount
-        sale.setPaid_amount(sale.getPaid_amount().subtract(BigDecimal.valueOf(refundRequest.getPaidBack())));
+        // Reduce paid amount (subtract paidBack, but do not allow negative paid_amount)
+        BigDecimal newPaidAmount = sale.getPaid_amount().subtract(BigDecimal.valueOf(refundRequest.getPaidBack()));
+        if (newPaidAmount.compareTo(BigDecimal.ZERO) < 0) {
+            newPaidAmount = BigDecimal.ZERO;
+        }
+        sale.setPaid_amount(newPaidAmount);
         // Recalculate subtotal
         BigDecimal newSubtotal = BigDecimal.ZERO;
         for (ItemHasSale i : sale.getItems()) {
             newSubtotal = newSubtotal.add(i.getSales_price().multiply(i.getQuantity()));
         }
         sale.setSubtotal(newSubtotal);
-        // Recalculate total (subtotal - discount)
-        BigDecimal discount = sale.getDiscount() != null ? sale.getDiscount() : BigDecimal.ZERO;
-        sale.setTotal_amount(newSubtotal.subtract(discount));
+        // Recalculate total (apply discount as percentage)
+        BigDecimal discountPercent = sale.getDiscount() != null ? sale.getDiscount() : BigDecimal.ZERO;
+        BigDecimal discountAmount = newSubtotal.multiply(discountPercent).divide(BigDecimal.valueOf(100));
+        sale.setTotal_amount(newSubtotal.subtract(discountAmount));
         // Recalculate balance
         sale.setBalanceAmount(sale.getTotal_amount().subtract(sale.getPaid_amount()));
         saleRepository.save(sale);

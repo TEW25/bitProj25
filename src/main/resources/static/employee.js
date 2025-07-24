@@ -204,7 +204,8 @@ function loadEmployees() {
                             var rows = data.content.map(function(e, i) {
                                 var statusName = statusMap[e.employeestatus_id] || e.employeestatus_id || '';
                                 var designationName = designationMap[e.designation_id] || e.designation_id || '';
-                                return `<tr>
+                                var rowClass = (e.employeestatus_id != 1) ? 'employee-inactive' : '';
+                                return `<tr class='${rowClass}'>
                                     <td>${(page * size) + i + 1}</td>
                                     <td>${e.employee_number || ''}</td>
                                     <td>${e.fullname || ''}</td>
@@ -288,9 +289,17 @@ function editEmployee(id) {
 
 function deleteEmployee(id) {
     if(confirm('Delete this employee?')) {
-        // TODO: AJAX call to delete employee
-        alert('Employee deleted (not really, demo only).');
-        loadEmployees();
+        $.ajax({
+            url: '/api/employees/' + id,
+            method: 'DELETE',
+            success: function() {
+                alert('Employee deleted successfully.');
+                loadEmployees();
+            },
+            error: function(xhr) {
+                alert('Failed to delete employee. ' + (xhr.responseText || ''));
+            }
+        });
     }
 }
 

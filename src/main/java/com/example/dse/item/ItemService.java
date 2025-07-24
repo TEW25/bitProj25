@@ -20,7 +20,7 @@ public class ItemService {
         .getContent();
     if (items != null && !items.isEmpty()) {
         for (Item item : items) {
-            if (item.getItemcode().equalsIgnoreCase(itemcode)) {
+            if (item.getItemcode().equalsIgnoreCase(itemcode) && item.getId() != 9999) {
                 return item;
             }
         }
@@ -35,7 +35,9 @@ public class ItemService {
     private SupplierHasItemRepository supplierHasItemRepository;
 
     public Page<Item> getAllItems(Integer brandId, Integer statusId, Integer categoryId, String searchTerm, Pageable pageable) {
-    return itemRepository.findFilteredItems(brandId, statusId, categoryId, searchTerm, pageable);
+    Page<Item> page = itemRepository.findFilteredItems(brandId, statusId, categoryId, searchTerm, pageable);
+    List<Item> filtered = page.getContent().stream().filter(item -> item.getId() != 9999).toList();
+    return new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
 }
 
     public Optional<Item> getItemById(Integer id) {
@@ -72,19 +74,23 @@ public class ItemService {
 
     public List<Item> getItemsBySupplierId(Integer supplierId) {
         // Find all SupplierHasItem entries for the given supplierId
-        List<SupplierHasItem> supplierItems = supplierHasItemRepository.findBySupplierId(supplierId);
+    List<SupplierHasItem> supplierItems = supplierHasItemRepository.findBySupplierId(supplierId);
 
-        // Extract Item objects from the SupplierHasItem entries
-        List<Item> items = new java.util.ArrayList<>();
-        for (SupplierHasItem supplierItem : supplierItems) {
-            // Fetch the full Item object using the itemRepository
-            itemRepository.findById(supplierItem.getItem().getId()).ifPresent(items::add);
-        }
-        return items;
+    // Extract Item objects from the SupplierHasItem entries
+    List<Item> items = new java.util.ArrayList<>();
+    for (SupplierHasItem supplierItem : supplierItems) {
+        // Fetch the full Item object using the itemRepository
+        itemRepository.findById(supplierItem.getItem().getId())
+            .filter(item -> item.getId() != 9999)
+            .ifPresent(items::add);
+    }
+    return items;
     }
 
     
     public Page<Item> findAllItems(Pageable pageable) {
-        return itemRepository.findAll(pageable);
+    Page<Item> page = itemRepository.findAll(pageable);
+    List<Item> filtered = page.getContent().stream().filter(item -> item.getId() != 9999).toList();
+    return new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
     }
 }
