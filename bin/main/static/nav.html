@@ -1,0 +1,57 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-primary">
+    <!-- <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;"></nav> -->
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-uppercase" href="/dashboard" style="font-size:2rem; letter-spacing:0.1em; color:#fff; background:linear-gradient(90deg,#007bff 60%,#00c6ff 100%); padding:0.1em 0.7em; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); line-height:1;">DSE</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-4 me-auto mb-0 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/employee">User Management</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/manage_items">Items</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/manage_supplier">Supplier Management</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/manage_inventory">Inventory</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/sales">Sales</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/sales_records">Sales Records</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/purchase_order">Purchase Order</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/purchase_order_records">Purchase Order Records</a>
+                </li>
+
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="/item_receive_note">GRN</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/grn_records">GRN Records</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Category-Brand">Category-Brand</a>
+                </li>
+
+            </ul>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span id="navbar-username">User</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
