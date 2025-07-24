@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             document.getElementById('kpi-total-revenue').textContent = (data.totalRevenue ? data.totalRevenue + ' LKR' : '-');
             document.getElementById('kpi-number-orders').textContent = data.numberOfOrders ?? '-';
-            document.getElementById('kpi-aov').textContent = (data.averageOrderValue ? data.averageOrderValue + ' LKR' : '-');
+            document.getElementById('kpi-aov').textContent = (data.averageOrderValue ? Math.floor(data.averageOrderValue) + ' LKR' : '-');
             document.getElementById('kpi-low-stock').textContent = data.lowStockItems ?? '-';
         })
         .catch(() => {

@@ -41,6 +41,7 @@ async function populateSupplierDropdown() {
     }
 }
 function renderTable(records) {
+    // Records are rendered in the order received from backend (sorted by date descending, newest first)
     const tbody = document.querySelector('#irnTable tbody');
     tbody.innerHTML = '';
     if (!records || records.length === 0) {

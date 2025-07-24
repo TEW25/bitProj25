@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,8 +71,9 @@ public class PurchaseOrderService {
     }
 
     public Page<PurchaseOrder> getAllPurchaseOrders(Pageable pageable) {
-        Page<PurchaseOrder> ordersPage = purchaseOrderRepository.findAllWithSupplier(pageable);
-        // Optionally sort by requireddate descending if not handled by JPA
+        // Ensure sorting by requireddate descending
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), org.springframework.data.domain.Sort.by("requireddate").descending());
+        Page<PurchaseOrder> ordersPage = purchaseOrderRepository.findAllWithSupplier(sortedPageable);
         return ordersPage;
     }
 
