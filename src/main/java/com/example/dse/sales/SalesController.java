@@ -30,20 +30,18 @@ public class SalesController {
     @GetMapping
     public ResponseEntity<Page<Sale>> getAllSales(
             @RequestParam(value = "date", required = false) String date,
-            @RequestParam(value = "employeeId", required = false) Integer employeeId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Sale> sales;
         if (date != null && !date.isEmpty()) {
-            sales = salesService.getSalesByDateAndEmployee(date, employeeId, pageable);
-        } else if (employeeId != null) {
-            sales = salesService.getSalesByEmployee(employeeId, pageable);
-        } else {
-            sales = salesService.getAllSales(pageable);
+            sales = salesService.getSalesByDate(date, pageable);
+            } else {
+                // return ALL sales
+                sales = salesService.getAllSales(pageable);
+            }
+            return ResponseEntity.ok(sales);
         }
-        return ResponseEntity.ok(sales);
-    }
 
     // Get sale by id with details
     @GetMapping("/{id}")

@@ -15,6 +15,7 @@ document.addEventListener('click', function(e) {
 
 let loggedInUserId = null;
 let loggedInUserDesignationId = null;
+let loggedInEmpId = null;
 let historyCurrentPage = 0;
 let historyPageSize = 10;
 let historyLastDate = null;
@@ -30,7 +31,8 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             loggedInUserId = data.user_id;
             loggedInUserDesignationId = data.designation_id;
-            console.log('[Sales] Logged-in user ID:', loggedInUserId, 'Designation ID:', loggedInUserDesignationId);
+            loggedInEmpId = data.emp_id;
+            console.log('[Sales] Logged-in user ID:', loggedInUserId, 'Designation ID:', loggedInUserDesignationId) ;
             // Set salesHistoryDate to today
             const salesHistoryDateInput = document.getElementById('salesHistoryDate');
             if (salesHistoryDateInput) {
@@ -48,7 +50,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
         .catch(() => {
-            // fallback: redirect to login or show error
             window.location.href = '/login';
         });
 });

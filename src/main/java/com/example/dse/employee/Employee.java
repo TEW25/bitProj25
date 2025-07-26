@@ -24,6 +24,7 @@ public class Employee {
 
     // Getters and setters
     public Integer getId() { return id; }
+    public Integer getEId() { return id; }
     public void setId(Integer id) { this.id = id; }
     public String getEmployee_number() { return employee_number; }
     public void setEmployee_number(String employee_number) { this.employee_number = employee_number; }

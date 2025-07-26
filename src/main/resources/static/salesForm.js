@@ -202,10 +202,12 @@ function submitSale() {
     const paymentType = document.getElementById('paymentType').value;
     // Get employeeId from global variable (set in sales.js)
     let employeeId = null;
-    if (typeof loggedInUserId !== 'undefined' && loggedInUserId !== null) {
-        employeeId = loggedInUserId;
-    } else if (window.loggedInUserId) {
-        employeeId = window.loggedInUserId;
+    if (typeof loggedInEmpId !== 'undefined' && loggedInEmpId !== null) {
+        employeeId = loggedInEmpId;
+        console.log(employeeId)
+    } else if (window.loggedInEmpId) {
+        employeeId = window.loggedInEmpId;
+        console.log(employeeId)
     }
     const sale = {
         subtotal: subtotal,

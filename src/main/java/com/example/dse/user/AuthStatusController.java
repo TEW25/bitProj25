@@ -28,6 +28,7 @@ public class AuthStatusController {
                     result.put("user_id", user.getId());
                     result.put("fullname", emp != null ? emp.getFullname() : null);
                     result.put("designation_id", emp != null ? emp.getDesignation_id() : null);
+                    result.put("emp_id", emp != null ? emp.getEId() : null);
                     return ResponseEntity.ok(result);
                 })
                 .orElseGet(() -> {

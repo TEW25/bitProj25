@@ -207,6 +207,6 @@ public class SalesService {
 
     private String generateSalesNumber() {
         long count = saleRepository.count() + 1;
-        return String.format("SAL%03d", count);
+        return String.format("SAL%05d", count);
     }
 }

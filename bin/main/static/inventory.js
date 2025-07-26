@@ -231,7 +231,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         document.getElementById('editInventoryModalLabel').textContent = 'Edit Inventory Item';
                         document.getElementById('editInventoryId').value = item.id ?? '';
                         document.getElementById('editQuantityInput').value = item.availableqty ?? '';
-                        document.getElementById('editTotalQtyInput').value = item.totalqty ?? '';
                         const statusSelect = document.getElementById('editTransactionStatusSelect');
                         fetch('/api/inventorystatus')
                             .then(resp => resp.json())
@@ -357,7 +356,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td>${item.item ? (item.item.itemcode ?? '') : ''}</td>
                         <td>${item.item ? (item.item.itemname ?? '') : ''}</td>
                         <td>${item.availableqty ?? ''}</td>
-                        <td>${item.totalqty ?? ''}</td>
                         <td>${item.inventorystatus ? (item.inventorystatus.name ?? '') : ''}</td>
                         <td>
                             <button class="btn btn-sm btn-warning edit-inventory-btn" data-id="${item.id ?? ''}">Edit</button>
@@ -427,7 +425,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const inventorycode = inventoryCodeInput ? inventoryCodeInput.value : '';
             // Use correct input IDs for available and total qty
             const availableqtyStr = document.getElementById('addAvailableQty') ? document.getElementById('addAvailableQty').value : '';
-            const totalqtyStr = document.getElementById('addTotalQty') ? document.getElementById('addTotalQty').value : '';
             const statusId = document.getElementById('addStatusSelect') ? document.getElementById('addStatusSelect').value : '';
 
             // Stricter validation
@@ -450,24 +447,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Available Qty is required and must be a number.');
                 return;
             }
-            if (totalqtyStr === '' || isNaN(totalqtyStr)) {
-                alert('Total Qty is required and must be a number.');
-                return;
-            }
+
             const availableqty = parseFloat(availableqtyStr);
-            const totalqty = parseFloat(totalqtyStr);
-            if (availableqty < 0) {
-                alert('Available Qty must be a non-negative number.');
-                return;
-            }
-            if (totalqty < 0) {
-                alert('Total Qty must be a non-negative number.');
-                return;
-            }
-            if (availableqty > totalqty) {
-                alert('Available Qty cannot exceed Total Qty.');
-                return;
-            }
+            const totalqty = 1000;
+
+            
+
             if (!statusId) {
                 alert('Status is required.');
                 return;
@@ -508,7 +493,6 @@ document.addEventListener('DOMContentLoaded', function () {
             // Get form values for edit
             const id = document.getElementById('editInventoryId').value;
             const availableqtyStr = document.getElementById('editQuantityInput').value;
-            const totalqtyStr = document.getElementById('editTotalQtyInput').value;
             const statusName = document.getElementById('editTransactionStatusSelect').value;
 
             // Stricter validation
@@ -520,24 +504,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Available Qty is required and must be a number.');
                 return;
             }
-            if (totalqtyStr === '' || isNaN(totalqtyStr)) {
-                alert('Total Qty is required and must be a number.');
-                return;
-            }
+
             const availableqty = parseFloat(availableqtyStr);
-            const totalqty = parseFloat(totalqtyStr);
             if (availableqty < 0) {
                 alert('Available Qty must be a non-negative number.');
                 return;
             }
-            if (totalqty < 0) {
-                alert('Total Qty must be a non-negative number.');
-                return;
-            }
-            if (availableqty > totalqty) {
-                alert('Available Qty cannot exceed Total Qty.');
-                return;
-            }
+
+
             if (!statusName) {
                 alert('Status is required.');
                 return;
@@ -556,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const inventoryData = {
                         id: id,
                         availableqty: availableqty,
-                        totalqty: totalqty,
+                        totalqty: 1000,
                         inventorystatus: { id: selectedStatus.id, name: selectedStatus.name }
                     };
                     // Send PUT request
